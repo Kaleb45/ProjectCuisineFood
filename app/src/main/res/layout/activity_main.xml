@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <Button
+        android:id="@+id/log_in"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:text="Inicio de Sesión"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"
+        />
+
+    <Button
+        android:id="@+id/sign_in"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:text="Registrarse"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+
+        />
+
+</LinearLayout>

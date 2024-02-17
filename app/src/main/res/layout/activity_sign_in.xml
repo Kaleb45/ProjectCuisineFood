@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SignIn"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <EditText
+        android:id="@+id/ed_nombre_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Nombre"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/ed_username_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Nombre de Usuario"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/ed_password_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Contraseña"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/ed_telefono_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Número de Teléfono"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/ed_email_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Correo Electrónico"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <Spinner
+        android:id="@+id/s_tipo_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:hint="Tipo de Usuario"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/ed_restaurante_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Restaurante"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/ed_codigo_signin"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Código del Restaurante"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <Button
+        android:id="@+id/b_registro_signin"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="Registrarse"
+        android:backgroundTint="@color/anaranjado"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+</LinearLayout>

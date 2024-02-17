@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="rojo_carmesi">#7D0A0A</color>
+    <color name="anaranjado">#F05941</color>
+    <color name="voleta_oscuro">#872341</color>
+    <color name="rojo_frambuesa">#BE3144</color>
+</resources>
