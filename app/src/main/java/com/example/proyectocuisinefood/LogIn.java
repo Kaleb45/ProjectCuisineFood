@@ -25,6 +25,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import SecureStorage.AESUtil;
+
 public class LogIn extends AppCompatActivity {
     EditText usuario, password;
     Button ingresar;
@@ -87,33 +89,50 @@ public class LogIn extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot document = task.getResult();
                                     if (document.exists()) {
-                                        String userType = document.getString("usertype");
-                                        if (userType != null) {
-                                            switch (userType) {
-                                                case "Administrador":
-                                                    startActivity(new Intent(LogIn.this, Admin.class));
-                                                    finish();
-                                                    break;
-                                                case "Cocinero":
-                                                    startActivity(new Intent(LogIn.this, Cocinero.class));
-                                                    finish();
-                                                    break;
-                                                case "Mesero":
-                                                    startActivity(new Intent(LogIn.this, Mesero.class));
-                                                    finish();
-                                                    break;
-                                                case "Cliente":
-                                                    startActivity(new Intent(LogIn.this, Cliente.class));
-                                                    finish();
-                                                    break;
-                                                default:
-                                                    // Tipo de usuario no reconocido
-                                                    Toast.makeText(LogIn.this, "Tipo de usuario no reconocido", Toast.LENGTH_SHORT).show();
-                                                    break;
+                                        String storedPassword = document.getString("password");
+                                        if (storedPassword != null) {
+                                            // Verificar si la contraseña cifrada coincide con la contraseña ingresada
+                                            try {
+                                                if (checkPassword(passwordUser, storedPassword)) {
+                                                    // Contraseña correcta, iniciar sesión
+                                                    String userType = document.getString("usertype");
+                                                    if (userType != null) {
+                                                        switch (userType) {
+                                                            case "Administrador":
+                                                                startActivity(new Intent(LogIn.this, Admin.class));
+                                                                finish();
+                                                                break;
+                                                            case "Cocinero":
+                                                                startActivity(new Intent(LogIn.this, Cocinero.class));
+                                                                finish();
+                                                                break;
+                                                            case "Mesero":
+                                                                startActivity(new Intent(LogIn.this, Mesero.class));
+                                                                finish();
+                                                                break;
+                                                            case "Cliente":
+                                                                startActivity(new Intent(LogIn.this, Cliente.class));
+                                                                finish();
+                                                                break;
+                                                            default:
+                                                                // Tipo de usuario no reconocido
+                                                                Toast.makeText(LogIn.this, "Tipo de usuario no reconocido", Toast.LENGTH_SHORT).show();
+                                                                break;
+                                                        }
+                                                    } else {
+                                                        // Tipo de usuario no especificado en la base de datos
+                                                        Toast.makeText(LogIn.this, "Tipo de usuario no especificado", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                } else {
+                                                    // Contraseña incorrecta
+                                                    Toast.makeText(LogIn.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
+                                                }
+                                            } catch (Exception e) {
+                                                throw new RuntimeException(e);
                                             }
                                         } else {
-                                            // Tipo de usuario no especificado en la base de datos
-                                            Toast.makeText(LogIn.this, "Tipo de usuario no especificado", Toast.LENGTH_SHORT).show();
+                                            // Contraseña no encontrada en la base de datos
+                                            Toast.makeText(LogIn.this, "Contraseña no encontrada en la base de datos", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
                                         // Documento de usuario no encontrado en la base de datos
@@ -138,6 +157,12 @@ public class LogIn extends AppCompatActivity {
         });
     }
 
+    // Método para verificar si la contraseña ingresada coincide con la contraseña cifrada
+    private boolean checkPassword(String password, String encryptedPassword) throws Exception {
+        String decryptedPassword = AESUtil.decrypt(encryptedPassword);
+        return decryptedPassword != null && decryptedPassword.equals(password);
+    }
+
     private void loginUserWithUsername(String username, String passwordUser) {
         CollectionReference usersRef = db.collection("user");
 
@@ -152,12 +177,49 @@ public class LogIn extends AppCompatActivity {
                                 // Documento encontrado con el nombre de usuario proporcionado
                                 // Verificar si la contraseña coincide
                                 String storedPassword = document.getString("password");
-                                if (storedPassword != null && storedPassword.equals(passwordUser)) {
-                                    // Autenticación exitosa
-                                    finish();
-                                    startActivity(new Intent(LogIn.this, Admin.class));
-                                    Toast.makeText(LogIn.this, "Bienvenido", Toast.LENGTH_SHORT).show();
-                                    return; // Salir del método después de autenticar
+                                if (storedPassword != null) {
+                                    // Verificar si la contraseña cifrada coincide con la contraseña ingresada
+                                    try {
+                                        if (checkPassword(passwordUser, storedPassword)) {
+                                            // Contraseña correcta, iniciar sesión
+                                            String userType = document.getString("usertype");
+                                            if (userType != null) {
+                                                switch (userType) {
+                                                    case "Administrador":
+                                                        startActivity(new Intent(LogIn.this, Admin.class));
+                                                        finish();
+                                                        break;
+                                                    case "Cocinero":
+                                                        startActivity(new Intent(LogIn.this, Cocinero.class));
+                                                        finish();
+                                                        break;
+                                                    case "Mesero":
+                                                        startActivity(new Intent(LogIn.this, Mesero.class));
+                                                        finish();
+                                                        break;
+                                                    case "Cliente":
+                                                        startActivity(new Intent(LogIn.this, Cliente.class));
+                                                        finish();
+                                                        break;
+                                                    default:
+                                                        // Tipo de usuario no reconocido
+                                                        Toast.makeText(LogIn.this, "Tipo de usuario no reconocido", Toast.LENGTH_SHORT).show();
+                                                        break;
+                                                }
+                                            } else {
+                                                // Tipo de usuario no especificado en la base de datos
+                                                Toast.makeText(LogIn.this, "Tipo de usuario no especificado", Toast.LENGTH_SHORT).show();
+                                            }
+                                        } else {
+                                            // Contraseña incorrecta
+                                            Toast.makeText(LogIn.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                } else {
+                                    // Contraseña no encontrada en la base de datos
+                                    Toast.makeText(LogIn.this, "Contraseña no encontrada en la base de datos", Toast.LENGTH_SHORT).show();
                                 }
                             }
                             // Si llegamos aquí, significa que no se encontró un usuario con ese nombre de usuario o que la contraseña no coincide

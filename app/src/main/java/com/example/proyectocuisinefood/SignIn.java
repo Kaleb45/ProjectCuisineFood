@@ -26,6 +26,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+import SecureStorage.AESUtil;
+import SecureStorage.KeyStoreUtil;
+
 public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     EditText nombre, username, password, telefono, email, restauranteAsignado, codigoRestaurante;
@@ -160,7 +163,11 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                                         Toast.makeText(SignIn.this, "El correo electrónico ya está en uso", Toast.LENGTH_SHORT).show();
                                     } else {
                                         // Ambos nombre de usuario y correo electrónico son únicos, proceder con el registro
-                                        registerUser(name, username, password, phone, email, usertype, restaurantAssignedUser, codeRestaurantUser);
+                                        try {
+                                            registerUser(name, username, password, phone, email, usertype, restaurantAssignedUser, codeRestaurantUser);
+                                        } catch (Exception e) {
+                                            throw new RuntimeException(e);
+                                        }
                                     }
                                 } else {
                                     Toast.makeText(SignIn.this, "Error al verificar la unicidad del correo electrónico", Toast.LENGTH_SHORT).show();
@@ -175,8 +182,12 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         });
     }
 
-    private void registerUser(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
-        mAuth.createUserWithEmailAndPassword(emailUser, passwordUser).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+    private void registerUser(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) throws Exception {
+        // Cifrar la contraseña antes de almacenarla
+        String encryptedPassword = AESUtil.encrypt(passwordUser);
+        // Almacenar la contraseña cifrada utilizando KeyStore de Android
+        KeyStoreUtil.saveEncryptedPassword(this, encryptedPassword);
+        mAuth.createUserWithEmailAndPassword(emailUser, encryptedPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 Map<String, Object> map = new HashMap<>();
@@ -184,7 +195,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                 map.put("id",id);
                 map.put("name",name);
                 map.put("username",nameUser);
-                map.put("password",passwordUser);
+                map.put("password",encryptedPassword);
                 map.put("phone",phoneUser);
                 map.put("email",emailUser);
                 map.put("usertype",usertype);
