@@ -40,6 +40,7 @@
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:hint="Número de Teléfono"
+        android:inputType="number"
         android:backgroundTint="@color/anaranjado"
         android:textSize="18sp"
         android:layout_marginBottom="15dp"/>
@@ -57,7 +58,6 @@
         android:id="@+id/s_tipo_signin"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:visibility="visible"
         android:hint="Tipo de Usuario"
         android:backgroundTint="@color/anaranjado"
         android:textSize="18sp"
@@ -70,7 +70,8 @@
         android:hint="Restaurante"
         android:backgroundTint="@color/anaranjado"
         android:textSize="18sp"
-        android:layout_marginBottom="15dp"/>
+        android:layout_marginBottom="15dp"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/ed_codigo_signin"
@@ -79,7 +80,8 @@
         android:hint="Código del Restaurante"
         android:backgroundTint="@color/anaranjado"
         android:textSize="18sp"
-        android:layout_marginBottom="15dp"/>
+        android:layout_marginBottom="15dp"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/b_registro_signin"
