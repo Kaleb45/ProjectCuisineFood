@@ -33,12 +33,13 @@ public class Admin extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.i_dlogin:
-                mAuth.signOut();
-                finish();
-                startActivity(new Intent(Admin.this, MainActivity.class));
-                return true;
+        int id = item.getItemId();
+
+        if(id == R.id.i_signout){
+            mAuth.signOut();
+            finish();
+            startActivity(new Intent(Admin.this, MainActivity.class));
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

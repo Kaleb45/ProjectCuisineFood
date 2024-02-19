@@ -4,15 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,6 +34,7 @@ import SecureStorage.KeyStoreUtil;
 public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     EditText nombre, username, password, telefono, email, restauranteAsignado, codigoRestaurante;
+    String selectedItem;
     Spinner spinTipoUser;
     Button registrarse;
     String[] tipoUsuario={
@@ -40,6 +43,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
             "Mesero",
             "Cliente",
     };
+    ToggleButton toggleButtonShowPassword;
     FirebaseFirestore db;
     FirebaseAuth mAuth;
 
@@ -57,7 +61,9 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         email = findViewById(R.id.ed_email_signin);
         restauranteAsignado = findViewById(R.id.ed_restaurante_signin);
         codigoRestaurante = findViewById(R.id.ed_codigo_signin);
+
         registrarse = findViewById(R.id.b_registro_signin);
+        toggleButtonShowPassword = findViewById(R.id.toggleButtonShowPassword);
 
         spinTipoUser = findViewById(R.id.s_tipo_signin);
         spinTipoUser.setOnItemSelectedListener(this);
@@ -69,12 +75,31 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         registrarse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onclickSignIn();
+                try {
+                    onclickSignIn();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        toggleButtonShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Mostrar contraseña
+                    password.setInputType(InputType.TYPE_CLASS_TEXT);
+                } else {
+                    // Ocultar contraseña
+                    password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                }
+                // Mover el cursor al final del texto
+                password.setSelection(password.getText().length());
             }
         });
     }
 
-    private void onclickSignIn() {
+    private void onclickSignIn() throws Exception {
         String name = nombre.getText().toString().trim();
         String nameUser = username.getText().toString().trim();
         String passwordUser = password.getText().toString().trim();
@@ -82,7 +107,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         String emailUser = email.getText().toString().trim();
         String restaurantAssignedUser = restauranteAsignado.getText().toString().trim();
         String codeRestaurantUser = codigoRestaurante.getText().toString().trim();
-        String usertype = spinTipoUser.toString().trim();
+        String usertype = selectedItem;
 
         // Validar que no haya campos vacíos
         if (name.isEmpty() || nameUser.isEmpty() || passwordUser.isEmpty() || phoneUser.isEmpty() || emailUser.isEmpty() || usertype.isEmpty()) {
@@ -103,10 +128,28 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         }
 
         // RQNF4: Validar que la contraseña contenga caracteres alfanuméricos y no alfanuméricos
-        if (!passwordUser.matches("^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$")) {
-            Toast.makeText(this, "La contraseña debe contener al menos una letra, un número y un carácter especial, y tener al menos 8 caracteres", Toast.LENGTH_SHORT).show();
+        if (!passwordUser.matches("(?=\\S+$)" +     // no debe contener espacios en blanco
+                ".{8,}$")) {             // al menos 8 caracteres de longitud
+            Toast.makeText(this, "La contraseña debe contener al menos 8 caracteres", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (!passwordUser.matches("^(?=.*[0-9])" + // al menos un dígito
+                "(?=.*[a-zA-Z])" +       // al menos una letra
+                "(?=.*[@#$%^&+=])" +     // al menos un carácter especial
+                ".{8,}$")) {             // al menos 8 caracteres en total
+            Toast.makeText(this, "La contraseña debe tener al menos una letra, un número y un carácter especial", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        /*if (!passwordUser.matches("^(?=.*[0-9])" +          // al menos un dígito
+                "(?=.*[a-zA-Z])" +       // al menos una letra
+                "(?=.*[@#$%^&+=!])" +    // al menos un carácter especial
+                "(?=\\S+$)" +            // no debe contener espacios en blanco
+                ".{8,}$")) {             // al menos 8 caracteres de longitud
+            Toast.makeText(this, "La contraseña debe contener al menos una letra, un número y un carácter especial, y tener al menos 8 caracteres", Toast.LENGTH_SHORT).show();
+            return;
+        }*/
 
         // RQNF5: Validar que la contraseña tenga al menos 8 caracteres
         if (passwordUser.length() < 8) {
@@ -139,47 +182,34 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                 return;
             }
         }
-
-        checkUsernameAndEmailUniqueness(nameUser, emailUser, name, passwordUser, phoneUser, usertype, restaurantAssignedUser, codeRestaurantUser);
+        checkUsernameAvailability(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
     }
 
-    private void checkUsernameAndEmailUniqueness(String username, String email, String name, String password, String phone, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
-        // Verificar la unicidad del nombre de usuario
-        db.collection("user").whereEqualTo("username", username).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (!task.getResult().isEmpty()) {
-                        // El nombre de usuario ya está en uso
-                        Toast.makeText(SignIn.this, "El nombre de usuario ya está en uso", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // Verificar la unicidad del correo electrónico
-                        db.collection("user").whereEqualTo("email", email).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (!task.getResult().isEmpty()) {
-                                        // El correo electrónico ya está en uso
-                                        Toast.makeText(SignIn.this, "El correo electrónico ya está en uso", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        // Ambos nombre de usuario y correo electrónico son únicos, proceder con el registro
-                                        try {
-                                            registerUser(name, username, password, phone, email, usertype, restaurantAssignedUser, codeRestaurantUser);
-                                        } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                } else {
-                                    Toast.makeText(SignIn.this, "Error al verificar la unicidad del correo electrónico", Toast.LENGTH_SHORT).show();
+    private void checkUsernameAvailability(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
+        db.collection("user")
+                .whereEqualTo("username", nameUser)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().isEmpty()) {
+                                // El nombre de usuario está disponible, proceder con el registro
+                                try {
+                                    registerUser(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
                                 }
+                            } else {
+                                // El nombre de usuario ya está en uso, mostrar un mensaje de error
+                                Toast.makeText(SignIn.this, "El nombre de usuario ya está en uso", Toast.LENGTH_SHORT).show();
                             }
-                        });
+                        } else {
+                            // Error al realizar la consulta
+                            Toast.makeText(SignIn.this, "Error al verificar la disponibilidad del nombre de usuario", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } else {
-                    Toast.makeText(SignIn.this, "Error al verificar la unicidad del nombre de usuario", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+                });
     }
 
     private void registerUser(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) throws Exception {
@@ -187,7 +217,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         String encryptedPassword = AESUtil.encrypt(passwordUser);
         // Almacenar la contraseña cifrada utilizando KeyStore de Android
         KeyStoreUtil.saveEncryptedPassword(this, encryptedPassword);
-        mAuth.createUserWithEmailAndPassword(emailUser, encryptedPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mAuth.createUserWithEmailAndPassword(emailUser, passwordUser).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 Map<String, Object> map = new HashMap<>();
@@ -225,7 +255,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(SignIn.this, "Error al registrar usuario", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignIn.this, "Error al registrar usuario, el correo esta en uso", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -233,7 +263,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {//Funcion para cuando se selecciona un item
         Toast.makeText(SignIn.this, ""+parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
-        String selectedItem = parent.getItemAtPosition(position).toString();
+        selectedItem = parent.getItemAtPosition(position).toString();
 
         // Verificar si el tipo de usuario seleccionado es "Cocinero" o "Mesero"
         if (selectedItem.equals("Cocinero") || selectedItem.equals("Mesero")) {
