@@ -2,8 +2,10 @@ package com.example.proyectocuisinefood;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -241,6 +243,13 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                 db.collection("user").document(id).set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
+                        //Permiso para hacer llamadas
+                        if(ActivityCompat.checkSelfPermission(SignIn.this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED){
+                            ActivityCompat.requestPermissions(SignIn.this, new String[]{
+                                    android.Manifest.permission.CALL_PHONE},10);
+                            return;
+                        }
+
                         finish();
                         startActivity(new Intent(SignIn.this, LogIn.class));
                         Toast.makeText(SignIn.this, "Usuario registrado con exito", Toast.LENGTH_SHORT).show();
