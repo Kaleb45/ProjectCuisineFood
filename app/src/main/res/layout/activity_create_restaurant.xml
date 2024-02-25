@@ -1,9 +1,330 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateRestaurant">
+    tools:context=".CreateRestaurant"
+    android:orientation="vertical"
+    android:layout_gravity="center">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_margin="10dp">
+
+            <ImageButton
+                android:id="@+id/imb_logo_restaurant"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"/>
+            
+            <EditText
+                android:id="@+id/ed_name_restaurant"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:hint="Nombre del Restaurante"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="15dp">
+
+                <Spinner
+                    android:id="@+id/s_category1_restaurant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <Spinner
+                    android:id="@+id/s_category2_restaurant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="15dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/t_monday_schedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Lunes"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/t_tuesday_schedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Martes"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/t_wednesday_schedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Miércoles"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/t_thursday_schedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Jueves"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/t_friday_schedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Viernes"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/t_saturday_schedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sábado"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/t_sunday_schedule"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Domingo"
+                            android:gravity="center"/>
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
+
+                        <Button
+                            android:id="@+id/b_monday_schedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"/>
+
+                        <Button
+                            android:id="@+id/b_tuesday_schedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"/>
+
+                        <Button
+                            android:id="@+id/b_wednesday_schedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"/>
+
+                        <Button
+                            android:id="@+id/b_thursday_schedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"/>
+
+                        <Button
+                            android:id="@+id/b_friday_schedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"/>
+
+                        <Button
+                            android:id="@+id/b_saturday_schedule"
+                            android:layout_width="50dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"/>
+
+                        <Button
+                            android:id="@+id/b_sunday_schedule"
+                            android:layout_width="50dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"/>
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/ed_phone_restaurant"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:hint="Número telefónico"
+                android:gravity="center"
+                android:layout_marginTop="15dp"/>
+
+            <Button
+                android:id="@+id/b_direction_restaurant"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:text="Dirección"
+                android:textSize="18sp"
+                android:backgroundTint="@color/anaranjado"
+                android:layout_marginTop="15dp"/>
+
+            <Button
+                android:id="@+id/b_related_restaurant"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:text="Restaurantes Relacionados"
+                android:textSize="18sp"
+                android:backgroundTint="@color/anaranjado"
+                android:layout_marginTop="15dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Distribución de Mesas"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginTop="15dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mapa de Mesas"
+                    android:textSize="18dp"/>
+
+                <Switch
+                    android:id="@+id/bs_tables1_restaurant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/voleta_oscuro"
+                    android:layout_marginLeft="60dp"/>
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/imb_map_tables_restaurant"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"
+                android:visibility="gone"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Indicación en Mesas"
+                    android:textSize="18dp"/>
+
+                <Switch
+                    android:id="@+id/bs_tables2_restaurant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/voleta_oscuro"
+                    android:layout_marginLeft="25dp"/>
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/imb_images_restaurant"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="15dp" />
+
+            <EditText
+                android:id="@+id/ed_code_restaurant"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:hint="Crear código para empleados"
+                android:gravity="center"
+                android:inputType="number"
+                android:layout_marginTop="15dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Métodos de Pago"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginTop="15dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Visa/MasterCard"
+                    android:textSize="18dp"/>
+
+                <Switch
+                    android:id="@+id/bs_vm_pay_restaurant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/voleta_oscuro"
+                    android:layout_marginLeft="60dp"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/b_continue_restaurant"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:text="Continuar"
+                android:textSize="18sp"
+                android:backgroundTint="@color/anaranjado"
+                android:layout_marginTop="15dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

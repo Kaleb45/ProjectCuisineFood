@@ -63,7 +63,8 @@ public class Admin extends AppCompatActivity {
     }
 
     private void onClickCreateRestaurant() {
-
+        startActivity(new Intent(Admin.this, CreateRestaurant.class));
+        finish();
     }
 
     @Override
