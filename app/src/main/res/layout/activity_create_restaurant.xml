@@ -63,65 +63,82 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:layout_marginTop="15dp">
+                android:layout_marginTop="15dp"
+                >
 
                 <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:background="@color/anaranjado">
 
                     <TableRow
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:background="@color/rojo_frambuesa">
 
                         <TextView
                             android:id="@+id/t_monday_schedule"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Lunes"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:id="@+id/t_tuesday_schedule"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Martes"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:id="@+id/t_wednesday_schedule"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Miércoles"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:id="@+id/t_thursday_schedule"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Jueves"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:id="@+id/t_friday_schedule"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Viernes"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:id="@+id/t_saturday_schedule"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sábado"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:id="@+id/t_sunday_schedule"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Domingo"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                     </TableRow>
 
@@ -134,49 +151,63 @@
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
-                            android:backgroundTint="@android:color/transparent"/>
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <Button
                             android:id="@+id/b_tuesday_schedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
-                            android:backgroundTint="@android:color/transparent"/>
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <Button
                             android:id="@+id/b_wednesday_schedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
-                            android:backgroundTint="@android:color/transparent"/>
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <Button
                             android:id="@+id/b_thursday_schedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
-                            android:backgroundTint="@android:color/transparent"/>
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <Button
                             android:id="@+id/b_friday_schedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
-                            android:backgroundTint="@android:color/transparent"/>
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <Button
                             android:id="@+id/b_saturday_schedule"
                             android:layout_width="50dp"
                             android:layout_height="60dp"
                             android:gravity="center"
-                            android:backgroundTint="@android:color/transparent"/>
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
                         <Button
                             android:id="@+id/b_sunday_schedule"
                             android:layout_width="50dp"
                             android:layout_height="60dp"
                             android:gravity="center"
-                            android:backgroundTint="@android:color/transparent"/>
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
                     </TableRow>
                 </TableLayout>
             </LinearLayout>

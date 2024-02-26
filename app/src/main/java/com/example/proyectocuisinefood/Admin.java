@@ -16,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.proyectocuisinefood.adapter.RestaurantAdapter;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -26,6 +28,7 @@ public class Admin extends AppCompatActivity {
     RecyclerView restaurantRecyclerView;
     RestaurantAdapter restaurantAdapter;
     Toolbar toolbar;
+    FloatingActionButton fab;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
 
@@ -39,20 +42,12 @@ public class Admin extends AppCompatActivity {
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        fab = findViewById(R.id.floatingActionButton1);
+
         createRestaurant = findViewById(R.id.b_create_restaurant);
 
         restaurantRecyclerView = findViewById(R.id.r_restaurant);
         restaurantRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        Query query = db.collection("restaurant");
-
-        FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions =
-                new FirestoreRecyclerOptions.Builder<Restaurant>().setQuery(query, Restaurant.class).build();
-
-        restaurantAdapter = new RestaurantAdapter(firestoreRecyclerOptions);
-        restaurantAdapter.notifyDataSetChanged(); // Va a notificar cada uno de los cambios
-
-        restaurantRecyclerView.setAdapter(restaurantAdapter);
 
         createRestaurant.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,6 +55,28 @@ public class Admin extends AppCompatActivity {
                 onClickCreateRestaurant();
             }
         });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickCreateRestaurant();
+            }
+        });
+
+        // Obtener el nombre de usuario del administrador actualmente autenticado
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String adminUsername = currentUser.getEmail();
+
+            // Consulta para filtrar los restaurantes por el nombre de usuario del administrador
+            Query query = db.collection("restaurant").whereEqualTo("adminRestaurant", adminUsername);
+
+            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions =
+                    new FirestoreRecyclerOptions.Builder<Restaurant>().setQuery(query, Restaurant.class).build();
+
+            restaurantAdapter = new RestaurantAdapter(firestoreRecyclerOptions);
+            restaurantRecyclerView.setAdapter(restaurantAdapter);
+        }
     }
 
     private void onClickCreateRestaurant() {

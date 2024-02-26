@@ -71,9 +71,9 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         spinTipoUser = findViewById(R.id.s_tipo_signin);
         spinTipoUser.setOnItemSelectedListener(this);
 
-        ArrayAdapter adaptador_libro = new ArrayAdapter(this, android.R.layout.simple_spinner_item,tipoUsuario);
-        adaptador_libro.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinTipoUser.setAdapter(adaptador_libro);
+        ArrayAdapter adapterUser = new ArrayAdapter(this, android.R.layout.simple_spinner_item,tipoUsuario);
+        adapterUser.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinTipoUser.setAdapter(adapterUser);
 
         registrarse.setOnClickListener(new View.OnClickListener() {
             @Override

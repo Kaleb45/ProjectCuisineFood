@@ -16,12 +16,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, RestaurantAdapter.ViewHolder> {
 
-    /**
-     * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
-     * FirestoreRecyclerOptions} for configuration options.
-     *
-     * @param options
-     */
     public RestaurantAdapter(@NonNull FirestoreRecyclerOptions<Restaurant> options) {
         super(options);
     }
