@@ -22,7 +22,7 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
 
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
-        holder.restaurantName.setText(model.getNameRestaurant());
+        holder.name.setText(model.getName());
     }
 
     @NonNull
@@ -33,12 +33,12 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView restaurantName;
+        TextView name;
         ImageView restaurantLogo;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            restaurantName = itemView.findViewById(R.id.t_name_restaurant);
+            name = itemView.findViewById(R.id.t_name_restaurant);
             restaurantLogo = itemView.findViewById(R.id.im_logo_restaurant);
         }
     }

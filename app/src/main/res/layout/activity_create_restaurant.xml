@@ -343,7 +343,8 @@
                 android:layout_height="wrap_content"
                 android:hint="Número telefónico"
                 android:gravity="center"
-                android:layout_marginTop="15dp"/>
+                android:layout_marginTop="15dp"
+                android:inputType="number"/>
 
             <Button
                 android:id="@+id/b_direction_restaurant"

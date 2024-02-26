@@ -212,10 +212,10 @@ public class CreateRestaurant extends AppCompatActivity{
             }
         });
 
-        thursdayOpenSchedule.setOnClickListener(new View.OnClickListener() {
+        thursdayCloseSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule(thursdayOpenSchedule);
+                onClickSchedule(thursdayCloseSchedule);
             }
         });
 
@@ -271,9 +271,28 @@ public class CreateRestaurant extends AppCompatActivity{
         String category2 = selectedItemCategory2;
         String phone = restaurantPhone.getText().toString().trim();
         String code = restaurantCode.getText().toString().trim();
+        String mondayOpen = mondayOpenSchedule.getText().toString().trim();
+        String mondayClose = mondayCloseSchedule.getText().toString().trim();
+        String tuesdayOpen = tuesdayOpenSchedule.getText().toString().trim();
+        String tuesdayClose = tuesdayCloseSchedule.getText().toString().trim();
+        String wednesdayOpen = wednesdayOpenSchedule.getText().toString().trim();
+        String wednesdayClose = wednesdayCloseSchedule.getText().toString().trim();
+        String thursdayOpen = thursdayOpenSchedule.getText().toString().trim();
+        String thursdayClose = thursdayCloseSchedule.getText().toString().trim();
+        String fridayOpen = fridayOpenSchedule.getText().toString().trim();
+        String fridayClose = fridayCloseSchedule.getText().toString().trim();
+        String saturdayOpen = saturdayOpenSchedule.getText().toString().trim();
+        String saturdayClose = saturdayCloseSchedule.getText().toString().trim();
+        String sundayOpen = sundayOpenSchedule.getText().toString().trim();
+        String sundayClose = sundayCloseSchedule.getText().toString().trim();
 
-        if(name.isEmpty() && category1.isEmpty() && category2.isEmpty() && phone.isEmpty() && code.isEmpty()){
+
+        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() ||
+                mondayOpen.equals("Entrada") || mondayClose.equals("Cierre") || tuesdayOpen.equals("Entrada") || tuesdayClose.equals("Cierre") || wednesdayOpen.equals("Entrada") || wednesdayClose.equals("Cierre") ||
+                thursdayOpen.equals("Entrada") || thursdayClose.equals("Cierre") || fridayOpen.equals("Entrada") || fridayClose.equals("Cierre") || saturdayOpen.equals("Entrada") || saturdayClose.equals("Cierre") ||
+                sundayOpen.equals("Entrada") || sundayClose.equals("Cierre")){
             Toast.makeText(this, "No puede dejar espacios vacios", Toast.LENGTH_SHORT).show();
+            return;
         }
         else{
             createRestaurant(name, category1, category2, phone, code);
@@ -281,12 +300,14 @@ public class CreateRestaurant extends AppCompatActivity{
     }
 
     private void createRestaurant(String name, String category1, String category2, String phone, String code) {
+        String userEmail = mAuth.getCurrentUser().getEmail(); // Obtener el correo electrónico del usuario actual
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("category1",category1);
         map.put("category2",category2);
         map.put("phone",phone);
         map.put("code",code);
+        map.put("ownerEmail", userEmail); // Agregar el correo electrónico del propietario del restaurante
 
         db.collection("restaurant").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override

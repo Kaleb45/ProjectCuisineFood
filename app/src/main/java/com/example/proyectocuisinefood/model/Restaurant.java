@@ -1,11 +1,9 @@
 package com.example.proyectocuisinefood.model;
 
 public class Restaurant {
-    String nameRestaurant,
+    String name,
             categoryPrimaryRestaurant,
             categorySecondaryRestaurant,
-            scheduleOpeningRestaurant,
-            scheduleClosingRestaurant,
             phoneRestaurant,
             addressRestaurant,
             relatedRestaurants,
@@ -16,12 +14,10 @@ public class Restaurant {
 
     public Restaurant(){}
 
-    public Restaurant(String nameRestaurant, String categoryPrimaryRestaurant, String categorySecondaryRestaurant, String scheduleOpeningRestaurant, String scheduleClosingRestaurant, String phoneRestaurant, String addressRestaurant, String relatedRestaurants, String distributionTablesRestaurant, String codeEmployeesRestaurant, String methodsPaymentsRestaurants, String adminRestaurant) {
-        this.nameRestaurant = nameRestaurant;
+    public Restaurant(String name, String categoryPrimaryRestaurant, String categorySecondaryRestaurant, String phoneRestaurant, String addressRestaurant, String relatedRestaurants, String distributionTablesRestaurant, String codeEmployeesRestaurant, String methodsPaymentsRestaurants, String adminRestaurant) {
+        this.name = name;
         this.categoryPrimaryRestaurant = categoryPrimaryRestaurant;
         this.categorySecondaryRestaurant = categorySecondaryRestaurant;
-        this.scheduleOpeningRestaurant = scheduleOpeningRestaurant;
-        this.scheduleClosingRestaurant = scheduleClosingRestaurant;
         this.phoneRestaurant = phoneRestaurant;
         this.addressRestaurant = addressRestaurant;
         this.relatedRestaurants = relatedRestaurants;
@@ -31,12 +27,12 @@ public class Restaurant {
         this.adminRestaurant = adminRestaurant;
     }
 
-    public String getNameRestaurant() {
-        return nameRestaurant;
+    public String getName() {
+        return name;
     }
 
     public void setNameRestaurant(String nameRestaurant) {
-        this.nameRestaurant = nameRestaurant;
+        this.name = name;
     }
 
     public String getCategoryPrimaryRestaurant() {
@@ -53,22 +49,6 @@ public class Restaurant {
 
     public void setCategorySecondaryRestaurant(String categorySecondaryRestaurant) {
         this.categorySecondaryRestaurant = categorySecondaryRestaurant;
-    }
-
-    public String getScheduleOpeningRestaurant() {
-        return scheduleOpeningRestaurant;
-    }
-
-    public void setScheduleOpeningRestaurant(String scheduleOpeningRestaurant) {
-        this.scheduleOpeningRestaurant = scheduleOpeningRestaurant;
-    }
-
-    public String getScheduleClosingRestaurant() {
-        return scheduleClosingRestaurant;
-    }
-
-    public void setScheduleClosingRestaurant(String scheduleClosingRestaurant) {
-        this.scheduleClosingRestaurant = scheduleClosingRestaurant;
     }
 
     public String getPhoneRestaurant() {

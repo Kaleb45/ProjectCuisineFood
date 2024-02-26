@@ -69,12 +69,13 @@ public class Admin extends AppCompatActivity {
             String adminUsername = currentUser.getEmail();
 
             // Consulta para filtrar los restaurantes por el nombre de usuario del administrador
-            Query query = db.collection("restaurant").whereEqualTo("adminRestaurant", adminUsername);
+            Query query = db.collection("restaurant").whereEqualTo("ownerEmail", adminUsername);
 
             FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions =
                     new FirestoreRecyclerOptions.Builder<Restaurant>().setQuery(query, Restaurant.class).build();
 
             restaurantAdapter = new RestaurantAdapter(firestoreRecyclerOptions);
+            restaurantAdapter.notifyDataSetChanged();
             restaurantRecyclerView.setAdapter(restaurantAdapter);
         }
     }

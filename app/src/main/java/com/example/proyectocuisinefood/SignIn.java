@@ -24,7 +24,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -183,6 +182,9 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
             if (restaurantAssignedUser.isEmpty() || codeRestaurantUser.isEmpty()) {
                 Toast.makeText(this, "Los campos restaurante asignado y código de restaurante son obligatorios para los roles de Cocinero y Mesero", Toast.LENGTH_SHORT).show();
                 return;
+            }else{
+                // Verificar el restaurante y el código
+                checkRestaurantAndCode(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
             }
         }
         checkUsernameAvailability(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
@@ -281,13 +283,6 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
             restauranteAsignado.setVisibility(View.VISIBLE);
             codigoRestaurante.setVisibility(View.VISIBLE);
 
-            // Verificar si se ha ingresado un nombre de restaurante y un código de restaurante
-            String nameRestaurant = restauranteAsignado.getText().toString().trim();
-            String codeRestaurant = codigoRestaurante.getText().toString().trim();
-            if (!nameRestaurant.isEmpty() && !codeRestaurant.isEmpty()) {
-                // Verificar el restaurante y el código
-                checkRestaurantAndCode(nameRestaurant, codeRestaurant);
-            }
         } else {
             // Si no es "Cocinero" o "Mesero", ocultar los campos restaurantAssignedUser y codeRestaurantUser
             restauranteAsignado.setVisibility(View.GONE);
@@ -295,16 +290,16 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         }
     }
 
-    private void checkRestaurantAndCode(String nombreRestaurante, String codigoRestaurante) {
+    private void checkRestaurantAndCode(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
         db.collection("restaurant")
-                .whereEqualTo("name", nombreRestaurante)
+                .whereEqualTo("name", restaurantAssignedUser)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             if (!task.getResult().isEmpty()) {
-                                // El restaurante existe, obtener su código y compararlo
+                                /*// El restaurante existe, obtener su código y compararlo
                                 DocumentSnapshot restaurantSnapshot = task.getResult().getDocuments().get(0);
                                 String codigoEncriptado = restaurantSnapshot.getString("code");
                                 // Descifrar el código encriptado
@@ -317,13 +312,17 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                                     return;
                                 }
                                 // Verificar si el código ingresado coincide con el código descifrado
-                                if (codigoRestaurante.equals(codigoDescifrado)) {
-                                    // El código es válido
-                                    restauranteAsignado.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-                                } else {
+                                if (codeRestaurantUser.equals(codigoDescifrado)) {
+                                    // El código es correcto, continuar con el registro*/
+                                    try {
+                                        registerUser(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                /*} else {
                                     // El código no coincide
-                                    restauranteAsignado.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
-                                }
+                                    Toast.makeText(SignIn.this, "El código del restaurante no es válido", Toast.LENGTH_SHORT).show();
+                                }*/
                             } else {
                                 // El restaurante no existe
                                 Toast.makeText(SignIn.this, "El restaurante especificado no existe", Toast.LENGTH_SHORT).show();
@@ -332,6 +331,12 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                             // Error al realizar la consulta
                             Toast.makeText(SignIn.this, "Error al verificar el restaurante", Toast.LENGTH_SHORT).show();
                         }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Error al realizar la consulta
+                        Toast.makeText(SignIn.this, "Error al verificar el restaurante", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
