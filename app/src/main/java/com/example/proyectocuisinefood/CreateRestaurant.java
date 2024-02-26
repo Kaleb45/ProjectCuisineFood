@@ -1,5 +1,6 @@
 package com.example.proyectocuisinefood;
 
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,15 +26,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CreateRestaurant extends AppCompatActivity{
 
     String selectedItemCategory1, selectedItemCategory2;
+    int hour, minute;
     ImageButton restaurantLogo, restaurantMap, restaurantImage;
     EditText restaurantName, restaurantPhone, restaurantCode;
-    Button restaurantDirection, restaurantRelated, continueCreate, mondaySchedule, tuesdaySchedule, wednesdaySchedule, thursdaySchedule, fridaySchedule, saturdaySchedule, sundaySchedule;
+    Button restaurantDirection, restaurantRelated, continueCreate,
+            mondayOpenSchedule, tuesdayOpenSchedule, wednesdayOpenSchedule, thursdayOpenSchedule, fridayOpenSchedule, saturdayOpenSchedule, sundayOpenSchedule,
+            mondayCloseSchedule, tuesdayCloseSchedule, wednesdayCloseSchedule, thursdayCloseSchedule, fridayCloseSchedule, saturdayCloseSchedule, sundayCloseSchedule;
     Switch restaurantTable, restaurantIndication, restaurantVMPay;
     Spinner spinRestaurantCategory1, spinRestaurantCategory2;
 
@@ -78,13 +84,21 @@ public class CreateRestaurant extends AppCompatActivity{
         restaurantRelated = findViewById(R.id.b_related_restaurant);
         continueCreate = findViewById(R.id.b_continue_restaurant);
 
-        mondaySchedule = findViewById(R.id.b_monday_schedule);
-        tuesdaySchedule = findViewById(R.id.b_tuesday_schedule);
-        wednesdaySchedule = findViewById(R.id.b_wednesday_schedule);
-        thursdaySchedule = findViewById(R.id.b_thursday_schedule);
-        fridaySchedule = findViewById(R.id.b_friday_schedule);
-        saturdaySchedule = findViewById(R.id.b_saturday_schedule);
-        sundaySchedule = findViewById(R.id.b_sunday_schedule);
+        mondayOpenSchedule = findViewById(R.id.b_monday_oschedule);
+        tuesdayOpenSchedule = findViewById(R.id.b_tuesday_oschedule);
+        wednesdayOpenSchedule = findViewById(R.id.b_wednesday_oschedule);
+        thursdayOpenSchedule = findViewById(R.id.b_thursday_oschedule);
+        fridayOpenSchedule = findViewById(R.id.b_friday_oschedule);
+        saturdayOpenSchedule = findViewById(R.id.b_saturday_oschedule);
+        sundayOpenSchedule = findViewById(R.id.b_sunday_oschedule);
+
+        mondayCloseSchedule = findViewById(R.id.b_monday_cschedule);
+        tuesdayCloseSchedule = findViewById(R.id.b_tuesday_cschedule);
+        wednesdayCloseSchedule = findViewById(R.id.b_wednesday_cschedule);
+        thursdayCloseSchedule = findViewById(R.id.b_thursday_cschedule);
+        fridayCloseSchedule = findViewById(R.id.b_friday_cschedule);
+        saturdayCloseSchedule = findViewById(R.id.b_saturday_cschedule);
+        sundayCloseSchedule = findViewById(R.id.b_sunday_cschedule);
 
         restaurantTable = findViewById(R.id.bs_tables1_restaurant);
         restaurantIndication = findViewById(R.id.bs_tables2_restaurant);
@@ -127,52 +141,102 @@ public class CreateRestaurant extends AppCompatActivity{
             }
         });
 
-        mondaySchedule.setOnClickListener(new View.OnClickListener() {
+
+        mondayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule();
+                onClickSchedule(mondayOpenSchedule);
             }
         });
 
-        tuesdaySchedule.setOnClickListener(new View.OnClickListener() {
+        tuesdayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule();
+                onClickSchedule(tuesdayOpenSchedule);
             }
         });
 
-        wednesdaySchedule.setOnClickListener(new View.OnClickListener() {
+        wednesdayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule();
+                onClickSchedule(wednesdayOpenSchedule);
             }
         });
 
-        thursdaySchedule.setOnClickListener(new View.OnClickListener() {
+        thursdayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule();
+                onClickSchedule(thursdayOpenSchedule);
             }
         });
 
-        fridaySchedule.setOnClickListener(new View.OnClickListener() {
+        fridayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule();
+                onClickSchedule(fridayOpenSchedule);
             }
         });
 
-        saturdaySchedule.setOnClickListener(new View.OnClickListener() {
+        saturdayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule();
+                onClickSchedule(saturdayOpenSchedule);
             }
         });
 
-        sundaySchedule.setOnClickListener(new View.OnClickListener() {
+        sundayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickSchedule();
+                onClickSchedule(sundayOpenSchedule);
+            }
+        });
+
+        mondayCloseSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSchedule(mondayCloseSchedule);
+            }
+        });
+
+        tuesdayCloseSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSchedule(tuesdayCloseSchedule);
+            }
+        });
+
+        wednesdayCloseSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSchedule(wednesdayCloseSchedule);
+            }
+        });
+
+        thursdayOpenSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSchedule(thursdayOpenSchedule);
+            }
+        });
+
+        fridayCloseSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSchedule(fridayCloseSchedule);
+            }
+        });
+
+        saturdayCloseSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSchedule(saturdayCloseSchedule);
+            }
+        });
+
+        sundayCloseSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSchedule(sundayCloseSchedule);
             }
         });
 
@@ -184,8 +248,21 @@ public class CreateRestaurant extends AppCompatActivity{
         });
     }
 
-    private void onClickSchedule() {
+    private void onClickSchedule(final Button button) {
+        final Calendar c = Calendar.getInstance();
+        hour = c.get(Calendar.HOUR_OF_DAY);
+        minute = c.get(Calendar.MINUTE);
 
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hourSchedule, int minuteSchedule) {
+                button.setText(hourSchedule + ":" + minuteSchedule);
+                // Guardar la información en un String
+                String scheduleTime = hourSchedule + ":" + minuteSchedule;
+                // Puedes hacer algo con la información guardada, como pasarlo a la base de datos
+            }
+        }, hour, minute, false);
+        timePickerDialog.show();
     }
 
     private void onClickContinueCreate() {
@@ -214,7 +291,9 @@ public class CreateRestaurant extends AppCompatActivity{
         db.collection("restaurant").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
+                String restaurantId = documentReference.getId(); // Aquí obtienes el ID del restaurante
                 Toast.makeText(CreateRestaurant.this, "Creado Exitosamente", Toast.LENGTH_SHORT).show();
+                saveSchedulesForRestaurant(restaurantId); // Llamada al método para guardar los horarios asociados al restaurante
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -223,6 +302,59 @@ public class CreateRestaurant extends AppCompatActivity{
                 Toast.makeText(CreateRestaurant.this, "Error al crear el restaurante", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void saveSchedulesForRestaurant(String restaurantId) {
+        // Guardar los horarios para el restaurante utilizando el ID proporcionado
+        // Suponiendo que tienes una lista de botones de horarios
+        Button[] scheduleButtons = {
+                mondayOpenSchedule, mondayCloseSchedule,
+                tuesdayOpenSchedule, tuesdayCloseSchedule,
+                wednesdayOpenSchedule, wednesdayCloseSchedule,
+                thursdayOpenSchedule, thursdayCloseSchedule,
+                fridayOpenSchedule, fridayCloseSchedule,
+                saturdayOpenSchedule, saturdayCloseSchedule,
+                sundayOpenSchedule, sundayCloseSchedule
+        };
+
+        // Iterar sobre los botones para guardar los horarios
+        for (int i = 0; i < scheduleButtons.length; i += 2) {
+            String day = getDayFromButtonId(scheduleButtons[i].getId());
+            String openTime = scheduleButtons[i].getText().toString();
+            String closeTime = scheduleButtons[i + 1].getText().toString();
+
+            // Crear un mapa con la información del horario
+            Map<String, Object> scheduleData = new HashMap<>();
+            scheduleData.put("day", day);
+            scheduleData.put("openTime", openTime);
+            scheduleData.put("closeTime", closeTime);
+            scheduleData.put("restaurantId", restaurantId);
+
+            // Guardar el horario en la colección "Schedules"
+            db.collection("Schedules")
+                    .add(scheduleData)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Toast.makeText(CreateRestaurant.this, "Horario guardado exitosamente", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(CreateRestaurant.this, "Error al guardar el horario", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    private String getDayFromButtonId(int buttonId) {
+        String day = "";
+        View button = findViewById(buttonId);
+        if (button != null) {
+            day = button.getTag().toString();
+        }
+        return day;
     }
 
     @Override

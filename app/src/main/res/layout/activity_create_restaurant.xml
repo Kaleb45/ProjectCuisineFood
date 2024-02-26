@@ -147,68 +147,193 @@
                         android:layout_height="match_parent" >
 
                         <Button
-                            android:id="@+id/b_monday_schedule"
+                            android:id="@+id/b_monday_oschedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:backgroundTint="@android:color/transparent"
                             android:textColor="@color/white"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:tag="monday"
+                            android:text="Entrada"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
 
                         <Button
-                            android:id="@+id/b_tuesday_schedule"
+                            android:id="@+id/b_tuesday_oschedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:backgroundTint="@android:color/transparent"
                             android:textColor="@color/white"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:tag="tuesday"
+                            android:text="Entrada"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
 
                         <Button
-                            android:id="@+id/b_wednesday_schedule"
+                            android:id="@+id/b_wednesday_oschedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:backgroundTint="@android:color/transparent"
                             android:textColor="@color/white"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:tag="wednesday"
+                            android:text="Entrada"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
 
                         <Button
-                            android:id="@+id/b_thursday_schedule"
+                            android:id="@+id/b_thursday_oschedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:backgroundTint="@android:color/transparent"
                             android:textColor="@color/white"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:tag="thursday"
+                            android:text="Entrada"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
 
                         <Button
-                            android:id="@+id/b_friday_schedule"
+                            android:id="@+id/b_friday_oschedule"
                             android:layout_width="55dp"
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:backgroundTint="@android:color/transparent"
                             android:textColor="@color/white"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:tag="friday"
+                            android:text="Entrada"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
 
                         <Button
-                            android:id="@+id/b_saturday_schedule"
+                            android:id="@+id/b_saturday_oschedule"
                             android:layout_width="50dp"
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:backgroundTint="@android:color/transparent"
                             android:textColor="@color/white"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:tag="saturday"
+                            android:text="Entrada"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
 
                         <Button
-                            android:id="@+id/b_sunday_schedule"
+                            android:id="@+id/b_sunday_oschedule"
                             android:layout_width="50dp"
                             android:layout_height="60dp"
                             android:gravity="center"
                             android:backgroundTint="@android:color/transparent"
                             android:textColor="@color/white"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:tag="sunday"
+                            android:text="Entrada"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
                     </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
+
+                        <Button
+                            android:id="@+id/b_monday_cschedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:tag="monday"
+                            android:text="Cierre"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
+
+                        <Button
+                            android:id="@+id/b_tuesday_cschedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:tag="tuesday"
+                            android:text="Cierre"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
+
+                        <Button
+                            android:id="@+id/b_wednesday_cschedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:tag="wednesday"
+                            android:text="Cierre"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
+
+                        <Button
+                            android:id="@+id/b_thursday_cschedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:tag="thursday"
+                            android:text="Cierre"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
+
+                        <Button
+                            android:id="@+id/b_friday_cschedule"
+                            android:layout_width="55dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:tag="friday"
+                            android:text="Cierre"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
+
+                        <Button
+                            android:id="@+id/b_saturday_cschedule"
+                            android:layout_width="50dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:tag="saturday"
+                            android:text="Cierre"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
+
+                        <Button
+                            android:id="@+id/b_sunday_cschedule"
+                            android:layout_width="50dp"
+                            android:layout_height="60dp"
+                            android:gravity="center"
+                            android:backgroundTint="@android:color/transparent"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:tag="sunday"
+                            android:text="Cierre"
+                            android:textSize="12sp"
+                            android:padding="0dp"/>
+                    </TableRow>
+
                 </TableLayout>
             </LinearLayout>
 

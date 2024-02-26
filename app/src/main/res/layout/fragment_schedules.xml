@@ -1,14 +1,987 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Schedules">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_margin="15dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Horarios"
+                android:textSize="20dp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@color/anaranjado"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Lunes: "
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Apertura:"
+                            android:layout_alignParentLeft="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Cierre:"
+                            android:layout_alignParentRight="true"/>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/ed_hourm_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutem_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_m_oSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="15dp">
+
+                        <EditText
+                            android:id="@+id/ed_hourm_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutem_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_m_cSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Martes: "
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Apertura:"
+                            android:layout_alignParentLeft="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Cierre:"
+                            android:layout_alignParentRight="true"/>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/ed_hourt_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutet_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_t_oSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="15dp">
+
+                        <EditText
+                            android:id="@+id/ed_hourt_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutet_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_t_cSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Miércoles: "
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Apertura:"
+                            android:layout_alignParentLeft="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Cierre:"
+                            android:layout_alignParentRight="true"/>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/ed_hourw_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutew_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_w_oSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="15dp">
+
+                        <EditText
+                            android:id="@+id/ed_hourw_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutew_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_w_cSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Jueves: "
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Apertura:"
+                            android:layout_alignParentLeft="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Cierre:"
+                            android:layout_alignParentRight="true"/>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/ed_hourth_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minuteth_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_th_oSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="15dp">
+
+                        <EditText
+                            android:id="@+id/ed_hourth_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minuteth_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_th_cSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Viernes: "
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Apertura:"
+                            android:layout_alignParentLeft="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Cierre:"
+                            android:layout_alignParentRight="true"/>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/ed_hourf_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutef_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_f_oSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="15dp">
+
+                        <EditText
+                            android:id="@+id/ed_hourf_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutef_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_f_cSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Sábado: "
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Apertura:"
+                            android:layout_alignParentLeft="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Cierre:"
+                            android:layout_alignParentRight="true"/>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/ed_hoursa_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutesa_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_sa_oSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="15dp">
+
+                        <EditText
+                            android:id="@+id/ed_hoursa_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutesa_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_sa_cSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Domingo: "
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Apertura:"
+                            android:layout_alignParentLeft="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Horario Cierre:"
+                            android:layout_alignParentRight="true"/>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/ed_hoursu_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutesu_oSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_su_oSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="15dp">
+
+                        <EditText
+                            android:id="@+id/ed_hoursu_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=":"
+                            android:textSize="18sp"/>
+
+                        <EditText
+                            android:id="@+id/ed_minutesu_cSchedule"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:hint="00"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:inputType="number"/>
+
+                        <ToggleButton
+                            android:id="@+id/tb_su_cSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Password"
+                            android:layout_alignParentRight="true"
+                            android:button="@null"
+                            android:drawablePadding="58dp"
+                            android:textOn="p.m"
+                            android:textOff="a.m"
+                            android:backgroundTint="@android:color/transparent"
+                            android:background="@android:color/transparent"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/b_continue_schedule"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:text="Continuar"
+                android:textSize="18sp"
+                android:backgroundTint="@color/anaranjado"
+                android:gravity="center"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.cardview.widget.CardView>
