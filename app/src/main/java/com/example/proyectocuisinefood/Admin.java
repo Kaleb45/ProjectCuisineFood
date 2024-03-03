@@ -66,16 +66,15 @@ public class Admin extends AppCompatActivity {
         // Obtener el nombre de usuario del administrador actualmente autenticado
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            String adminUsername = currentUser.getEmail();
+            String currentUserId = currentUser.getUid(); // Obtiene el UID del usuario
 
-            // Consulta para filtrar los restaurantes por el nombre de usuario del administrador
-            Query query = db.collection("restaurant").whereEqualTo("ownerEmail", adminUsername);
+            // Consulta para filtrar los restaurantes por el ID del usuario
+            Query query = db.collection("restaurant").whereEqualTo("userId", currentUserId);
 
-            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions =
-                    new FirestoreRecyclerOptions.Builder<Restaurant>().setQuery(query, Restaurant.class).build();
+            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                    .setQuery(query, Restaurant.class).build();
 
             restaurantAdapter = new RestaurantAdapter(firestoreRecyclerOptions);
-            restaurantAdapter.notifyDataSetChanged();
             restaurantRecyclerView.setAdapter(restaurantAdapter);
         }
     }

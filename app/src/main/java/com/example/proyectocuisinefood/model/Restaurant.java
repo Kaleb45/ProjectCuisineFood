@@ -10,11 +10,11 @@ public class Restaurant {
             distributionTablesRestaurant,
             codeEmployeesRestaurant,
             methodsPaymentsRestaurants,
-            adminRestaurant;
+            userId;
 
     public Restaurant(){}
 
-    public Restaurant(String name, String categoryPrimaryRestaurant, String categorySecondaryRestaurant, String phoneRestaurant, String addressRestaurant, String relatedRestaurants, String distributionTablesRestaurant, String codeEmployeesRestaurant, String methodsPaymentsRestaurants, String adminRestaurant) {
+    public Restaurant(String name, String categoryPrimaryRestaurant, String categorySecondaryRestaurant, String phoneRestaurant, String addressRestaurant, String relatedRestaurants, String distributionTablesRestaurant, String codeEmployeesRestaurant, String methodsPaymentsRestaurants, String userId) {
         this.name = name;
         this.categoryPrimaryRestaurant = categoryPrimaryRestaurant;
         this.categorySecondaryRestaurant = categorySecondaryRestaurant;
@@ -24,14 +24,14 @@ public class Restaurant {
         this.distributionTablesRestaurant = distributionTablesRestaurant;
         this.codeEmployeesRestaurant = codeEmployeesRestaurant;
         this.methodsPaymentsRestaurants = methodsPaymentsRestaurants;
-        this.adminRestaurant = adminRestaurant;
+        this.userId = userId;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setNameRestaurant(String nameRestaurant) {
+    public void getName(String name) {
         this.name = name;
     }
 
@@ -99,11 +99,11 @@ public class Restaurant {
         this.methodsPaymentsRestaurants = methodsPaymentsRestaurants;
     }
 
-    public String getAdminRestaurant() {
-        return adminRestaurant;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setAdminRestaurant(String adminRestaurant) {
-        this.adminRestaurant = adminRestaurant;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

@@ -256,9 +256,11 @@ public class CreateRestaurant extends AppCompatActivity{
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hourSchedule, int minuteSchedule) {
-                button.setText(hourSchedule + ":" + minuteSchedule);
-                // Guardar la información en un String
-                String scheduleTime = hourSchedule + ":" + minuteSchedule;
+                // Formatea la hora y los minutos para asegurar el formato de dos dígitos
+                String formattedTime = String.format("%02d:%02d", hourSchedule, minuteSchedule);
+                button.setText(formattedTime);
+                // Guardar la información en un String con el formato adecuado
+                String scheduleTime = formattedTime;
                 // Puedes hacer algo con la información guardada, como pasarlo a la base de datos
             }
         }, hour, minute, false);
@@ -300,14 +302,14 @@ public class CreateRestaurant extends AppCompatActivity{
     }
 
     private void createRestaurant(String name, String category1, String category2, String phone, String code) {
-        String userEmail = mAuth.getCurrentUser().getEmail(); // Obtener el correo electrónico del usuario actual
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("category1",category1);
         map.put("category2",category2);
         map.put("phone",phone);
         map.put("code",code);
-        map.put("ownerEmail", userEmail); // Agregar el correo electrónico del propietario del restaurante
+        // Añadir los datos del restaurante...
+        map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
 
         db.collection("restaurant").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -352,7 +354,7 @@ public class CreateRestaurant extends AppCompatActivity{
             scheduleData.put("restaurantId", restaurantId);
 
             // Guardar el horario en la colección "Schedules"
-            db.collection("Schedules")
+            db.collection("schedules")
                     .add(scheduleData)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
