@@ -1,14 +1,25 @@
 package com.example.proyectocuisinefood;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -17,15 +28,23 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,12 +81,27 @@ public class CreateRestaurant extends AppCompatActivity{
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
+    StorageReference storageReference;
+    String storagePath = "restaurant/*"; // Ubicacion de la carpeta de imagenes
+    private static final int codeSelectStorage = 200;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final int GALLERY_REQUEST_CODE = 101;
+    private static final int CAMERA_REQUEST_CODE = 102;
+    private Uri imageUrl;
+    String photo = "photo";
+    String idd;
+    ProgressDialog progressDialog;
+    String imageType;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_restaurant);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference();
+
+        progressDialog = new ProgressDialog(this);
 
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -138,6 +172,70 @@ public class CreateRestaurant extends AppCompatActivity{
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
+            }
+        });
+
+        restaurantTable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Si restaurantTable está activado, hacer visible el botón de restaurantMap
+                    restaurantMap.setVisibility(View.VISIBLE);
+                } else {
+                    // Si restaurantTable no está activado, ocultar el botón de restaurantMap
+                    restaurantMap.setVisibility(View.GONE);
+                    // Establecer el campo "tableDistribution" como vacío
+                    db.collection("restaurant").document(idd).update("tableDistribution", "");
+                }
+            }
+        });
+
+        restaurantIndication.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Aquí actualizas la base de datos con el campo "tableIndication" como "Indicación"
+                    // Por ejemplo:
+                    db.collection("restaurant").document(idd).update("tableIndication", "Indicación");
+                } else {
+                    db.collection("restaurant").document(idd).update("tableIndication", "");
+                }
+            }
+        });
+
+        restaurantVMPay.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!isChecked) {
+                    // Si restaurantVMPay no está activado, mostrar un mensaje o realizar alguna acción
+                    // para indicar que este botón es obligatorio.
+                    Toast.makeText(getApplicationContext(), "Por favor, active restaurantVMPay", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+        restaurantLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imageType = "logo"; // Indica que se está subiendo el logo
+                requestPermissions();
+            }
+        });
+
+        restaurantMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imageType = "tableDistribution"; // Indica que se está subiendo el mapa de distribución de mesas
+                requestPermissions();
+            }
+        });
+
+        restaurantImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imageType = "photo"; // Indica que se está subiendo una foto general del restaurante
+                requestPermissions();
             }
         });
 
@@ -248,6 +346,136 @@ public class CreateRestaurant extends AppCompatActivity{
         });
     }
 
+    // Método para solicitar permisos
+    private void requestPermissions() {
+        // Verificar si ya se tienen los permisos
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Si no se tienen los permisos, solicitarlos al usuario
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                    PERMISSION_REQUEST_CODE);
+        } else {
+            // Si ya se tienen los permisos, abrir el selector de imágenes
+            openImageSelector();
+        }
+    }
+
+    // Método para abrir el selector de imágenes
+    private void openImageSelector() {
+        // Crear un diálogo para que el usuario elija entre la galería de fotos y la cámara
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Selecciona una opción")
+                .setItems(new String[]{"Galería de fotos", "Cámara"}, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                // Abrir la galería de fotos
+                                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE);
+                                break;
+                            case 1:
+                                // Abrir la cámara fotográfica
+                                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                                break;
+                        }
+                    }
+                });
+        builder.create().show();
+    }
+
+    // Método para manejar el resultado de la solicitud de permisos
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Si el usuario otorga los permisos, abrir el selector de imágenes
+                openImageSelector();
+            } else {
+                // Si el usuario niega los permisos, mostrar un mensaje de advertencia
+                Toast.makeText(this, "Permiso denegado. No se puede acceder a la galería de fotos.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_REQUEST_CODE) {
+                // Obtener la URI de la imagen
+                imageUrl = (requestCode == GALLERY_REQUEST_CODE) ? data.getData() : getImageUriFromCamera(data);
+
+                // Establecer la imagen en el ImageButton correspondiente
+                setImageOnButton(imageType, imageUrl);
+
+                // Subir la foto al servidor
+                sendPhoto(imageUrl);
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    // Método para obtener la URI de la imagen capturada con la cámara
+    private Uri getImageUriFromCamera(Intent data) {
+        Bitmap photo = (Bitmap) data.getExtras().get("data");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        photo.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), photo, "Title", null);
+        return Uri.parse(path);
+    }
+
+    // Método para establecer la imagen en el ImageButton correspondiente
+    private void setImageOnButton(String imageType, Uri imageUrl) {
+        switch (imageType) {
+            case "logo":
+                restaurantLogo.setImageURI(imageUrl);
+                break;
+            case "tableDistribution":
+                restaurantMap.setImageURI(imageUrl);
+                break;
+            case "photo":
+                restaurantImage.setImageURI(imageUrl);
+                break;
+        }
+    }
+
+
+    private void sendPhoto(Uri imageUrl) {
+        progressDialog.setMessage("Actualizando foto");
+        progressDialog.show();
+        String ruteStoragePhoto = storagePath+""+photo+""+mAuth.getUid()+""+idd;
+        StorageReference reference = storageReference.child(ruteStoragePhoto);
+        reference.putFile(imageUrl).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl(); // Toma la url que se le asignara a la imagen
+                while(!uriTask.isSuccessful());
+                if(uriTask.isSuccessful()){
+                    uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String downloadUri = uri.toString();
+                            HashMap<String, Object> map = new HashMap<>();
+                            map.put(imageType, downloadUri);
+                            db.collection("restaurant").document(idd).update(map);
+                            Toast.makeText(CreateRestaurant.this, "Foto actualizada", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                        }
+                    });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CreateRestaurant.this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void onClickSchedule(final Button button) {
         final Calendar c = Calendar.getInstance();
         hour = c.get(Calendar.HOUR_OF_DAY);
@@ -311,9 +539,38 @@ public class CreateRestaurant extends AppCompatActivity{
         // Añadir los datos del restaurante...
         map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
 
+        if (restaurantVMPay.isChecked()) {
+
+            // Creamos un HashMap con los campos necesarios para el nuevo documento
+            Map<String, Object> paymentData = new HashMap<>();
+            paymentData.put("cardNumber", "");
+            paymentData.put("cvv", "");
+            paymentData.put("date", "");
+            paymentData.put("name", "");
+            paymentData.put("type", "Visa/Mastercard");
+
+            // Añadimos el nuevo documento a la colección paymentMethods
+            db.collection("paymentMethods").add(paymentData)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            // Si se añade correctamente, puedes realizar alguna acción adicional si es necesario
+                            Log.d(TAG, "Documento de métodos de pago creado con ID: " + documentReference.getId());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Si hay un error al añadir el documento, manejarlo aquí
+                            Log.e(TAG, "Error al crear el documento de métodos de pago", e);
+                        }
+                    });
+        }
+
         db.collection("restaurant").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
+                idd = documentReference.getId();
                 String restaurantId = documentReference.getId(); // Aquí obtienes el ID del restaurante
                 Toast.makeText(CreateRestaurant.this, "Creado Exitosamente", Toast.LENGTH_SHORT).show();
                 saveSchedulesForRestaurant(restaurantId); // Llamada al método para guardar los horarios asociados al restaurante

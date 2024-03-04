@@ -1,5 +1,6 @@
 package com.example.proyectocuisinefood.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.squareup.picasso.Picasso;
 
 public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, RestaurantAdapter.ViewHolder> {
 
@@ -23,6 +25,17 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
         holder.name.setText(model.getName());
+        String photoLogo = model.getPhoto();
+        try{
+            if(!photoLogo.equals("")){
+                Picasso.get()
+                        .load(photoLogo)
+                        .resize(150,150)
+                        .into(holder.logo);
+            }
+        }catch (Exception e){
+            Log.d("Exception","e: "+e);
+        }
     }
 
     @NonNull
@@ -34,12 +47,12 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
-        ImageView restaurantLogo;
+        ImageView logo;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             name = itemView.findViewById(R.id.t_name_restaurant);
-            restaurantLogo = itemView.findViewById(R.id.im_logo_restaurant);
+            logo = itemView.findViewById(R.id.im_logo_restaurant);
         }
     }
 }
