@@ -34,9 +34,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,8 +52,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CreateRestaurant extends AppCompatActivity{
@@ -82,11 +91,14 @@ public class CreateRestaurant extends AppCompatActivity{
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     StorageReference storageReference;
+    PlacesClient placesClient;
     String storagePath = "restaurant/*"; // Ubicacion de la carpeta de imagenes
     private static final int codeSelectStorage = 200;
     private static final int PERMISSION_REQUEST_CODE = 100;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
+    private static final int PLACE_PICKER_REQUEST = 2;
     private Uri imageUrl;
     String photo = "photo";
     String idd;
@@ -102,6 +114,10 @@ public class CreateRestaurant extends AppCompatActivity{
         storageReference = FirebaseStorage.getInstance().getReference();
 
         progressDialog = new ProgressDialog(this);
+
+        // Inicializar Places API
+        Places.initialize(getApplicationContext(), "AIzaSyDIEIhLdcWAaYo5FuIJhJTN4hIF3OcpduM");
+        placesClient = Places.createClient(this);
 
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -239,7 +255,13 @@ public class CreateRestaurant extends AppCompatActivity{
             }
         });
 
-
+        restaurantDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Lanzar la pantalla de selección de lugar
+                startPlacePicker();
+            }
+        });
         mondayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -346,6 +368,47 @@ public class CreateRestaurant extends AppCompatActivity{
         });
     }
 
+    private void startPlacePicker() {
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, placeFields)
+                .setCountry("MX") // Puedes ajustar esto según tus necesidades
+                .build(this);
+
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == AutocompleteActivity.RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                String address = place.getAddress();
+
+                // Mostrar la dirección en el botón
+                restaurantDirection.setText(address);
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Toast.makeText(this, "Error: " + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_REQUEST_CODE) {
+                // Obtener la URI de la imagen
+                imageUrl = (requestCode == GALLERY_REQUEST_CODE) ? data.getData() : getImageUriFromCamera(data);
+
+                // Establecer la imagen en el ImageButton correspondiente
+                setImageOnButton(imageType, imageUrl);
+
+                // Subir la foto al servidor
+                sendPhoto(imageUrl);
+            }
+        }
+    }
+
     // Método para solicitar permisos
     private void requestPermissions() {
         // Verificar si ya se tienen los permisos
@@ -399,24 +462,6 @@ public class CreateRestaurant extends AppCompatActivity{
                 Toast.makeText(this, "Permiso denegado. No se puede acceder a la galería de fotos.", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == GALLERY_REQUEST_CODE || requestCode == CAMERA_REQUEST_CODE) {
-                // Obtener la URI de la imagen
-                imageUrl = (requestCode == GALLERY_REQUEST_CODE) ? data.getData() : getImageUriFromCamera(data);
-
-                // Establecer la imagen en el ImageButton correspondiente
-                setImageOnButton(imageType, imageUrl);
-
-                // Subir la foto al servidor
-                sendPhoto(imageUrl);
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     // Método para obtener la URI de la imagen capturada con la cámara
@@ -501,6 +546,7 @@ public class CreateRestaurant extends AppCompatActivity{
         String category2 = selectedItemCategory2;
         String phone = restaurantPhone.getText().toString().trim();
         String code = restaurantCode.getText().toString().trim();
+        String direction = restaurantDirection.getText().toString().trim();
         String mondayOpen = mondayOpenSchedule.getText().toString().trim();
         String mondayClose = mondayCloseSchedule.getText().toString().trim();
         String tuesdayOpen = tuesdayOpenSchedule.getText().toString().trim();
@@ -516,8 +562,14 @@ public class CreateRestaurant extends AppCompatActivity{
         String sundayOpen = sundayOpenSchedule.getText().toString().trim();
         String sundayClose = sundayCloseSchedule.getText().toString().trim();
 
+        // Verificar si el teléfono tiene y longitud máxima de 10 dígitos
+        if (phone.length() != 10) {
+            // Mostrar un mensaje de error si el teléfono no es válido
+            Toast.makeText(this, "El teléfono debe contener solo números y tener 10 dígitos", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() ||
+        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() || direction.isEmpty() || direction.equals("Dirección") ||
                 mondayOpen.equals("Entrada") || mondayClose.equals("Cierre") || tuesdayOpen.equals("Entrada") || tuesdayClose.equals("Cierre") || wednesdayOpen.equals("Entrada") || wednesdayClose.equals("Cierre") ||
                 thursdayOpen.equals("Entrada") || thursdayClose.equals("Cierre") || fridayOpen.equals("Entrada") || fridayClose.equals("Cierre") || saturdayOpen.equals("Entrada") || saturdayClose.equals("Cierre") ||
                 sundayOpen.equals("Entrada") || sundayClose.equals("Cierre")){
@@ -525,11 +577,11 @@ public class CreateRestaurant extends AppCompatActivity{
             return;
         }
         else{
-            createRestaurant(name, category1, category2, phone, code);
+            createRestaurant(name, category1, category2, phone, code, direction);
         }
     }
 
-    private void createRestaurant(String name, String category1, String category2, String phone, String code) {
+    private void createRestaurant(String name, String category1, String category2, String phone, String code, String direction) {
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("category1",category1);
@@ -547,6 +599,7 @@ public class CreateRestaurant extends AppCompatActivity{
             paymentData.put("cvv", "");
             paymentData.put("date", "");
             paymentData.put("name", "");
+            map.put("direction", direction);
             paymentData.put("type", "Visa/Mastercard");
 
             // Añadimos el nuevo documento a la colección paymentMethods
