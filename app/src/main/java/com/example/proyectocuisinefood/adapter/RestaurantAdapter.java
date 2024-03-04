@@ -25,12 +25,12 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
         holder.name.setText(model.getName());
-        String photoLogo = model.getPhoto();
+        String photoLogo = model.getLogo();
         try{
             if(!photoLogo.equals("")){
                 Picasso.get()
                         .load(photoLogo)
-                        .resize(150,150)
+                        .resize(720,720)
                         .into(holder.logo);
             }
         }catch (Exception e){

@@ -75,6 +75,7 @@ public class Admin extends AppCompatActivity {
                     .setQuery(query, Restaurant.class).build();
 
             restaurantAdapter = new RestaurantAdapter(firestoreRecyclerOptions);
+            restaurantAdapter.notifyDataSetChanged();
             restaurantRecyclerView.setAdapter(restaurantAdapter);
         }
     }
