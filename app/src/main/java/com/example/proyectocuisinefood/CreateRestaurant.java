@@ -70,7 +70,6 @@ public class CreateRestaurant extends AppCompatActivity{
             mondayCloseSchedule, tuesdayCloseSchedule, wednesdayCloseSchedule, thursdayCloseSchedule, fridayCloseSchedule, saturdayCloseSchedule, sundayCloseSchedule;
     Switch restaurantTable, restaurantIndication, restaurantVMPay;
     Spinner spinRestaurantCategory1, spinRestaurantCategory2;
-
     String[] typeCategory1={
             "Comida rápida",
             "Comida Casual",
