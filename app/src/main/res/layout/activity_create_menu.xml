@@ -104,13 +104,19 @@
                     android:textStyle="bold"
                     android:backgroundTint="@color/anaranjado"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/r_ingredients"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                <ScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/r_ingredients"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </ScrollView>
 
                 <EditText
-                    android:id="@+id/ed_time"
+                    android:id="@+id/ed_time_dish"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
