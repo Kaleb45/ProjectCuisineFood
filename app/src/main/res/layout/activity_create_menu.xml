@@ -1,9 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateMenu">
+    tools:context=".CreateMenu"
+    android:orientation="vertical"
+    android:layout_gravity="center">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="15dp"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="15dp">
+
+                <LinearLayout
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="center">
+
+                    <ImageButton
+                        android:id="@+id/imb_photo_dish"
+                        android:layout_width="150dp"
+                        android:layout_height="110dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_gravity="center"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="center">
+
+                    <EditText
+                        android:id="@+id/ed_name_dish"
+                        android:layout_width="180dp"
+                        android:layout_height="wrap_content"
+                        android:hint="Nombre Platillo"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+
+                    <EditText
+                        android:id="@+id/ed_cost_dish"
+                        android:layout_width="180dp"
+                        android:layout_height="wrap_content"
+                        android:hint="Costo"
+                        android:inputType="numberDecimal"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:layout_marginTop="15dp"/>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/ed_description_dish"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:hint="Descripción"
+                    android:gravity="top|center"
+                    android:textSize="18sp"
+                    android:backgroundTint="@android:color/transparent"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="15dp">
+
+                <Button
+                    android:id="@+id/b_ingredients_dish"
+                    android:layout_width="180dp"
+                    android:layout_height="wrap_content"
+                    android:text="Ingredientes"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/anaranjado"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/r_ingredients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <EditText
+                    android:id="@+id/ed_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="Tiempo aproximado"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/b_create_dish"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:text="Crear Platillo"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/anaranjado"
+                android:layout_margin="10dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
