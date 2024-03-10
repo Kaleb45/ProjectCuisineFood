@@ -34,6 +34,7 @@ public class Menu extends AppCompatActivity {
     FloatingActionButton fabMenu;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
+    String restaurantId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +80,7 @@ public class Menu extends AppCompatActivity {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                             if (!queryDocumentSnapshots.isEmpty()) {
-                                String restaurantId = queryDocumentSnapshots.getDocuments().get(0).getId();
+                                restaurantId = queryDocumentSnapshots.getDocuments().get(0).getId();
 
                                 // Consulta para filtrar los platillos por el ID del restaurante
                                 Query query = db.collection("dish").whereEqualTo("restaurantId", restaurantId);
@@ -97,8 +98,10 @@ public class Menu extends AppCompatActivity {
     }
 
     private void onClickCreateMenu() {
-        startActivity(new Intent(Menu.this, CreateMenu.class));
-        finish();
+        Intent intent = new Intent(Menu.this, CreateMenu.class);
+        intent.putExtra("restaurantId", restaurantId); // "restaurantId" es una clave y restaurantId es el valor que quieres pasar.
+        startActivity(intent);
+
     }
 
     @Override

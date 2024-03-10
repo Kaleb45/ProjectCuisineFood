@@ -26,6 +26,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".PaymentMethods"
+            android:exported="false" />
+        <activity
             android:name=".CreateMenu"
             android:exported="false" />
         <activity

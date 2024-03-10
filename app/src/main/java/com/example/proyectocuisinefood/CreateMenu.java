@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
@@ -17,7 +18,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,41 +26,45 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.Status;
+import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
+import com.example.proyectocuisinefood.model.Ingredients;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public class CreateMenu extends AppCompatActivity {
+public class CreateMenu extends AppCompatActivity implements IngredientsAdapter.IngredientSelectionListener {
 
     ImageButton dishImage;
     EditText dishName, dishCost, dishDescription, dishTime;
     Button dishIngredients, dishCreate;
     RecyclerView recyclerViewIngredients;
-
+    IngredientsAdapter ingredientsAdapter;
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     StorageReference storageReference;
+    Set<String> selectedIngredients = new HashSet<>();
     String storagePath = "restaurant/menu/*";
     private Uri imageUrl;
     String photo = "photo";
     ProgressDialog progressDialog;
-    String downloadUri;
+    String downloadUri, restaurantId;
 
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
@@ -87,7 +91,22 @@ public class CreateMenu extends AppCompatActivity {
         dishTime = findViewById(R.id.ed_time_dish);
         dishIngredients = findViewById(R.id.b_ingredients_dish);
         dishCreate = findViewById(R.id.b_create_dish);
+
         recyclerViewIngredients = findViewById(R.id.r_ingredients);
+        recyclerViewIngredients.setLayoutManager(new LinearLayoutManager(this));
+
+        Query query = db.collection("ingredients");
+
+        FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
+                .setQuery(query, Ingredients.class).build();
+
+        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions, this);
+        ingredientsAdapter.notifyDataSetChanged();
+        recyclerViewIngredients.setAdapter(ingredientsAdapter);
+
+
+        // Recoge el ID del restaurante del Intent
+        restaurantId = getIntent().getStringExtra("restaurantId");
 
         dishImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,8 +130,21 @@ public class CreateMenu extends AppCompatActivity {
         });
     }
 
-    private void onClickCreateIngredient() {
+    // Método de la interfaz IngredientSelectionListener para manejar la selección de ingredientes
+    @Override
+    public void onIngredientSelected(String ingredientName) {
+        selectedIngredients.add(ingredientName);
+    }
 
+    // Método de la interfaz IngredientSelectionListener para manejar la deselección de ingredientes
+    @Override
+    public void onIngredientDeselected(String ingredientName) {
+        selectedIngredients.remove(ingredientName);
+    }
+
+    private void onClickCreateIngredient() {
+        CreateIngredients fm = new CreateIngredients();
+        fm.show(getSupportFragmentManager(), "Navegar a ingredientes");
     }
 
     private void onClickCreateDish() {
@@ -126,19 +158,20 @@ public class CreateMenu extends AppCompatActivity {
             return;
         }
         else{
-            createDish(name, cost, description, time);
+            // Obtener los ingredientes seleccionados del adaptador
+            selectedIngredients = ingredientsAdapter.getSelectedIngredients();
+            createDish(name, cost, description, time, selectedIngredients);
         }
     }
 
-    private void createDish(String name, String cost, String description, String time) {
+    private void createDish(String name, String cost, String description, String time, Set<String> selectedIngredients) {
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("cost",cost);
         map.put("description",description);
         map.put("time",time);
-
-        // Añadir los datos del restaurante...
-        map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
+        map.put("restaurantId", restaurantId);
+        map.put("ingredientIds", new ArrayList<>(selectedIngredients));
 
         db.collection("dish").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -150,7 +183,7 @@ public class CreateMenu extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(CreateMenu.this, "Error al crear el restaurante", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateMenu.this, "Error al crear el platillo", Toast.LENGTH_SHORT).show();
             }
         });
     }
