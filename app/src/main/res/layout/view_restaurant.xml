@@ -41,7 +41,7 @@
 
                 <TextView
                     android:id="@+id/t_name_restaurant"
-                    android:layout_width="wrap_content"
+                    android:layout_width="180dp"
                     android:layout_height="wrap_content"
                     android:hint="Nombre del restaurante"
                     android:textSize="20sp"
@@ -49,11 +49,13 @@
 
                 <ImageButton
                     android:id="@+id/b_menu"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:src="@drawable/ic_build"
-                    android:background="@android:color/transparent"/>
+                    android:backgroundTint="@android:color/transparent"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center"/>
 
             </LinearLayout>
 

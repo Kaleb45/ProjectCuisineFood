@@ -67,33 +67,20 @@ public class Menu extends AppCompatActivity {
             }
         });
 
-        // Obtener el nombre de usuario del administrador actualmente autenticado
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String currentUserId = currentUser.getUid(); // Obtiene el UID del usuario
+        // Recibir el ID del restaurante del intent
+        restaurantId = getIntent().getStringExtra("restaurantId");
 
-            // Obtener el ID del restaurante del usuario actual
-            db.collection("restaurant")
-                    .whereEqualTo("userId", currentUserId)
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                restaurantId = queryDocumentSnapshots.getDocuments().get(0).getId();
+        if (restaurantId != null && !restaurantId.isEmpty()) {
+            // Consultar los platillos por el ID del restaurante
+            Query query = db.collection("dish").whereEqualTo("restaurantId", restaurantId);
 
-                                // Consulta para filtrar los platillos por el ID del restaurante
-                                Query query = db.collection("dish").whereEqualTo("restaurantId", restaurantId);
+            FirestoreRecyclerOptions<Dish> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Dish>()
+                    .setQuery(query, Dish.class).build();
 
-                                FirestoreRecyclerOptions<Dish> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Dish>()
-                                        .setQuery(query, Dish.class).build();
+            menuAdapter = new MenuAdapter(firestoreRecyclerOptions);
+            menuAdapter.notifyDataSetChanged();
+            menuRecyclerView.setAdapter(menuAdapter);
 
-                                menuAdapter = new MenuAdapter(firestoreRecyclerOptions);
-                                menuAdapter.notifyDataSetChanged();
-                                menuRecyclerView.setAdapter(menuAdapter);
-                            }
-                        }
-                    });
         }
     }
 

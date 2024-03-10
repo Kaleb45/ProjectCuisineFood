@@ -10,18 +10,18 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.proyectocuisinefood.CreateMenu;
-import com.example.proyectocuisinefood.MainActivity;
 import com.example.proyectocuisinefood.Menu;
 import com.example.proyectocuisinefood.PaymentMethods;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, RestaurantAdapter.ViewHolder> {
@@ -47,12 +47,14 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
         holder.buttonMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPopupMenu(v);
+                showPopupMenu(v, holder);
             }
         });
     }
 
-    private void showPopupMenu(View v) {
+    private void showPopupMenu(View v, ViewHolder holder) {
+        // Obtener el DocumentSnapshot del restaurante en la posición actual
+        DocumentSnapshot snapshot = getSnapshots().getSnapshot(holder.getAdapterPosition());
         PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
         popupMenu.getMenuInflater().inflate(R.menu.restaurant_menu, popupMenu.getMenu());
 
@@ -63,11 +65,13 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
 
                 if(id == R.id.menu_option_menu){
                     Intent intentMenu = new Intent(v.getContext(), Menu.class);
+                    intentMenu.putExtra("restaurantId", snapshot.getId());
                     v.getContext().startActivity(intentMenu);
                     return true;
                 } else if(id == R.id.menu_option_payment){
                     // Ir a la Activity de Métodos de Pago
                     Intent intentPayment = new Intent(v.getContext(), PaymentMethods.class);
+                    intentPayment.putExtra("restaurantId", snapshot.getId());
                     v.getContext().startActivity(intentPayment);
                     return true;
                 } else {
