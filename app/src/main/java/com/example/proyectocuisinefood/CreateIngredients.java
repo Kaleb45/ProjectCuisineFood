@@ -64,7 +64,7 @@ public class CreateIngredients extends DialogFragment implements IngredientsAdap
         recyclerViewShowIngredient = v.findViewById(R.id.r_show_ingredient);
         recyclerViewShowIngredient.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        Query query = db.collection("dish");
+        Query query = db.collection("ingredients");
 
         FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
                 .setQuery(query, Ingredients.class).build();

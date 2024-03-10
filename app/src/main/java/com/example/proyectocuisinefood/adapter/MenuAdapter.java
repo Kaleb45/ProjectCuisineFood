@@ -27,7 +27,7 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
     @Override
     protected void onBindViewHolder(@NonNull MenuAdapter.ViewHolder holder, int position, @NonNull Dish model) {
         holder.name.setText(model.getName());
-        holder.cost.setText(model.getCost());
+        holder.cost.setText(model.getCost()+"$");
         String photoDish = model.getPhoto();
         try{
             if(!photoDish.equals("")){
