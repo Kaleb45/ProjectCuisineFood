@@ -17,11 +17,13 @@ import com.example.proyectocuisinefood.adapter.RestaurantAdapter;
 import com.example.proyectocuisinefood.model.Dish;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class Menu extends AppCompatActivity {
 
@@ -69,15 +71,28 @@ public class Menu extends AppCompatActivity {
         if (currentUser != null) {
             String currentUserId = currentUser.getUid(); // Obtiene el UID del usuario
 
-            // Consulta para filtrar los restaurantes por el ID del usuario
-            Query query = db.collection("dish").whereEqualTo("userId", currentUserId);
+            // Obtener el ID del restaurante del usuario actual
+            db.collection("restaurant")
+                    .whereEqualTo("userId", currentUserId)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                String restaurantId = queryDocumentSnapshots.getDocuments().get(0).getId();
 
-            FirestoreRecyclerOptions<Dish> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Dish>()
-                    .setQuery(query, Dish.class).build();
+                                // Consulta para filtrar los platillos por el ID del restaurante
+                                Query query = db.collection("dish").whereEqualTo("restaurantId", restaurantId);
 
-            menuAdapter = new MenuAdapter(firestoreRecyclerOptions);
-            menuAdapter.notifyDataSetChanged();
-            menuRecyclerView.setAdapter(menuAdapter);
+                                FirestoreRecyclerOptions<Dish> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Dish>()
+                                        .setQuery(query, Dish.class).build();
+
+                                menuAdapter = new MenuAdapter(firestoreRecyclerOptions);
+                                menuAdapter.notifyDataSetChanged();
+                                menuRecyclerView.setAdapter(menuAdapter);
+                            }
+                        }
+                    });
         }
     }
 

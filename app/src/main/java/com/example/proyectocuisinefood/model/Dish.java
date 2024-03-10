@@ -1,16 +1,17 @@
 package com.example.proyectocuisinefood.model;
 
 public class Dish {
-    String name, cost, photo;
+    String name, cost, photo, restaurantId;
 
     public Dish(){
 
     }
 
-    public Dish(String name, String cost, String photo) {
+    public Dish(String name, String cost, String photo, String restaurantId) {
         this.name = name;
         this.cost = cost;
         this.photo = photo;
+        this.restaurantId = restaurantId;
     }
 
     public String getName() {
@@ -35,5 +36,13 @@ public class Dish {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public String getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
     }
 }
