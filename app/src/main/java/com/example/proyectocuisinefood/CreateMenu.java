@@ -64,7 +64,7 @@ public class CreateMenu extends AppCompatActivity {
     private Uri imageUrl;
     String photo = "photo";
     ProgressDialog progressDialog;
-    String downloadUri, restaurantId;
+    String downloadUri, restaurantId, photoDish;
 
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
@@ -139,25 +139,32 @@ public class CreateMenu extends AppCompatActivity {
         String cost = dishCost.getText().toString().trim();
         String description = dishDescription.getText().toString().trim();
         String time = dishTime.getText().toString().trim();
+        String type = "";
 
         if(name.isEmpty() || cost.isEmpty() || description.isEmpty() || time.isEmpty()){
             Toast.makeText(this, "No puede dejar espacios vacios", Toast.LENGTH_SHORT).show();
             return;
         }
         else{
-
-            createDish(name, cost, description, time, selectedIngredients);
+            if(description.contains("Bebida")){
+                type = "Bebida";
+            } else {
+                type = "Plato";
+            }
+            createDish(name, cost, description, time, type, selectedIngredients);
         }
     }
 
-    private void createDish(String name, String cost, String description, String time, Set<String> selectedIngredients) {
+    private void createDish(String name, String cost, String description, String time, String type, Set<String> selectedIngredients) {
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("cost",cost);
         map.put("description",description);
         map.put("time",time);
+        map.put("type",type);
         map.put("restaurantId", restaurantId);
-        map.put("ingredientIds", new ArrayList<>(selectedIngredients));
+        map.put("photo", photoDish);
+        map.put("ingredientId", new ArrayList<>(selectedIngredients));
 
         db.collection("dish").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -229,6 +236,7 @@ public class CreateMenu extends AppCompatActivity {
                 imageUrl = data.getData();
                 // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
                 loadImageIntoButton(dishImage, imageUrl.toString());
+                photoDish = imageUrl.toString();
 
                 sendPhoto(imageUrl);
             } else if (requestCode == CAMERA_REQUEST_CODE) {
@@ -236,6 +244,7 @@ public class CreateMenu extends AppCompatActivity {
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
                 imageUrl = data.getData();
                 loadImageIntoButton(dishImage, imageUrl.toString());
+                photoDish = imageUrl.toString();
 
                 sendPhoto(imageUrl);
             }
@@ -286,6 +295,18 @@ public class CreateMenu extends AppCompatActivity {
                 Toast.makeText(CreateMenu.this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ingredientsAdapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ingredientsAdapter.stopListening();
     }
 
     @Override

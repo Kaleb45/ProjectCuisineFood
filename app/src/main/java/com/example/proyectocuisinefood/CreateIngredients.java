@@ -108,4 +108,16 @@ public class CreateIngredients extends DialogFragment {
             }
         });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ingredientsAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ingredientsAdapter.stopListening();
+    }
 }
