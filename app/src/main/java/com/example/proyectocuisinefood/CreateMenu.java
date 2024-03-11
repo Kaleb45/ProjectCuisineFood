@@ -145,7 +145,7 @@ public class CreateMenu extends AppCompatActivity {
             return;
         }
         else{
-            if(description.contains("Bebida")){
+            if(description.contains("Bebida") || description.contains("bebida")){
                 type = "Bebida";
             } else {
                 type = "Plato";
