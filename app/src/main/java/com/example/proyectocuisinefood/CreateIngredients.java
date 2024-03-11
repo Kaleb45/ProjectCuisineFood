@@ -83,7 +83,7 @@ public class CreateIngredients extends DialogFragment {
         String name = newIngredient.getText().toString().trim();
         if(name.isEmpty()){
             Toast.makeText(getContext(), "No puede dejar espacios en blanco", Toast.LENGTH_SHORT).show();
-        } else if (!name.matches("^[a-z A-Z]+$")) { // Verifica si el nombre contiene caracteres no válidos
+        } else if (!name.matches("^[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+(\\s*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]*)*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+$")) { // Verifica si el nombre contiene caracteres no válidos
             Toast.makeText(getContext(), "El nombre del ingrediente solo puede contener letras", Toast.LENGTH_SHORT).show();
             return;
         } else {
