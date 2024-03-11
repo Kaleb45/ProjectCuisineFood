@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.proyectocuisinefood.Global.info;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -34,6 +36,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
@@ -59,13 +62,10 @@ public class CreateMenu extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     StorageReference storageReference;
-    Set<String> selectedIngredients = new HashSet<>();
-    String storagePath = "restaurant/menu/*";
     private Uri imageUrl;
-    String photo = "photo";
     ProgressDialog progressDialog;
     String downloadUri, restaurantId, photoDish;
-
+    private static final int codeSelectStorage = 200;
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
@@ -151,11 +151,11 @@ public class CreateMenu extends AppCompatActivity {
             } else {
                 type = "Plato";
             }
-            createDish(name, cost, description, time, type, selectedIngredients);
+            createDish(name, cost, description, time, type);
         }
     }
 
-    private void createDish(String name, String cost, String description, String time, String type, Set<String> selectedIngredients) {
+    private void createDish(String name, String cost, String description, String time, String type) {
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("cost",cost);
@@ -164,7 +164,7 @@ public class CreateMenu extends AppCompatActivity {
         map.put("type",type);
         map.put("restaurantId", restaurantId);
         map.put("photo", photoDish);
-        map.put("ingredientId", new ArrayList<>(selectedIngredients));
+        map.put("ingredientIds", info.ListAddIngredients);
 
         db.collection("dish").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -231,18 +231,22 @@ public class CreateMenu extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == GALLERY_REQUEST_CODE) {
+            if (requestCode == GALLERY_REQUEST_CODE && data != null) {
                 // Si el usuario elige una imagen de la galería de fotos, obtener la URI de la imagen
                 imageUrl = data.getData();
-                // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
-                loadImageIntoButton(dishImage, imageUrl.toString());
-                photoDish = imageUrl.toString();
+                if (imageUrl != null) {
+                    // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
+                    loadImageIntoButton(dishImage, imageUrl.toString());
 
-                sendPhoto(imageUrl);
-            } else if (requestCode == CAMERA_REQUEST_CODE) {
-                // Si el usuario toma una foto con la cámara, obtener la imagen
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                imageUrl = data.getData();
+                    sendPhoto(imageUrl);
+                } else {
+                    // Imprimir un mensaje de registro si la URI de la imagen es nula
+                    Log.e("CreateMenu", "La URI de la imagen seleccionada desde la galería es nula.");
+                }
+            } else if (requestCode == CAMERA_REQUEST_CODE && data != null) {
+                // Si el usuario toma una foto con la cámara, obtener la URI de la imagen desde los datos extras
+                imageUrl = getImageUriFromCamera(data);
+                // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
                 loadImageIntoButton(dishImage, imageUrl.toString());
                 photoDish = imageUrl.toString();
 
@@ -271,28 +275,71 @@ public class CreateMenu extends AppCompatActivity {
     private void sendPhoto(Uri imageUrl) {
         progressDialog.setMessage("Actualizando foto");
         progressDialog.show();
-        String ruteStoragePhoto = storagePath+""+photo+""+mAuth.getUid()+"dishImage";
-        StorageReference reference = storageReference.child(ruteStoragePhoto);
-        reference.putFile(imageUrl).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+        // Obtener una referencia al documento del restaurante
+        DocumentReference restaurantRef = db.collection("restaurant").document(restaurantId);
+
+        // Obtener los datos del documento del restaurante
+        restaurantRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl(); // Toma la url que se le asignara a la imagen
-                while(!uriTask.isSuccessful());
-                if(uriTask.isSuccessful()){
-                    uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            downloadUri= uri.toString();
-                            Toast.makeText(CreateMenu.this, "Foto actualizada", Toast.LENGTH_SHORT).show();
-                            progressDialog.dismiss();
-                        }
-                    });
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    // Obtener el nombre del restaurante
+                    String restaurantName = documentSnapshot.getString("name");
+
+                    // Verificar si el nombre del restaurante no es nulo
+                    if (restaurantName != null) {
+                        // Obtener la fecha y hora actual en milisegundos
+                        String timestamp = String.valueOf(System.currentTimeMillis());
+
+                        // Construir el nombre de archivo único para la imagen
+                        String fileName = "dishImage_" + timestamp;
+
+                        // Construir la ruta de almacenamiento para la imagen
+                        String storagePath = "restaurant/" + restaurantName + "/menu/*photo" + fileName;
+
+                        // Obtener una referencia al StorageReference
+                        StorageReference reference = storageReference.child(storagePath);
+
+                        reference.putFile(imageUrl).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl(); // Toma la url que se le asignara a la imagen
+                                while (!uriTask.isSuccessful()) ;
+                                if (uriTask.isSuccessful()) {
+                                    uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            downloadUri = uri.toString();
+                                            Toast.makeText(CreateMenu.this, "Foto actualizada", Toast.LENGTH_SHORT).show();
+                                            progressDialog.dismiss();
+                                        }
+                                    });
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(CreateMenu.this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        // Si el nombre del restaurante es nulo, mostrar un mensaje de error
+                        Toast.makeText(CreateMenu.this, "Error: El nombre del restaurante no está disponible", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                } else {
+                    // Si no existe un documento con el ID proporcionado, mostrar un mensaje de error
+                    Toast.makeText(CreateMenu.this, "Error: No se encontró el restaurante correspondiente", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(CreateMenu.this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
+                // Si ocurre un error al obtener los datos del documento, mostrar un mensaje de error
+                Toast.makeText(CreateMenu.this, "Error: No se pudo obtener los datos del restaurante", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
             }
         });
     }

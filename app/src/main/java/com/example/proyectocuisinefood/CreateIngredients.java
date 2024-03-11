@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class CreateIngredients extends DialogFragment {
-
-    CheckBox defaultIngredient;
     EditText newIngredient;
     Button addIngredient;
     RecyclerView recyclerViewShowIngredient;
@@ -56,7 +54,6 @@ public class CreateIngredients extends DialogFragment {
         View v = inflater.inflate(R.layout.fragment_create_ingredients, container, false);
         db = FirebaseFirestore.getInstance();
 
-        defaultIngredient = v.findViewById(R.id.c_defect_ingredient);
         newIngredient = v.findViewById(R.id.ed_new_ingredient);
         addIngredient = v.findViewById(R.id.b_add_ingredient);
 
@@ -99,7 +96,7 @@ public class CreateIngredients extends DialogFragment {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Toast.makeText(getContext(), "Ingrediente añadido", Toast.LENGTH_SHORT).show();
-                getDialog().dismiss(); // Cerrar el fragmento
+                //getDialog().dismiss(); // Cerrar el fragmento
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

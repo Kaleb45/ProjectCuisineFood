@@ -12,13 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.Global.info;
 import com.example.proyectocuisinefood.R;
-import com.example.proyectocuisinefood.model.Dish;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class IngredientsAdapter extends FirestoreRecyclerAdapter<Ingredients, IngredientsAdapter.ViewHolder> {
 
@@ -30,19 +26,20 @@ public class IngredientsAdapter extends FirestoreRecyclerAdapter<Ingredients, In
     protected void onBindViewHolder(@NonNull IngredientsAdapter.ViewHolder holder, int position, @NonNull Ingredients model) {
         final int pos = position;
         holder.name.setText(model.getName());
-        /*holder.isDefault.setChecked(false);
-        holder.isDefault.setOnClickListener(new View.OnClickListener() {
+        holder.isDefault.setChecked(false);
+        holder.isDefault.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                if(((CheckBox)view).isChecked()){
-                    info.ListAddIngredients.add(info.ListAddIngredients.get(pos));
-                }else if(!((CheckBox)view).isChecked()){
-                    info.ListDeleteIngredients.remove(info.ListDeleteIngredients.get(pos));
-                }else{
-                    info.ListAddIngredients.remove(info.ListAddIngredients.get(pos));
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Ingredients ingredient = getItem(holder.getAdapterPosition());
+                String ingredientId = null;
+                if (isChecked) {
+                    ingredientId = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
+                    info.ListAddIngredients.add(ingredientId);
+                } else {
+                    info.ListAddIngredients.remove(ingredientId);
                 }
             }
-        });*/
+        });
     }
 
     @NonNull
@@ -54,11 +51,11 @@ public class IngredientsAdapter extends FirestoreRecyclerAdapter<Ingredients, In
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
-        //CheckBox isDefault;
+        CheckBox isDefault;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.t_ingredients);
-            //isDefault = itemView.findViewById(R.id.c_ingredients);
+            isDefault = itemView.findViewById(R.id.c_ingredients);
         }
     }
 }
