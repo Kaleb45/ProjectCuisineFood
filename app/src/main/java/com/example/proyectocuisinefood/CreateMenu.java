@@ -69,7 +69,6 @@ public class CreateMenu extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,7 +206,8 @@ public class CreateMenu extends AppCompatActivity {
                                 // Abrir la galería de fotos
                                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE);
+                                galleryIntent.setType("image/*");
+                                startActivityForResult(galleryIntent, PERMISSION_REQUEST_CODE);
                                 break;
                             case 1:
                                 // Abrir la cámara fotográfica
@@ -231,17 +231,20 @@ public class CreateMenu extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == GALLERY_REQUEST_CODE && data != null) {
+            if (requestCode == PERMISSION_REQUEST_CODE && data != null) {
                 // Si el usuario elige una imagen de la galería de fotos, obtener la URI de la imagen
                 imageUrl = data.getData();
+                // Toast.makeText(this, ""+imageUrl.toString(), Toast.LENGTH_SHORT).show();
                 if (imageUrl != null) {
                     // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
+                    imageUrl = getImageUriFromCamera(data);
                     loadImageIntoButton(dishImage, imageUrl.toString());
+                    photoDish = imageUrl.toString();
 
                     sendPhoto(imageUrl);
                 } else {
                     // Imprimir un mensaje de registro si la URI de la imagen es nula
-                    Log.e("CreateMenu", "La URI de la imagen seleccionada desde la galería es nula.");
+                    Log.d("CreateMenu", "La URI de la imagen seleccionada desde la galería es nula.");
                 }
             } else if (requestCode == CAMERA_REQUEST_CODE && data != null) {
                 // Si el usuario toma una foto con la cámara, obtener la URI de la imagen desde los datos extras
@@ -296,7 +299,7 @@ public class CreateMenu extends AppCompatActivity {
                         String fileName = "dishImage_" + timestamp;
 
                         // Construir la ruta de almacenamiento para la imagen
-                        String storagePath = "restaurant/" + restaurantName + "/menu/*photo" + fileName;
+                        String storagePath = "restaurant/" + restaurantName + "/menu/photo" + fileName;
 
                         // Obtener una referencia al StorageReference
                         StorageReference reference = storageReference.child(storagePath);
