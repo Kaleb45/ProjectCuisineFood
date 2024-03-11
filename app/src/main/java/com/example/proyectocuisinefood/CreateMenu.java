@@ -143,7 +143,7 @@ public class CreateMenu extends AppCompatActivity {
         if(name.isEmpty() || cost.isEmpty() || description.isEmpty() || time.isEmpty()){
             Toast.makeText(this, "No puede dejar espacios vacios", Toast.LENGTH_SHORT).show();
             return;
-        } else if (!name.matches("^[a-zA-Z]+$")) { // Verifica si el nombre contiene caracteres no válidos
+        } else if (!name.matches("^[a-z A-Z]+$")) { // Verifica si el nombre contiene caracteres no válidos
             Toast.makeText(this, "El nombre del platillo solo puede contener letras", Toast.LENGTH_SHORT).show();
             return;
         }
