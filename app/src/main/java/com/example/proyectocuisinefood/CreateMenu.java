@@ -48,7 +48,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class CreateMenu extends AppCompatActivity implements IngredientsAdapter.IngredientSelectionListener {
+public class CreateMenu extends AppCompatActivity {
 
     ImageButton dishImage;
     EditText dishName, dishCost, dishDescription, dishTime;
@@ -95,16 +95,6 @@ public class CreateMenu extends AppCompatActivity implements IngredientsAdapter.
         recyclerViewIngredients = findViewById(R.id.r_ingredients);
         recyclerViewIngredients.setLayoutManager(new LinearLayoutManager(this));
 
-        Query query = db.collection("ingredients");
-
-        FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
-                .setQuery(query, Ingredients.class).build();
-
-        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions, this);
-        ingredientsAdapter.notifyDataSetChanged();
-        recyclerViewIngredients.setAdapter(ingredientsAdapter);
-
-
         // Recoge el ID del restaurante del Intent
         restaurantId = getIntent().getStringExtra("restaurantId");
 
@@ -128,18 +118,15 @@ public class CreateMenu extends AppCompatActivity implements IngredientsAdapter.
                 onClickCreateDish();
             }
         });
-    }
 
-    // Método de la interfaz IngredientSelectionListener para manejar la selección de ingredientes
-    @Override
-    public void onIngredientSelected(String ingredientName) {
-        selectedIngredients.add(ingredientName);
-    }
+        Query query = db.collection("ingredients");
 
-    // Método de la interfaz IngredientSelectionListener para manejar la deselección de ingredientes
-    @Override
-    public void onIngredientDeselected(String ingredientName) {
-        selectedIngredients.remove(ingredientName);
+        FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
+                .setQuery(query, Ingredients.class).build();
+
+        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions);
+        ingredientsAdapter.notifyDataSetChanged();
+        recyclerViewIngredients.setAdapter(ingredientsAdapter);
     }
 
     private void onClickCreateIngredient() {
@@ -158,8 +145,7 @@ public class CreateMenu extends AppCompatActivity implements IngredientsAdapter.
             return;
         }
         else{
-            // Obtener los ingredientes seleccionados del adaptador
-            selectedIngredients = ingredientsAdapter.getSelectedIngredients();
+
             createDish(name, cost, description, time, selectedIngredients);
         }
     }

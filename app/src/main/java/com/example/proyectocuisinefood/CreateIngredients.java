@@ -34,16 +34,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class CreateIngredients extends DialogFragment implements IngredientsAdapter.IngredientSelectionListener {
+public class CreateIngredients extends DialogFragment {
 
     CheckBox defaultIngredient;
     EditText newIngredient;
     Button addIngredient;
     RecyclerView recyclerViewShowIngredient;
     IngredientsAdapter ingredientsAdapter;
-    FirebaseAuth mAuth;
     FirebaseFirestore db;
-    Set<String> selectedIngredients = new HashSet<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,17 +59,9 @@ public class CreateIngredients extends DialogFragment implements IngredientsAdap
         defaultIngredient = v.findViewById(R.id.c_defect_ingredient);
         newIngredient = v.findViewById(R.id.ed_new_ingredient);
         addIngredient = v.findViewById(R.id.b_add_ingredient);
+
         recyclerViewShowIngredient = v.findViewById(R.id.r_show_ingredient);
         recyclerViewShowIngredient.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        Query query = db.collection("ingredients");
-
-        FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
-                .setQuery(query, Ingredients.class).build();
-
-        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions, this);
-        ingredientsAdapter.notifyDataSetChanged();
-        recyclerViewShowIngredient.setAdapter(ingredientsAdapter);
 
         addIngredient.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,6 +69,15 @@ public class CreateIngredients extends DialogFragment implements IngredientsAdap
                 onClickAddIngredient();
             }
         });
+
+        Query query = db.collection("ingredients");
+
+        FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
+                .setQuery(query, Ingredients.class).build();
+
+        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions);
+        ingredientsAdapter.notifyDataSetChanged();
+        recyclerViewShowIngredient.setAdapter(ingredientsAdapter);
 
         return v;
     }
@@ -108,16 +107,5 @@ public class CreateIngredients extends DialogFragment implements IngredientsAdap
                 Toast.makeText(getContext(), "Error al añadir el ingrediente", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    public void onIngredientSelected(String ingredientName) {
-        selectedIngredients.add(ingredientName);
-    }
-
-    // Método de la interfaz IngredientSelectionListener para manejar la deselección de ingredientes
-    @Override
-    public void onIngredientDeselected(String ingredientName) {
-        selectedIngredients.remove(ingredientName);
     }
 }
