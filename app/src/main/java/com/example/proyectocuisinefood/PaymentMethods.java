@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,6 +24,7 @@ public class PaymentMethods extends AppCompatActivity {
     ImageButton paypalDrop, vmDrop, payDrop;
     EditText nameVM, numberCardVM, dateVM, cvvVM, instructionPay;
     Button continuePaymentMethods;
+    LinearLayout layoutPaypal, layoutVM, layoutPay;
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
@@ -50,6 +52,7 @@ public class PaymentMethods extends AppCompatActivity {
         cvvVM = findViewById(R.id.ed_cvv_payment_methods);
         instructionPay = findViewById(R.id.ed_instruction_pay);
         continuePaymentMethods = findViewById(R.id.b_continue_payment_methods);
+
 
         payDrop.setOnClickListener(new View.OnClickListener() {
             @Override
