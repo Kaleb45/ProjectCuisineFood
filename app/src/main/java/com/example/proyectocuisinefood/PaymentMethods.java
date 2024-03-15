@@ -15,8 +15,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PaymentMethods extends AppCompatActivity {
 
@@ -58,7 +64,7 @@ public class PaymentMethods extends AppCompatActivity {
         paypalDrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                typePaymentMethods = "paypal";
+                typePaymentMethods = "PayPal";
                 onClickDropPaymentMethods();
             }
         });
@@ -66,7 +72,7 @@ public class PaymentMethods extends AppCompatActivity {
         vmDrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                typePaymentMethods = "vm";
+                typePaymentMethods = "Visa/Mastercard";
                 onClickDropPaymentMethods();
             }
         });
@@ -74,7 +80,7 @@ public class PaymentMethods extends AppCompatActivity {
         payDrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                typePaymentMethods = "pay";
+                typePaymentMethods = "Pago Efectivo";
                 onClickDropPaymentMethods();
             }
         });
@@ -108,24 +114,49 @@ public class PaymentMethods extends AppCompatActivity {
             return;
         }
 
-        if (cvv.length() > 3){
+        if (cvv.length() != 3){
             Toast.makeText(this, "El cvv no debe contener más de tres digitos", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        assignedPaymentMethodsRestaurant(name, numberCard, date, cvv);
+
+    }
+
+    private void assignedPaymentMethodsRestaurant(String name, String numberCard, String date, String cvv) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name",name);
+        map.put("cardNumber",numberCard);
+        map.put("date",date);
+        map.put("cvv",cvv);
+        map.put("type",typePaymentMethods);
+
+        db.collection("paymentMethods").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Toast.makeText(PaymentMethods.this, "Asignación Exitosa", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al asignar las credenciales", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void onClickDropPaymentMethods() {
-        if(typePaymentMethods.equals("paypal")){
+        if(typePaymentMethods.equals("PayPal")){
             layoutPaypal.setVisibility(View.VISIBLE);
         } else {
             layoutPaypal.setVisibility(View.GONE);
         }
-        if(typePaymentMethods.equals("vm")){
+        if(typePaymentMethods.equals("Visa/Mastercard")){
             layoutVM.setVisibility(View.VISIBLE);
         } else {
             layoutVM.setVisibility(View.GONE);
         }
-        if(typePaymentMethods.equals("pay")){
+        if(typePaymentMethods.equals("Pago Efectivo")){
             layoutPay.setVisibility(View.VISIBLE);
         } else {
             layoutPay.setVisibility(View.GONE);
