@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,10 +13,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 
 public class PaymentMethods extends AppCompatActivity {
 
@@ -28,7 +27,7 @@ public class PaymentMethods extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId;
+    String restaurantId, typePaymentMethods;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +51,14 @@ public class PaymentMethods extends AppCompatActivity {
         cvvVM = findViewById(R.id.ed_cvv_payment_methods);
         instructionPay = findViewById(R.id.ed_instruction_pay);
         continuePaymentMethods = findViewById(R.id.b_continue_payment_methods);
+        layoutPaypal = findViewById(R.id.layout_paypal);
+        layoutVM = findViewById(R.id.layout_vm);
+        layoutPay = findViewById(R.id.layout_pay);
 
-
-        payDrop.setOnClickListener(new View.OnClickListener() {
+        paypalDrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                typePaymentMethods = "paypal";
                 onClickDropPaymentMethods();
             }
         });
@@ -64,6 +66,7 @@ public class PaymentMethods extends AppCompatActivity {
         vmDrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                typePaymentMethods = "vm";
                 onClickDropPaymentMethods();
             }
         });
@@ -71,13 +74,62 @@ public class PaymentMethods extends AppCompatActivity {
         payDrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                typePaymentMethods = "pay";
                 onClickDropPaymentMethods();
+            }
+        });
+
+        continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickAssignedPaymentMethods();
             }
         });
     }
 
-    private void onClickDropPaymentMethods() {
+    private void onClickAssignedPaymentMethods() {
+        String name = nameVM.getText().toString().trim();
+        String numberCard = numberCardVM.getText().toString().trim();
+        String date = dateVM.getText().toString().trim();
+        String cvv = cvvVM.getText().toString().trim();
 
+        if(name.isEmpty() || numberCard.isEmpty() || date.isEmpty() || cvv.isEmpty()){
+            Toast.makeText(this, "No puede dejar espacios vacios", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!name.matches("^[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+(\\s*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]*)*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+$")) { // Verifica si el nombre contiene caracteres no válidos
+            Toast.makeText(this, "El nombre del platillo solo puede contener letras", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(date.matches("%d/%d")){
+            Toast.makeText(this, "La fecha debe tener el formato número/número", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (cvv.length() > 3){
+            Toast.makeText(this, "El cvv no debe contener más de tres digitos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+    }
+
+    private void onClickDropPaymentMethods() {
+        if(typePaymentMethods.equals("paypal")){
+            layoutPaypal.setVisibility(View.VISIBLE);
+        } else {
+            layoutPaypal.setVisibility(View.GONE);
+        }
+        if(typePaymentMethods.equals("vm")){
+            layoutVM.setVisibility(View.VISIBLE);
+        } else {
+            layoutVM.setVisibility(View.GONE);
+        }
+        if(typePaymentMethods.equals("pay")){
+            layoutPay.setVisibility(View.VISIBLE);
+        } else {
+            layoutPay.setVisibility(View.GONE);
+        }
     }
 
     @Override
