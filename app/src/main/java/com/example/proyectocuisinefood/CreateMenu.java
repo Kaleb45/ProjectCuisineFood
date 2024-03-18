@@ -180,7 +180,7 @@ public class CreateMenu extends AppCompatActivity {
         map.put("time",time);
         map.put("type",type);
         map.put("restaurantId", restaurantId);
-        map.put("photo", photoDish);
+        map.put("photo", downloadUri);
         map.put("ingredientIds", info.ListAddIngredients);
 
         db.collection("dish").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -252,7 +252,6 @@ public class CreateMenu extends AppCompatActivity {
             if (requestCode == GALLERY_REQUEST_CODE && data != null) {
                 imageUrl = data.getData();
                 loadImageIntoButton(dishImage, imageUrl);
-                photoDish = imageUrl.toString();
 
                 sendPhoto(imageUrl);
             } else if (requestCode == CAMERA_REQUEST_CODE && data != null) {
@@ -260,7 +259,6 @@ public class CreateMenu extends AppCompatActivity {
                 imageUrl = getImageUriFromCamera(data);
                 // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
                 loadImageIntoButton(dishImage, imageUrl);
-                photoDish = imageUrl.toString();
 
                 sendPhoto(imageUrl);
             }
@@ -282,7 +280,7 @@ public class CreateMenu extends AppCompatActivity {
         // Utilizar Picasso para cargar la imagen en el ImageButton
         try {
             // Utilizar Picasso para cargar la imagen en el ImageButton
-            Picasso.get().load(imageUrl.toString()).resize(150, 150).into(imageButton);
+            Picasso.get().load(imageUrl.toString()).resize(100, 100).into(imageButton);
         } catch (Exception e) {
             // Manejar cualquier excepción que ocurra durante la carga de la imagen
             Log.e("LoadImageError", "Error loading image: " + e.getMessage());
@@ -312,7 +310,7 @@ public class CreateMenu extends AppCompatActivity {
                         String timestamp = String.valueOf(System.currentTimeMillis());
 
                         // Construir el nombre de archivo único para la imagen
-                        String fileName = "dishImage_" + timestamp;
+                        String fileName = "dishImage_" + timestamp+".jpg";
 
                         // Construir la ruta de almacenamiento para la imagen
                         String storagePath = "restaurant/" + restaurantName + "/menu/photo" + fileName;
