@@ -82,6 +82,19 @@ public class Menu extends AppCompatActivity {
             menuRecyclerView.setAdapter(menuAdapter);
 
         }
+
+        // Habilitar el botón de retroceso en la barra de herramientas
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Manejar el evento de clic en el botón de retroceso para volver a la actividad de Admin
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Menu.this, Admin.class);
+                startActivity(intent);
+                finish(); // Opcional, dependiendo de si deseas mantener la actividad actual en la pila de actividades
+            }
+        });
     }
 
     private void onClickCreateMenu() {

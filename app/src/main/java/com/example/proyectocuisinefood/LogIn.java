@@ -162,10 +162,9 @@ public class LogIn extends AppCompatActivity {
     }
 
     private void loginUserWithUsername(String username, String passwordUser) {
-        CollectionReference usersRef = db.collection("user");
 
         // Realizar una consulta para buscar un documento que tenga el nombre de usuario proporcionado
-        usersRef.whereEqualTo("username", username).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("user").whereEqualTo("username", username).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
@@ -173,6 +172,7 @@ public class LogIn extends AppCompatActivity {
                                 // Documento encontrado con el nombre de usuario proporcionado
                                 // Obtener el correo electrónico asociado al nombre de usuario
                                 String email = document.getString("email");
+                                Toast.makeText(LogIn.this, email, Toast.LENGTH_SHORT).show();
                                 if (email != null) {
                                     // Realizar inicio de sesión con el correo electrónico y la contraseña proporcionados
                                     mAuth.signInWithEmailAndPassword(email, passwordUser).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -232,59 +232,4 @@ public class LogIn extends AppCompatActivity {
                     }
                 });
     }
-
-    /*
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            String userId = user.getUid();
-            db.collection("user").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            String userType = document.getString("usertype");
-                            if (userType != null) {
-                                switch (userType) {
-                                    case "Administrador":
-                                        startActivity(new Intent(LogIn.this, Admin.class));
-                                        finish();
-                                        return;
-                                    case "Cocinero":
-                                        startActivity(new Intent(LogIn.this, Cocinero.class));
-                                        finish();
-                                        return;
-                                    case "Mesero":
-                                        startActivity(new Intent(LogIn.this, Mesero.class));
-                                        finish();
-                                        return;
-                                    case "Cliente":
-                                        startActivity(new Intent(LogIn.this, Cliente.class));
-                                        finish();
-                                        return;
-                                    default:
-                                        // Tipo de usuario no reconocido
-                                        Toast.makeText(LogIn.this, "Tipo de usuario no reconocido", Toast.LENGTH_SHORT).show();
-                                        return;
-                                }
-                            } else {
-                                // Tipo de usuario no especificado en la base de datos
-                                Toast.makeText(LogIn.this, "Tipo de usuario no especificado", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            // Documento de usuario no encontrado en la base de datos
-                            Toast.makeText(LogIn.this, "Usuario no encontrado en la base de datos", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // Error al obtener el documento de usuario
-                        Toast.makeText(LogIn.this, "Error al obtener información de usuario", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-    }
-    */
 }
