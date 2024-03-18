@@ -34,6 +34,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -59,13 +60,13 @@ public class CreateMenu extends AppCompatActivity {
     RecyclerView recyclerViewIngredients;
     IngredientsAdapter ingredientsAdapter;
     Toolbar toolbar;
+    AppBarLayout appBarLayout;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     StorageReference storageReference;
-    private Uri imageUrl;
+    Uri imageUrl;
     ProgressDialog progressDialog;
     String downloadUri, restaurantId, photoDish;
-    private static final int codeSelectStorage = 200;
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
@@ -80,6 +81,7 @@ public class CreateMenu extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
 
+        appBarLayout = findViewById(R.id.appBarLayout_create_menu);
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -134,9 +136,9 @@ public class CreateMenu extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CreateMenu.this, Menu.class);
+                Intent intent = new Intent(CreateMenu.this, Admin.class);
                 startActivity(intent);
-                finish(); // Opcional, dependiendo de si deseas mantener la actividad actual en la pila de actividades
+                finish();
             }
         });
     }
@@ -196,6 +198,7 @@ public class CreateMenu extends AppCompatActivity {
         });
     }
 
+    // Método para solicitar permisos
     private void requestPermissions() {
         // Verificar si ya se tienen los permisos
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -222,8 +225,7 @@ public class CreateMenu extends AppCompatActivity {
                                 // Abrir la galería de fotos
                                 Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                galleryIntent.setType("image/*");
-                                startActivityForResult(galleryIntent, PERMISSION_REQUEST_CODE);
+                                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE);
                                 break;
                             case 1:
                                 // Abrir la cámara fotográfica
@@ -247,26 +249,17 @@ public class CreateMenu extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == PERMISSION_REQUEST_CODE && data != null) {
-                // Si el usuario elige una imagen de la galería de fotos, obtener la URI de la imagen
+            if (requestCode == GALLERY_REQUEST_CODE && data != null) {
                 imageUrl = data.getData();
-                // Toast.makeText(this, ""+imageUrl.toString(), Toast.LENGTH_SHORT).show();
-                if (imageUrl != null) {
-                    // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
-                    imageUrl = getImageUriFromCamera(data);
-                    loadImageIntoButton(dishImage, imageUrl.toString());
-                    photoDish = imageUrl.toString();
+                loadImageIntoButton(dishImage, imageUrl);
+                photoDish = imageUrl.toString();
 
-                    sendPhoto(imageUrl);
-                } else {
-                    // Imprimir un mensaje de registro si la URI de la imagen es nula
-                    Log.d("CreateMenu", "La URI de la imagen seleccionada desde la galería es nula.");
-                }
+                sendPhoto(imageUrl);
             } else if (requestCode == CAMERA_REQUEST_CODE && data != null) {
                 // Si el usuario toma una foto con la cámara, obtener la URI de la imagen desde los datos extras
                 imageUrl = getImageUriFromCamera(data);
                 // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
-                loadImageIntoButton(dishImage, imageUrl.toString());
+                loadImageIntoButton(dishImage, imageUrl);
                 photoDish = imageUrl.toString();
 
                 sendPhoto(imageUrl);
@@ -285,9 +278,16 @@ public class CreateMenu extends AppCompatActivity {
     }
 
     // Método para establecer la imagen en el ImageButton correspondiente
-    private void loadImageIntoButton(ImageButton imageButton, String imageUrl) {
+    private void loadImageIntoButton(ImageButton imageButton, Uri imageUrl) {
         // Utilizar Picasso para cargar la imagen en el ImageButton
-        Picasso.get().load(imageUrl).resize(150,150).into(imageButton);
+        try {
+            // Utilizar Picasso para cargar la imagen en el ImageButton
+            Picasso.get().load(imageUrl.toString()).resize(150, 150).into(imageButton);
+        } catch (Exception e) {
+            // Manejar cualquier excepción que ocurra durante la carga de la imagen
+            Log.e("LoadImageError", "Error loading image: " + e.getMessage());
+            Toast.makeText(this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

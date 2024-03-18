@@ -18,6 +18,7 @@ import com.example.proyectocuisinefood.model.Dish;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +32,7 @@ public class Menu extends AppCompatActivity {
     RecyclerView menuRecyclerView;
     MenuAdapter menuAdapter;
     Toolbar toolbar;
+    AppBarLayout appBarLayout;
     FloatingActionButton fabMenu;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
@@ -43,6 +45,7 @@ public class Menu extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        appBarLayout = findViewById(R.id.appBarLayout);
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
