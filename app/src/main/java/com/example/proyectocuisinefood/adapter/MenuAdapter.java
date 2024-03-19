@@ -70,7 +70,7 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
             @Override
             public void onClick(View view) {
                 // Obtener el ID del platillo actual
-                String dishId = getSnapshots().getSnapshot(position).getId();
+                String dishId = getSnapshots().getSnapshot(pos).getId();
 
                 // Iniciar la actividad para actualizar los datos del restaurante
                 Intent intent = new Intent(context, CreateMenu.class);
@@ -188,9 +188,6 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
 
         // Método para mostrar los iconos adicionales (ic_delete y ic_edit)
         private void showAdditionalIcons(View itemView) {
-            // Obtener las referencias a los iconos adicionales
-            ImageView deleteIcon = itemView.findViewById(R.id.imb_delete_dish);
-            ImageView editIcon = itemView.findViewById(R.id.imb_edit_dish);
 
             // Hacer los iconos visibles
             deleteIcon.setVisibility(View.VISIBLE);

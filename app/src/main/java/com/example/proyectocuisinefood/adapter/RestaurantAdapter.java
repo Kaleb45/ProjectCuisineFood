@@ -19,13 +19,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.proyectocuisinefood.CreateMenu;
+import com.example.proyectocuisinefood.CreateRestaurant;
 import com.example.proyectocuisinefood.Menu;
 import com.example.proyectocuisinefood.PaymentMethods;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, RestaurantAdapter.ViewHolder> {
@@ -39,6 +44,8 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
 
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
+        final int pos = position;
+
         holder.name.setText(model.getName());
         String photoLogo = model.getLogo();
         try{
@@ -57,6 +64,50 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
                 showPopupMenu(v, holder);
             }
         });
+
+        // Agregar un OnClickListener al botón de eliminar
+        holder.deleteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Obtener el ID del platillo actual
+                String restaurantId = getSnapshots().getSnapshot(pos).getId();
+
+                // Eliminar el platillo de la base de datos
+                deleteDish(restaurantId);
+            }
+        });
+
+        holder.editIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Obtener el ID del platillo actual
+                String restaurantId = getSnapshots().getSnapshot(pos).getId();
+
+                // Iniciar la actividad para actualizar los datos del restaurante
+                Intent intent = new Intent(context, CreateRestaurant.class);
+                intent.putExtra("restaurantId", restaurantId);
+                context.startActivity(intent);
+            }
+        });
+    }
+
+    // Método para eliminar un platillo de la base de datos
+    private void deleteDish(String restaurantId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("restaurant").document(restaurantId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(context, "Restaurante eliminado con exito", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context, "Error al eliminar el restaurante", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void showPopupMenu(View v, ViewHolder holder) {
@@ -100,13 +151,16 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name;
         ImageView logo;
-        ImageButton buttonMenu;
+        ImageButton buttonMenu, deleteIcon, editIcon;
+        int originalBackgroundColor;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             name = itemView.findViewById(R.id.t_name_restaurant);
             logo = itemView.findViewById(R.id.im_logo_restaurant);
             buttonMenu = itemView.findViewById(R.id.b_menu);
+            deleteIcon = itemView.findViewById(R.id.imb_delete_restaurant);
+            editIcon = itemView.findViewById(R.id.imb_edit_restaurant);
 
             logo.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -134,6 +188,9 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
             name.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    // Guardar el color original del fondo del layout
+                    originalBackgroundColor = itemView.getSolidColor();
+
                     // Cambiar el fondo del layout al opuesto del tema actual
                     int themeBackground = getThemeBackgroundColor(itemView.getContext());
                     int oppositeThemeBackground = getOppositeThemeBackground(themeBackground);
@@ -143,6 +200,18 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
                     showAdditionalIcons(itemView);
 
                     return true;
+                }
+            });
+
+            // Agregar un ClickListener normal al TextView del nombre del platillo
+            name.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Restaurar el color original del fondo del layout
+                    itemView.setBackgroundColor(originalBackgroundColor);
+
+                    // Ocultar los iconos adicionales (ic_delete y ic_edit)
+                    hideAdditionalIcons(itemView);
                 }
             });
         }
@@ -162,6 +231,17 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
         // Método para mostrar los iconos adicionales (ic_delete y ic_edit)
         private void showAdditionalIcons(View itemView) {
 
+            // Hacer los iconos visibles
+            deleteIcon.setVisibility(View.VISIBLE);
+            editIcon.setVisibility(View.VISIBLE);
+        }
+
+        // Método para ocultar los iconos adicionales (ic_delete y ic_edit)
+        private void hideAdditionalIcons(View itemView) {
+
+            // Ocultar los iconos
+            deleteIcon.setVisibility(View.GONE);
+            editIcon.setVisibility(View.GONE);
         }
     }
 }

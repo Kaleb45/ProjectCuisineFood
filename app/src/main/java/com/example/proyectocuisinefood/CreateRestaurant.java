@@ -46,13 +46,16 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -163,6 +166,26 @@ public class CreateRestaurant extends AppCompatActivity{
         ArrayAdapter adapterSpinCategory2 = new ArrayAdapter(this, android.R.layout.simple_spinner_item,typeCategory2);
         adapterSpinCategory2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinRestaurantCategory2.setAdapter(adapterSpinCategory2);
+
+        String restaurantId = getIntent().getStringExtra("restaurantId");
+
+        if(restaurantId == null || restaurantId.isEmpty()){
+            continueCreate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickContinueCreate();
+                }
+            });
+        } else {
+            continueCreate.setText("Actualizar Platillo");
+            getRestaurant(restaurantId);
+            continueCreate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickContinueUpdate(restaurantId);
+                }
+            });
+        }
 
         spinRestaurantCategory1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -359,13 +382,6 @@ public class CreateRestaurant extends AppCompatActivity{
             }
         });
 
-        continueCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickContinueCreate();
-            }
-        });
-
         // Habilitar el botón de retroceso en la barra de herramientas
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -556,6 +572,161 @@ public class CreateRestaurant extends AppCompatActivity{
             }
         }, hour, minute, false);
         timePickerDialog.show();
+    }
+
+    private void onClickContinueUpdate(String restaurantId) {
+        String name = restaurantName.getText().toString().trim();
+        String category1 = selectedItemCategory1;
+        String category2 = selectedItemCategory2;
+        String phone = restaurantPhone.getText().toString().trim();
+        String code = restaurantCode.getText().toString().trim();
+        String direction = restaurantDirection.getText().toString().trim();
+        String mondayOpen = mondayOpenSchedule.getText().toString().trim();
+        String mondayClose = mondayCloseSchedule.getText().toString().trim();
+        String tuesdayOpen = tuesdayOpenSchedule.getText().toString().trim();
+        String tuesdayClose = tuesdayCloseSchedule.getText().toString().trim();
+        String wednesdayOpen = wednesdayOpenSchedule.getText().toString().trim();
+        String wednesdayClose = wednesdayCloseSchedule.getText().toString().trim();
+        String thursdayOpen = thursdayOpenSchedule.getText().toString().trim();
+        String thursdayClose = thursdayCloseSchedule.getText().toString().trim();
+        String fridayOpen = fridayOpenSchedule.getText().toString().trim();
+        String fridayClose = fridayCloseSchedule.getText().toString().trim();
+        String saturdayOpen = saturdayOpenSchedule.getText().toString().trim();
+        String saturdayClose = saturdayCloseSchedule.getText().toString().trim();
+        String sundayOpen = sundayOpenSchedule.getText().toString().trim();
+        String sundayClose = sundayCloseSchedule.getText().toString().trim();
+
+        // Verificar si el teléfono tiene y longitud máxima de 10 dígitos
+        if (phone.length() != 10) {
+            // Mostrar un mensaje de error si el teléfono no es válido
+            Toast.makeText(this, "El teléfono debe contener solo números y tener 10 dígitos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() || direction.isEmpty() || direction.equals("Dirección") ||
+                mondayOpen.equals("Entrada") || mondayClose.equals("Cierre") || tuesdayOpen.equals("Entrada") || tuesdayClose.equals("Cierre") || wednesdayOpen.equals("Entrada") || wednesdayClose.equals("Cierre") ||
+                thursdayOpen.equals("Entrada") || thursdayClose.equals("Cierre") || fridayOpen.equals("Entrada") || fridayClose.equals("Cierre") || saturdayOpen.equals("Entrada") || saturdayClose.equals("Cierre") ||
+                sundayOpen.equals("Entrada") || sundayClose.equals("Cierre")){
+            Toast.makeText(this, "No puede dejar espacios vacios", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else{
+            updateRestaurant(name, category1, category2, phone, code, direction, restaurantId);
+        }
+    }
+
+    private void updateRestaurant(String name, String category1, String category2, String phone, String code, String direction, String id) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name",name);
+        map.put("category1",category1);
+        map.put("category2",category2);
+        map.put("phone",phone);
+        map.put("code",code);
+        map.put("tableDistribution",tableDistribution);
+        map.put("tableIndication",tableIndication);
+        map.put("direction", direction);
+        map.put("logo", logoRestaurant);
+        map.put("photo", photoRestaurant);
+        // Añadir los datos del restaurante...
+        map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
+        map.put("paymentMethodId",idd);
+
+        db.collection("restaurant").document(id).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(CreateRestaurant.this, "Actualizado correctamente", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CreateRestaurant.this, "Error al crear el restaurante", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getRestaurant (String id){
+        db.collection("restaurant").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String name = documentSnapshot.getString("name");
+                String category1 = documentSnapshot.getString("category1");
+                String category2 = documentSnapshot.getString("category2");
+                String phone = documentSnapshot.getString("phone");
+                String code = documentSnapshot.getString("code");
+                String direction = documentSnapshot.getString("direction");
+                db.collection("schedules")
+                        .whereEqualTo("restaurantId", id) // Filtrar por el ID del restaurante
+                        .get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    // Obtener los datos del documento
+                                    String day = documentSnapshot.getString("day");
+                                    String openTime = documentSnapshot.getString("openTime");
+                                    String closeTime = documentSnapshot.getString("closeTime");
+
+                                    // Asignar los horarios correspondientes al día
+                                    switch (day) {
+                                        case "Lunes":
+                                            mondayOpenSchedule.setText(openTime);
+                                            mondayCloseSchedule.setText(closeTime);
+                                            break;
+                                        case "Martes":
+                                            tuesdayOpenSchedule.setText(openTime);
+                                            tuesdayCloseSchedule.setText(closeTime);
+                                            break;
+                                        case "Miércoles":
+                                            wednesdayOpenSchedule.setText(openTime);
+                                            wednesdayCloseSchedule.setText(closeTime);
+                                            break;
+                                        case "Jueves":
+                                            thursdayOpenSchedule.setText(openTime);
+                                            thursdayCloseSchedule.setText(closeTime);
+                                            break;
+                                        case "Viernes":
+                                            fridayOpenSchedule.setText(openTime);
+                                            fridayCloseSchedule.setText(closeTime);
+                                            break;
+                                        case "Sábado":
+                                            saturdayOpenSchedule.setText(openTime);
+                                            saturdayCloseSchedule.setText(closeTime);
+                                            break;
+                                        case "Domingo":
+                                            sundayOpenSchedule.setText(openTime);
+                                            sundayCloseSchedule.setText(closeTime);
+                                            break;
+                                    }
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(CreateRestaurant.this, "Error al obtener los datos", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                logoRestaurant = documentSnapshot.getString("logo");
+                photoRestaurant = documentSnapshot.getString("photo");
+                tableDistribution = documentSnapshot.getString("tableDistribution");
+
+                /*Picasso.get().load(logoRestaurant).resize(150,150).into(restaurantLogo);
+                Picasso.get().load(photoRestaurant).resize(150,150).into(restaurantImage);
+                Picasso.get().load(tableDistribution).resize(150,150).into(restaurantMap);*/
+
+                restaurantName.setText(name);
+                restaurantPhone.setText(phone);
+                restaurantCode.setText(code);
+                restaurantDirection.setText(direction);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CreateRestaurant.this, "Error al obtner los datos", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void onClickContinueCreate() {
