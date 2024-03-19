@@ -177,7 +177,7 @@ public class CreateRestaurant extends AppCompatActivity{
                 }
             });
         } else {
-            continueCreate.setText("Actualizar Platillo");
+            continueCreate.setText("Actualizar el Restaurante");
             getRestaurant(restaurantId);
             continueCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
