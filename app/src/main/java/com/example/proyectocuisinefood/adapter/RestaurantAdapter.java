@@ -1,7 +1,10 @@
 package com.example.proyectocuisinefood.adapter;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.Menu;
@@ -26,8 +30,11 @@ import com.squareup.picasso.Picasso;
 
 public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, RestaurantAdapter.ViewHolder> {
 
-    public RestaurantAdapter(@NonNull FirestoreRecyclerOptions<Restaurant> options) {
+    private Context context;
+
+    public RestaurantAdapter(@NonNull FirestoreRecyclerOptions<Restaurant> options, Context context) {
         super(options);
+        this.context = context;
     }
 
     @Override
@@ -100,6 +107,61 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
             name = itemView.findViewById(R.id.t_name_restaurant);
             logo = itemView.findViewById(R.id.im_logo_restaurant);
             buttonMenu = itemView.findViewById(R.id.b_menu);
+
+            logo.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // Obtener la URL de la imagen
+                    String imageUrl = getItem(getAdapterPosition()).getLogo();
+
+                    // Crear un diálogo personalizado para mostrar la imagen en tamaño completo
+                    AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+                    View dialogView = LayoutInflater.from(itemView.getContext()).inflate(R.layout.dialog_layout_image_viewer, null);
+                    ImageView imageViewDialog = dialogView.findViewById(R.id.image_view_dialog);
+                    Picasso.get().load(imageUrl).into(imageViewDialog); // Cargar la imagen en el ImageView del diálogo
+                    builder.setView(dialogView);
+                    builder.setCancelable(true);
+
+                    // Mostrar el diálogo
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                    return true;
+                }
+            });
+
+            // Agregar LongClickListener al TextView del nombre del platillo
+            name.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // Cambiar el fondo del layout al opuesto del tema actual
+                    int themeBackground = getThemeBackgroundColor(itemView.getContext());
+                    int oppositeThemeBackground = getOppositeThemeBackground(themeBackground);
+                    itemView.setBackgroundColor(oppositeThemeBackground);
+
+                    // Mostrar los iconos adicionales (ic_delete y ic_edit)
+                    showAdditionalIcons(itemView);
+
+                    return true;
+                }
+            });
+        }
+
+        // Método para obtener el color de fondo del tema actual
+        private int getThemeBackgroundColor(Context context) {
+            TypedValue typedValue = new TypedValue();
+            context.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
+            return typedValue.data;
+        }
+
+        // Método para obtener el color opuesto al proporcionado
+        private int getOppositeThemeBackground(int backgroundColor) {
+            return backgroundColor == Color.WHITE ? Color.BLACK : Color.WHITE;
+        }
+
+        // Método para mostrar los iconos adicionales (ic_delete y ic_edit)
+        private void showAdditionalIcons(View itemView) {
+
         }
     }
 }

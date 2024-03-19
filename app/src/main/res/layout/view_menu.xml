@@ -33,21 +33,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/t_name_dish"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="15dp">
-
-                <TextView
-                    android:id="@+id/t_name_dish"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="Nombre del Platillo"
-                    android:textSize="20sp"
-                    android:layout_gravity="center"/>
-
-            </LinearLayout>
+                android:hint="Nombre del Platillo"
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/t_cost_dish"
@@ -56,6 +47,33 @@
                 android:hint="Costo"
                 android:textSize="20sp"
                 android:layout_marginTop="15dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="right">
+
+                <ImageButton
+                    android:id="@+id/imb_delete_dish"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_delete"
+                    android:background="@android:color/transparent"
+                    android:visibility="gone"/>
+
+                <ImageButton
+                    android:id="@+id/imb_edit_dish"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_edit"
+                    android:background="@android:color/transparent"
+                    android:layout_marginLeft="15dp"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+
 
         </LinearLayout>
 

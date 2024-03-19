@@ -74,7 +74,7 @@ public class Admin extends AppCompatActivity {
             FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
                     .setQuery(query, Restaurant.class).build();
 
-            restaurantAdapter = new RestaurantAdapter(firestoreRecyclerOptions);
+            restaurantAdapter = new RestaurantAdapter(firestoreRecyclerOptions,Admin.this);
             restaurantAdapter.notifyDataSetChanged();
             restaurantRecyclerView.setAdapter(restaurantAdapter);
         }

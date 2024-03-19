@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood.Global;
+package com.example.proyectocuisinefood.global;
 
 import com.example.proyectocuisinefood.model.Ingredients;
 

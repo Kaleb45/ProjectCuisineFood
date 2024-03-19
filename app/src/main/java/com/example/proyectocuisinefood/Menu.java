@@ -80,7 +80,7 @@ public class Menu extends AppCompatActivity {
             FirestoreRecyclerOptions<Dish> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Dish>()
                     .setQuery(query, Dish.class).build();
 
-            menuAdapter = new MenuAdapter(firestoreRecyclerOptions);
+            menuAdapter = new MenuAdapter(firestoreRecyclerOptions, this);
             menuAdapter.notifyDataSetChanged();
             menuRecyclerView.setAdapter(menuAdapter);
 

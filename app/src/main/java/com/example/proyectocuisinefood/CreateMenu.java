@@ -27,7 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.proyectocuisinefood.Global.info;
+import com.example.proyectocuisinefood.global.info;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -48,9 +48,8 @@ import com.squareup.picasso.Picasso;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class CreateMenu extends AppCompatActivity {
 
@@ -98,6 +97,25 @@ public class CreateMenu extends AppCompatActivity {
 
         // Recoge el ID del restaurante del Intent
         restaurantId = getIntent().getStringExtra("restaurantId");
+        String dishId = getIntent().getStringExtra("dishId");
+
+        if(dishId == null || dishId.isEmpty()){
+            dishCreate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickCreateDish();
+                }
+            });
+        } else {
+            dishCreate.setText("Actualizar Platillo");
+            getDish(dishId);
+            dishCreate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickUpdateDish(dishId);
+                }
+            });
+        }
 
         dishImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,13 +128,6 @@ public class CreateMenu extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 onClickCreateIngredient();
-            }
-        });
-
-        dishCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickCreateDish();
             }
         });
 
@@ -139,6 +150,85 @@ public class CreateMenu extends AppCompatActivity {
                 Intent intent = new Intent(CreateMenu.this, Admin.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+    }
+
+    private void onClickUpdateDish(String dishId) {
+        String name = dishName.getText().toString().trim();
+        String cost = dishCost.getText().toString().trim();
+        String description = dishDescription.getText().toString().trim();
+        String time = dishTime.getText().toString().trim();
+        String type = "";
+
+        if(name.isEmpty() || cost.isEmpty() || description.isEmpty() || time.isEmpty()){
+            Toast.makeText(this, "No puede dejar espacios vacios", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (!name.matches("^[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+(\\s*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]*)*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+$")) { // Verifica si el nombre contiene caracteres no válidos
+            Toast.makeText(this, "El nombre del platillo solo puede contener letras", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else{
+            if(description.contains("Bebida") || description.contains("bebida")){
+                type = "Bebida";
+            } else {
+                type = "Plato";
+            }
+            updateDish(name, cost, description, time, type, dishId);
+        }
+    }
+
+    private void updateDish(String name, String cost, String description, String time, String type, String id) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name",name);
+        map.put("cost",cost);
+        map.put("description",description);
+        map.put("time",time);
+        map.put("type",type);
+        map.put("restaurantId", restaurantId);
+        map.put("photo", photoDish);
+        map.put("ingredientIds", info.ListAddIngredients);
+
+        db.collection("dish").document(id).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(CreateMenu.this, "Actualizado correctamente", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CreateMenu.this, "Error al actualizar el platillo", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getDish (String id){
+        db.collection("dish").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String name = documentSnapshot.getString("name");
+                String cost = documentSnapshot.getString("cost");
+                String description = documentSnapshot.getString("description");
+                String time = documentSnapshot.getString("time");
+                photoDish = documentSnapshot.getString("photo");
+                restaurantId = documentSnapshot.getString("restaurantId");
+
+                ArrayList<String> ingredientIds = (ArrayList<String>) documentSnapshot.get("ingredientIds");
+
+                Picasso.get().load(photoDish).resize(150,150).into(dishImage);
+                dishName.setText(name);
+                dishCost.setText(cost);
+                dishDescription.setText(description);
+                dishTime.setText(time);
+
+                // Marcar los ingredientes seleccionados
+                ingredientsAdapter.setSelectedIngredients(ingredientIds);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CreateMenu.this, "Error al obtner los datos", Toast.LENGTH_SHORT).show();
             }
         });
     }
