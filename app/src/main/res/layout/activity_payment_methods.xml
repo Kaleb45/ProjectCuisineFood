@@ -144,8 +144,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
+                        android:text="/"
                         android:hint="Fecha"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:inputType="number"
+                        android:digits="0123456789/"/>
 
                     <EditText
                         android:id="@+id/ed_cvv_payment_methods"

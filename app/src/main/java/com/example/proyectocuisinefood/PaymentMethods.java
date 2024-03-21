@@ -6,6 +6,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +21,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,6 +66,23 @@ public class PaymentMethods extends AppCompatActivity {
         layoutVM = findViewById(R.id.layout_vm);
         layoutPay = findViewById(R.id.layout_pay);
 
+        if(restaurantId == null || restaurantId.isEmpty()){
+            continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickAssignedPaymentMethods();
+                }
+            });
+        } else {
+            getPaymentMethods(restaurantId);
+            continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickAssignedPaymentMethods();
+                }
+            });
+        }
+
         paypalDrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,13 +107,6 @@ public class PaymentMethods extends AppCompatActivity {
             }
         });
 
-        continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickAssignedPaymentMethods();
-            }
-        });
-
         // Habilitar el botón de retroceso en la barra de herramientas
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -104,11 +119,40 @@ public class PaymentMethods extends AppCompatActivity {
                 finish(); // Opcional, dependiendo de si deseas mantener la actividad actual en la pila de actividades
             }
         });
+
+        dateVM.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No es necesario implementar nada aquí
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // No es necesario implementar nada aquí
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String text = s.toString();
+                if (text.length() == 3 && text.charAt(2) != '/') {
+                    // Si se ingresaron dos números y no se agregó el "/", lo agregamos automáticamente
+                    text = text.substring(0, 2) + "/" + text.substring(2);
+                    dateVM.setText(text);
+                    dateVM.setSelection(text.length());
+                } else if (text.length() == 6 && text.charAt(5) != '/') {
+                    // Si se ingresaron cinco números y no se agregó el "/", lo agregamos automáticamente
+                    text = text.substring(0, 5) + "/" + text.substring(5);
+                    dateVM.setText(text);
+                    dateVM.setSelection(text.length());
+                }
+            }
+        });
     }
 
     private void onClickAssignedPaymentMethods() {
         String name = nameVM.getText().toString().trim();
-        String numberCard = numberCardVM.getText().toString().trim();
+        String numberCard = numberCardVM.getText().toString().trim().replaceAll("\\s+", ""); // Eliminar espacios en blanco
+        String formattedNumberCard = formatCardNumber(numberCard); // Formatear número de tarjeta
         String date = dateVM.getText().toString().trim();
         String cvv = cvvVM.getText().toString().trim();
 
@@ -118,49 +162,164 @@ public class PaymentMethods extends AppCompatActivity {
         }
 
         if (!name.matches("^[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+(\\s*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]*)*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+$")) { // Verifica si el nombre contiene caracteres no válidos
-            Toast.makeText(this, "El nombre del platillo solo puede contener letras", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "El nombre del propietario solo puede contener letras", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if(date.matches("%d/%d")){
+        if (!date.matches("\\d{2}/\\d{2}")) { // Verifica si la fecha tiene el formato correcto
             Toast.makeText(this, "La fecha debe tener el formato número/número", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (cvv.length() != 3){
-            Toast.makeText(this, "El cvv no debe contener más de tres digitos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "El cvv debe contener exactamente tres dígitos", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        assignedPaymentMethodsRestaurant(name, numberCard, date, cvv);
+        if(formattedNumberCard.contains(" ")){
+            if (formattedNumberCard.length() > 20) { // Verifica si el número de tarjeta tiene más de 18 caracteres mas los espacios
+                Toast.makeText(this, "El número de tarjeta no puede tener más de 18 caracteres", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            if (formattedNumberCard.length() > 18) { // Verifica si el número de tarjeta tiene más de 18 caracteres
+                Toast.makeText(this, "El número de tarjeta no puede tener más de 18 caracteres", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
 
+        assignedPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+    }
+
+    // Método para formatear el número de tarjeta agregando un espacio cada 4 dígitos
+    private String formatCardNumber(String numberCard) {
+        StringBuilder formattedNumber = new StringBuilder();
+        int count = 0;
+        for (char digit : numberCard.toCharArray()) {
+            if (count == 4) {
+                formattedNumber.append(" "); // Agregar espacio cada 4 dígitos
+                count = 0; // Reiniciar contador
+            }
+            formattedNumber.append(digit);
+            count++;
+        }
+        return formattedNumber.toString();
     }
 
     private void assignedPaymentMethodsRestaurant(String name, String numberCard, String date, String cvv) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name",name);
-        map.put("cardNumber",numberCard);
-        map.put("date",date);
-        map.put("cvv",cvv);
-        map.put("type",typePaymentMethods);
+        // Consultar la colección "restaurant" para obtener el ID de paymentMethods
+        db.collection("restaurant")
+                .document(restaurantId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            String paymentMethodsId = documentSnapshot.getString("paymentMethodId");
 
-        db.collection("paymentMethods").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Toast.makeText(PaymentMethods.this, "Asignación Exitosa", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(PaymentMethods.this, "Error al asignar las credenciales", Toast.LENGTH_SHORT).show();
-            }
-        });
+                            // Actualizar el documento correspondiente en la colección "paymentMethods"
+                            if (paymentMethodsId != null) {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("name", name);
+                                map.put("cardNumber", numberCard);
+                                map.put("date", date);
+                                map.put("cvv", cvv);
+                                map.put("type", typePaymentMethods);
+
+                                db.collection("paymentMethods").document(paymentMethodsId)
+                                        .update(map)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(PaymentMethods.this, "Asignación Exitosa", Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(PaymentMethods.this, Admin.class);
+                                                startActivity(intent);
+                                                finish();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(PaymentMethods.this, "Error al asignar las credenciales", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            } else {
+                                Toast.makeText(PaymentMethods.this, "No se encontró un ID de métodos de pago asociado al restaurante", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(PaymentMethods.this, "No se encontró el restaurante", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(PaymentMethods.this, "Error al consultar el restaurante", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void getPaymentMethods(String restaurantId) {
+        // Consultar la colección "restaurant" para obtener el ID de paymentMethods
+        db.collection("restaurant")
+                .document(restaurantId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            String paymentMethodsId = documentSnapshot.getString("paymentMethodId");
+
+                            if (paymentMethodsId != null) {
+                                // Consultar el documento correspondiente en la colección "paymentMethods"
+                                db.collection("paymentMethods")
+                                        .document(paymentMethodsId)
+                                        .get()
+                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                if (documentSnapshot.exists()) {
+                                                    String name = documentSnapshot.getString("name");
+                                                    String numberCard = documentSnapshot.getString("cardNumber");
+                                                    String date = documentSnapshot.getString("date");
+                                                    String cvv = documentSnapshot.getString("cvv");
+                                                    typePaymentMethods = documentSnapshot.getString("type");
+
+                                                    nameVM.setText(name);
+                                                    numberCardVM.setText(numberCard);
+                                                    dateVM.setText(date);
+                                                    cvvVM.setText(cvv);
+                                                } else {
+                                                    Toast.makeText(PaymentMethods.this, "No se encontraron métodos de pago asociados al restaurante", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(PaymentMethods.this, "Error al obtener los datos de los métodos de pago", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            } else {
+                                Toast.makeText(PaymentMethods.this, "El restaurante no tiene métodos de pago asignados", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(PaymentMethods.this, "No se encontró el restaurante", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(PaymentMethods.this, "Error al consultar el restaurante", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void onClickDropPaymentMethods() {
         if(typePaymentMethods.equals("PayPal")){
-            layoutPaypal.setVisibility(View.VISIBLE);
+            layoutPaypal.setVisibility(View.GONE);
+            Toast.makeText(this, "Método de pago no disponible actualmente", Toast.LENGTH_SHORT).show();
         } else {
             layoutPaypal.setVisibility(View.GONE);
         }
@@ -170,7 +329,8 @@ public class PaymentMethods extends AppCompatActivity {
             layoutVM.setVisibility(View.GONE);
         }
         if(typePaymentMethods.equals("Pago Efectivo")){
-            layoutPay.setVisibility(View.VISIBLE);
+            layoutPay.setVisibility(View.GONE);
+            Toast.makeText(this, "Método de pago no disponible actualmente", Toast.LENGTH_SHORT).show();
         } else {
             layoutPay.setVisibility(View.GONE);
         }

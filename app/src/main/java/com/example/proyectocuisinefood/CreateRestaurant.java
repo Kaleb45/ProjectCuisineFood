@@ -629,12 +629,14 @@ public class CreateRestaurant extends AppCompatActivity{
         map.put("photo", photoRestaurant);
         // Añadir los datos del restaurante...
         map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
-        map.put("paymentMethodId",idd);
 
         db.collection("restaurant").document(id).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 Toast.makeText(CreateRestaurant.this, "Actualizado correctamente", Toast.LENGTH_SHORT).show();
+                updateSchedulesForRestaurant(id); // Llamada al método para guardar los horarios asociados al restaurante
+                Intent intent = new Intent(CreateRestaurant.this, Admin.class);
+                startActivity(intent);
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -643,6 +645,32 @@ public class CreateRestaurant extends AppCompatActivity{
                 Toast.makeText(CreateRestaurant.this, "Error al crear el restaurante", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateSchedulesForRestaurant(String restaurantId) {
+        // Borrar los horarios existentes para el restaurante utilizando el ID proporcionado
+        db.collection("schedules")
+                .whereEqualTo("restaurantId", restaurantId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        // Iterar sobre los documentos y borrarlos
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            documentSnapshot.getReference().delete();
+                        }
+
+                        // Guardar los nuevos horarios para el restaurante
+                        Toast.makeText(CreateRestaurant.this, "Horarios actualizados", Toast.LENGTH_SHORT).show();
+                        saveSchedulesForRestaurant(restaurantId);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(CreateRestaurant.this, "Error al actualizar los horarios", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void getRestaurant (String id){
@@ -712,9 +740,11 @@ public class CreateRestaurant extends AppCompatActivity{
                 photoRestaurant = documentSnapshot.getString("photo");
                 tableDistribution = documentSnapshot.getString("tableDistribution");
 
-                /*Picasso.get().load(logoRestaurant).resize(150,150).into(restaurantLogo);
-                Picasso.get().load(photoRestaurant).resize(150,150).into(restaurantImage);
-                Picasso.get().load(tableDistribution).resize(150,150).into(restaurantMap);*/
+                if(logoRestaurant.isEmpty() || photoRestaurant.isEmpty() || tableDistribution.isEmpty() || logoRestaurant == null || photoRestaurant == null || tableDistribution == null){
+                    Picasso.get().load(logoRestaurant).resize(150,150).into(restaurantLogo);
+                    /*Picasso.get().load(photoRestaurant).resize(150,150).into(restaurantImage);
+                    Picasso.get().load(tableDistribution).resize(150,150).into(restaurantMap);*/
+                }
 
                 restaurantName.setText(name);
                 restaurantPhone.setText(phone);
