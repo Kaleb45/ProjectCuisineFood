@@ -168,6 +168,9 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
                     // Restaurar el color original del fondo del layout
                     itemView.setBackgroundColor(originalBackgroundColor);
 
+                    // Agregar el borde al fondo del layout
+                    itemView.setBackgroundResource(R.drawable.border);
+
                     // Ocultar los iconos adicionales (ic_delete y ic_edit)
                     hideAdditionalIcons(itemView);
                 }
