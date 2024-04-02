@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -35,7 +36,8 @@ import SecureStorage.KeyStoreUtil;
 
 public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    EditText nombre, username, password, telefono, email, restauranteAsignado, codigoRestaurante;
+    EditText nombre, username, password, telefono, email, codigoRestaurante;
+    SearchView restauranteAsignado;
     String selectedItem;
     Spinner spinTipoUser;
     Button registrarse;
@@ -61,7 +63,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         password = findViewById(R.id.ed_password_signin);
         telefono = findViewById(R.id.ed_telefono_signin);
         email = findViewById(R.id.ed_email_signin);
-        restauranteAsignado = findViewById(R.id.ed_restaurante_signin);
+        restauranteAsignado = findViewById(R.id.sv_restaurante_signin);
         codigoRestaurante = findViewById(R.id.ed_codigo_signin);
 
         registrarse = findViewById(R.id.b_registro_signin);
@@ -107,7 +109,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         String passwordUser = password.getText().toString().trim();
         String phoneUser = telefono.getText().toString().trim();
         String emailUser = email.getText().toString().trim();
-        String restaurantAssignedUser = restauranteAsignado.getText().toString().trim();
+        String restaurantAssignedUser = "";//restauranteAsignado.getText().toString().trim();
         String codeRestaurantUser = codigoRestaurante.getText().toString().trim();
         String usertype = selectedItem;
 
@@ -291,54 +293,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
     }
 
     private void checkRestaurantAndCode(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
-        db.collection("restaurant")
-                .whereEqualTo("name", restaurantAssignedUser)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (!task.getResult().isEmpty()) {
-                                /*// El restaurante existe, obtener su código y compararlo
-                                DocumentSnapshot restaurantSnapshot = task.getResult().getDocuments().get(0);
-                                String codigoEncriptado = restaurantSnapshot.getString("code");
-                                // Descifrar el código encriptado
-                                String codigoDescifrado;
-                                try {
-                                    codigoDescifrado = AESUtil.decrypt(codigoEncriptado);
-                                } catch (Exception e) {
-                                    // Error al descifrar el código
-                                    Toast.makeText(SignIn.this, "Error al descifrar el código del restaurante", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-                                // Verificar si el código ingresado coincide con el código descifrado
-                                if (codeRestaurantUser.equals(codigoDescifrado)) {
-                                    // El código es correcto, continuar con el registro*/
-                                    try {
-                                        registerUser(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
-                                    } catch (Exception e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                /*} else {
-                                    // El código no coincide
-                                    Toast.makeText(SignIn.this, "El código del restaurante no es válido", Toast.LENGTH_SHORT).show();
-                                }*/
-                            } else {
-                                // El restaurante no existe
-                                Toast.makeText(SignIn.this, "El restaurante especificado no existe", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            // Error al realizar la consulta
-                            Toast.makeText(SignIn.this, "Error al verificar el restaurante", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Error al realizar la consulta
-                        Toast.makeText(SignIn.this, "Error al verificar el restaurante", Toast.LENGTH_SHORT).show();
-                    }
-                });
+
     }
 
     @Override

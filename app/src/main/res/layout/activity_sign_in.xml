@@ -96,14 +96,13 @@
                 android:textSize="18sp"
                 android:layout_marginBottom="15dp"/>
 
-            <EditText
-                android:id="@+id/ed_restaurante_signin"
+            <SearchView
+                android:id="@+id/sv_restaurante_signin"
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:hint="Restaurante"
-                android:backgroundTint="@color/anaranjado"
-                android:textSize="18sp"
-                android:layout_marginBottom="15dp"
+                android:iconifiedByDefault="false"
+                android:queryHint="Restaurante"
+                app:iconifiedByDefault="false"
                 android:visibility="gone"/>
 
             <EditText
