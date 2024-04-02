@@ -7,15 +7,18 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,6 +37,7 @@ public class PaymentMethods extends AppCompatActivity {
     ImageButton paypalDrop, vmDrop, payDrop;
     EditText nameVM, numberCardVM, dateVM, cvvVM, instructionPay;
     Button continuePaymentMethods;
+    ToggleButton toggleButtonShowNumberCard, toggleButtonShowDate, toggleButtonShowCVV;
     LinearLayout layoutPaypal, layoutVM, layoutPay;
     Toolbar toolbar;
     FirebaseAuth mAuth;
@@ -60,6 +64,9 @@ public class PaymentMethods extends AppCompatActivity {
         numberCardVM = findViewById(R.id.ed_number_payment_methods);
         dateVM = findViewById(R.id.ed_date_payment_methods);
         cvvVM = findViewById(R.id.ed_cvv_payment_methods);
+        toggleButtonShowNumberCard = findViewById(R.id.tb_number_card);
+        toggleButtonShowDate = findViewById(R.id.tb_date);
+        toggleButtonShowCVV = findViewById(R.id.tb_cvv);
         instructionPay = findViewById(R.id.ed_instruction_pay);
         continuePaymentMethods = findViewById(R.id.b_continue_payment_methods);
         layoutPaypal = findViewById(R.id.layout_paypal);
@@ -82,6 +89,51 @@ public class PaymentMethods extends AppCompatActivity {
                 }
             });
         }
+
+        toggleButtonShowNumberCard.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Mostrar contraseña
+                    numberCardVM.setInputType(InputType.TYPE_CLASS_NUMBER);
+                } else {
+                    // Ocultar contraseña
+                    numberCardVM.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+                }
+                // Mover el cursor al final del texto
+                numberCardVM.setSelection(numberCardVM.getText().length());
+            }
+        });
+
+        toggleButtonShowDate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Mostrar contraseña
+                    dateVM.setInputType(InputType.TYPE_CLASS_NUMBER);
+                } else {
+                    // Ocultar contraseña
+                    dateVM.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+                }
+                // Mover el cursor al final del texto
+                dateVM.setSelection(dateVM.getText().length());
+            }
+        });
+
+        toggleButtonShowCVV.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Mostrar contraseña
+                    cvvVM.setInputType(InputType.TYPE_CLASS_NUMBER);
+                } else {
+                    // Ocultar contraseña
+                    cvvVM.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+                }
+                // Mover el cursor al final del texto
+                cvvVM.setSelection(cvvVM.getText().length());
+            }
+        });
 
         paypalDrop.setOnClickListener(new View.OnClickListener() {
             @Override
