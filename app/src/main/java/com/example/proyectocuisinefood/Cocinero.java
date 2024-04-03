@@ -33,7 +33,6 @@ public class Cocinero extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,11 +46,11 @@ public class Cocinero extends AppCompatActivity {
         orderRecyclerView = findViewById(R.id.r_order_cook);
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        restaurantId = getIntent().getStringExtra("restaurantId");
+        String restaurantId = getIntent().getStringExtra("restaurantId");
 
         if (restaurantId != null && !restaurantId.isEmpty()) {
 
-            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId);
+            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId).whereEqualTo("status","En preparación");
 
             FirestoreRecyclerOptions<Orders> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Orders>()
                     .setQuery(query, Orders.class).build();

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,7 +41,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
     @Override
     protected void onBindViewHolder(@NonNull OrderAdapter.ViewHolder holder, int position, @NonNull Orders model) {
         final int pos = position;
-
         // Obtener el tipo de usuario actual
         FirebaseUser currentUser = holder.mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -51,16 +51,16 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if (documentSnapshot.exists()) {
-                        String userType = documentSnapshot.getString("usertype");
+                        holder.userType = documentSnapshot.getString("usertype");
 
                         // Filtrar según el tipo de usuario
-                        if (userType != null) {
-                            if (userType.equals("Cocinero") && model.getStatus().equals("En preparación")) {
+                        if (holder.userType != null) {
+                            if (holder.userType.equals("Cocinero") && model.getStatus().equals("En preparación")) {
                                 // Mostrar solo las órdenes con estado "En preparación" para los cocineros
-                                bindOrder(holder, model, pos);
-                            } else if (userType.equals("Mesero") && model.getStatus().equals("En camino a la mesa")) {
+                                bindOrder(holder, model, position);
+                            } else if (holder.userType.equals("Mesero") && model.getStatus().equals("En camino a la mesa")) {
                                 // Mostrar solo las órdenes con estado "En camino a la mesa" para los meseros
-                                bindOrder(holder, model, pos);
+                                bindOrder(holder, model, position);
                             } else {
                                 // Ocultar la vista del ViewHolder si no coincide con el tipo de usuario
                                 holder.itemView.setVisibility(View.GONE);
@@ -79,11 +79,13 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
     }
 
     // Método para vincular los datos de la orden al ViewHolder
-    private void bindOrder(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model, int pos) {
+    private void bindOrder(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model, int position) {
+        final int pos = position;
         holder.numberTable.setText(model.getNumberTable());
 
         String dishId = model.getDishId(); // Obtener el dishId de la orden
-        String userId = model.getUserId();
+        String userId = model.getUserId(); // Obtener el userId de la orden
+        String restaurantId = model.getRestaurantId(); // Obtener el restaurantId de la orden
 
         // Realizar consulta para obtener los datos del platillo
         holder.db.collection("dish").document(dishId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -129,6 +131,22 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
             }
         });
 
+        holder.db.collection("restaurant").document(restaurantId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    // Obtener los datos del restaurante del documento
+
+                    holder.orderMap = documentSnapshot.getString("tableDistribution");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("OrderAdapter", "Error al obtener los datos del cliente: " + e.getMessage());
+            }
+        });
+
         // Agregar un OnCheckedChangeListener al CheckBox
         holder.isComplete.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -141,8 +159,14 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Actualizar el estado de la orden a "completado" en Firestore
-                            holder.updateOrderStatus(getSnapshots().getSnapshot(pos).getId(), "En camino a la mesa");
+                            // Actualizar el estado de la orden en Firestore
+                            String newStatus;
+                            if (model.getStatus().equals("En preparación")) {
+                                newStatus = "En camino a la mesa";
+                            } else {
+                                newStatus = "Entregado";
+                            }
+                            holder.updateOrderStatus(getSnapshots().getSnapshot(pos).getId(), newStatus);
                         }
                     });
                     builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -172,7 +196,7 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
         CheckBox isComplete;
         FirebaseFirestore db;
         FirebaseAuth mAuth;
-        String orderImage;
+        String orderImage, orderMap, userType;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -195,7 +219,13 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
                     View dialogView = LayoutInflater.from(itemView.getContext()).inflate(R.layout.dialog_layout_image_viewer, null);
                     ImageView imageViewDialog = dialogView.findViewById(R.id.image_view_dialog);
-                    Picasso.get().load(orderImage).into(imageViewDialog); // Cargar la imagen en el ImageView del diálogo
+
+                    if(userType.equals("Cocinero")){
+                        Picasso.get().load(orderImage).into(imageViewDialog); // Cargar la imagen en el ImageView del diálogo
+                    } else if(userType.equals("Mesero")){
+                        Picasso.get().load(orderMap).into(imageViewDialog); // Cargar el mapa de mesas en el ImageView del diálogo
+                    }
+
                     builder.setView(dialogView);
                     builder.setCancelable(true);
 

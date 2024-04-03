@@ -43,7 +43,7 @@ public class Mesero extends AppCompatActivity {
 
         if (restaurantId != null && !restaurantId.isEmpty()) {
 
-            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId);
+            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId).whereEqualTo("status","En camino a la mesa");
 
             FirestoreRecyclerOptions<Orders> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Orders>()
                     .setQuery(query, Orders.class).build();
