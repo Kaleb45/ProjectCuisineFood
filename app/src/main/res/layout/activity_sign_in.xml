@@ -105,6 +105,21 @@
                 app:iconifiedByDefault="false"
                 android:visibility="gone"/>
 
+            <LinearLayout
+                android:id="@+id/l_restaurant_selected"
+                android:layout_width="320dp"
+                android:layout_height="150dp"
+                android:orientation="vertical"
+                android:layout_marginTop="5dp"
+                android:visibility="gone">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/r_show_restaurant_selected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
             <EditText
                 android:id="@+id/ed_codigo_signin"
                 android:layout_width="320dp"
@@ -114,7 +129,7 @@
                 android:textSize="18sp"
                 android:layout_marginBottom="15dp"
                 android:visibility="gone"
-                android:inputType="number"/>
+                android:inputType="numberPassword"/>
 
             <Button
                 android:id="@+id/b_registro_signin"

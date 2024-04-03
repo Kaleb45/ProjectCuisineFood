@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -18,14 +19,22 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.proyectocuisinefood.adapter.RestaurantSelectedAdapter;
+import com.example.proyectocuisinefood.model.Restaurant;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
@@ -38,7 +47,11 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
 
     EditText nombre, username, password, telefono, email, codigoRestaurante;
     SearchView restauranteAsignado;
-    String selectedItem;
+    Query query;
+    LinearLayout linearLayoutRestaurantSelected;
+    RecyclerView recyclerViewShowRestaurant;
+    RestaurantSelectedAdapter restaurantSelectedAdapter;
+    String selectedItem, restaurantAssignedId;
     Spinner spinTipoUser;
     Button registrarse;
     String[] tipoUsuario={
@@ -76,6 +89,10 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         adapterUser.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinTipoUser.setAdapter(adapterUser);
 
+        linearLayoutRestaurantSelected = findViewById(R.id.l_restaurant_selected);
+        recyclerViewShowRestaurant = findViewById(R.id.r_show_restaurant_selected);
+        recyclerViewShowRestaurant.setLayoutManager(new LinearLayoutManager(this));
+
         registrarse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +118,61 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                 password.setSelection(password.getText().length());
             }
         });
+
+        query = db.collection("restaurant");
+
+        FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                .setQuery(query, Restaurant.class).build();
+
+        restaurantSelectedAdapter = new RestaurantSelectedAdapter(firestoreRecyclerOptions, this);
+        restaurantSelectedAdapter.notifyDataSetChanged();
+        recyclerViewShowRestaurant.setAdapter(restaurantSelectedAdapter);
+
+        searchViewRestaurant();
+    }
+
+    private void searchViewRestaurant() {
+        restauranteAsignado.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                textSearch(s);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                textSearch(s);
+                return false;
+            }
+        });
+    }
+
+    private void textSearch(String s) {
+        if(s.isEmpty()){
+            linearLayoutRestaurantSelected.setVisibility(View.GONE);
+        } else {
+            linearLayoutRestaurantSelected.setVisibility(View.VISIBLE);
+            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                    .setQuery(query.orderBy("name").startAt(s).endAt(s+"~"), Restaurant.class).build();
+
+            restaurantSelectedAdapter = new RestaurantSelectedAdapter(firestoreRecyclerOptions, this);
+            restaurantSelectedAdapter.startListening();
+            recyclerViewShowRestaurant.setAdapter(restaurantSelectedAdapter);
+        }
+    }
+
+    public void setRestaurantName(String restaurantName) {
+        // Establece el nombre del restaurante en el SearchView
+        if (restauranteAsignado != null) {
+            restauranteAsignado.setQuery(restaurantName, false); // false para que no se dispare el listener de búsqueda
+            linearLayoutRestaurantSelected.setVisibility(View.GONE);
+        }
+    }
+
+    // Método para establecer el ID del restaurante asignado
+    public void setRestaurantAssigned(String restaurantId) {
+        restaurantAssignedId = restaurantId;
+        //Toast.makeText(this, restaurantAssignedId, Toast.LENGTH_SHORT).show();
     }
 
     private void onclickSignIn() throws Exception {
@@ -109,7 +181,6 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         String passwordUser = password.getText().toString().trim();
         String phoneUser = telefono.getText().toString().trim();
         String emailUser = email.getText().toString().trim();
-        String restaurantAssignedUser = "";//restauranteAsignado.getText().toString().trim();
         String codeRestaurantUser = codigoRestaurante.getText().toString().trim();
         String usertype = selectedItem;
 
@@ -120,7 +191,7 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         }
 
         // RQNF2: Validar que el nombre solo contenga letras mayúsculas o minúsculas
-        if (!name.matches("[a-zA-Z]+")) {
+        if (!name.matches("^[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+(\\s*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]*)*[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+$")) {
             Toast.makeText(this, "El nombre solo puede contener letras", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -181,18 +252,20 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
 
         // Si el usertype es Cocinero o Mesero, validar que los campos restaurantAssignedUser y codeRestaurantUser no estén vacíos
         if (usertype.equals("Cocinero") || usertype.equals("Mesero")) {
-            if (restaurantAssignedUser.isEmpty() || codeRestaurantUser.isEmpty()) {
+            if (restaurantAssignedId.isEmpty() || codeRestaurantUser.isEmpty()) {
                 Toast.makeText(this, "Los campos restaurante asignado y código de restaurante son obligatorios para los roles de Cocinero y Mesero", Toast.LENGTH_SHORT).show();
                 return;
             }else{
                 // Verificar el restaurante y el código
-                checkRestaurantAndCode(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
+                checkCode(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedId, codeRestaurantUser);
             }
+        } else {
+            checkUsernameAvailability(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedId, codeRestaurantUser);
         }
-        checkUsernameAvailability(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
     }
 
     private void checkUsernameAvailability(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
+        // Consultar la colección de usuarios para verificar la disponibilidad del nombre de usuario
         db.collection("user")
                 .whereEqualTo("username", nameUser)
                 .get()
@@ -200,20 +273,22 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            if (task.getResult().isEmpty()) {
-                                // El nombre de usuario está disponible, proceder con el registro
+                            // Verificar si la consulta devuelve algún resultado
+                            if (!task.getResult().isEmpty()) {
+                                // Si el resultado no está vacío, significa que el nombre de usuario ya está en uso
+                                Toast.makeText(SignIn.this, "El nombre de usuario ya está en uso, por favor elija otro.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Si no hay resultados, el nombre de usuario está disponible, por lo que puedes proceder con el registro del usuario
                                 try {
+                                    Toast.makeText(SignIn.this, "El nombre de usuario está disponible", Toast.LENGTH_SHORT).show();
                                     registerUser(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedUser, codeRestaurantUser);
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }
-                            } else {
-                                // El nombre de usuario ya está en uso, mostrar un mensaje de error
-                                Toast.makeText(SignIn.this, "El nombre de usuario ya está en uso", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            // Error al realizar la consulta
-                            Toast.makeText(SignIn.this, "Error al verificar la disponibilidad del nombre de usuario", Toast.LENGTH_SHORT).show();
+                            // Si hay un error al realizar la consulta, muestra un mensaje de error con el mensaje de la excepción
+                            Toast.makeText(SignIn.this, ""+ task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -255,8 +330,8 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
                             return;
                         }
 
-                        finish();
                         startActivity(new Intent(SignIn.this, LogIn.class));
+                        finish();
                         Toast.makeText(SignIn.this, "Usuario registrado con exito", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -292,8 +367,51 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         }
     }
 
-    private void checkRestaurantAndCode(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
+    private void checkCode(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) {
+        // Verifica si el restaurante asignado por el usuario no está vacío
+        if (restaurantAssignedUser.isEmpty()) {
+            Toast.makeText(this, "Debe seleccionar un restaurante asignado", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        // Consulta el documento del restaurante a partir del ID del restaurante asignado
+        db.collection("restaurant").document(restaurantAssignedUser)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                // Obtiene el objeto del restaurante
+                                Restaurant restaurant = document.toObject(Restaurant.class);
+                                if (restaurant != null) {
+                                    // Obtiene el código del restaurante
+                                    String restaurantCode = restaurant.getCode();
+                                    // Verifica si el código introducido por el usuario coincide con el código del restaurante
+                                    if (codeRestaurantUser.equals(restaurantCode)) {
+                                        // Si coincide, procede con el registro del usuario
+                                        try {
+                                            Toast.makeText(SignIn.this, "El código es correcto", Toast.LENGTH_SHORT).show();
+                                            checkUsernameAvailability(name, nameUser, passwordUser, phoneUser, emailUser, usertype, restaurantAssignedId, codeRestaurantUser);
+                                        } catch (Exception e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    } else {
+                                        // Si no coincide, muestra un mensaje de error
+                                        Toast.makeText(SignIn.this, "El código introducido es incorrecto", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            } else {
+                                // Si el documento del restaurante no existe
+                                Toast.makeText(SignIn.this, "No se encontró información del restaurante asignado", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            // Si hay un error al obtener el documento del restaurante
+                            Toast.makeText(SignIn.this, "Error al obtener la información del restaurante "+ task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -304,5 +422,17 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        restaurantSelectedAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        restaurantSelectedAdapter.stopListening();
     }
 }

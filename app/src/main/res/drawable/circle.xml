@@ -3,7 +3,7 @@
     android:shape="oval">
     <solid android:color="@color/white" /> <!-- Color de fondo blanco -->
     <stroke
-        android:width="5dp"
+        android:width="2dp"
         android:color="@color/anaranjado"
         />
     <padding

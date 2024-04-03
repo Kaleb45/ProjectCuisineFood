@@ -3,28 +3,30 @@ package com.example.proyectocuisinefood.model;
 public class Restaurant {
     String name,
             logo,
+            direction,
             categoryPrimaryRestaurant,
             categorySecondaryRestaurant,
             phoneRestaurant,
             addressRestaurant,
             relatedRestaurants,
             distributionTablesRestaurant,
-            codeEmployeesRestaurant,
+            code,
             methodsPaymentsRestaurants,
             adminRestaurant;
 
     public Restaurant(){}
 
-    public Restaurant(String name, String logo, String categoryPrimaryRestaurant, String categorySecondaryRestaurant, String phoneRestaurant, String addressRestaurant, String relatedRestaurants, String distributionTablesRestaurant, String codeEmployeesRestaurant, String methodsPaymentsRestaurants, String adminRestaurant) {
+    public Restaurant(String name, String logo, String direction, String categoryPrimaryRestaurant, String categorySecondaryRestaurant, String phoneRestaurant, String addressRestaurant, String relatedRestaurants, String distributionTablesRestaurant, String code, String methodsPaymentsRestaurants, String adminRestaurant) {
         this.name = name;
         this.logo = logo;
+        this.direction = direction;
         this.categoryPrimaryRestaurant = categoryPrimaryRestaurant;
         this.categorySecondaryRestaurant = categorySecondaryRestaurant;
         this.phoneRestaurant = phoneRestaurant;
         this.addressRestaurant = addressRestaurant;
         this.relatedRestaurants = relatedRestaurants;
         this.distributionTablesRestaurant = distributionTablesRestaurant;
-        this.codeEmployeesRestaurant = codeEmployeesRestaurant;
+        this.code = code;
         this.methodsPaymentsRestaurants = methodsPaymentsRestaurants;
         this.adminRestaurant = adminRestaurant;
     }
@@ -43,6 +45,14 @@ public class Restaurant {
 
     public void setLogo(String logo) {
         this.logo = logo;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
     }
 
     public String getCategoryPrimaryRestaurant() {
@@ -93,12 +103,12 @@ public class Restaurant {
         this.distributionTablesRestaurant = distributionTablesRestaurant;
     }
 
-    public String getCodeEmployeesRestaurant() {
-        return codeEmployeesRestaurant;
+    public String getCode() {
+        return code;
     }
 
-    public void setCodeEmployeesRestaurant(String codeEmployeesRestaurant) {
-        this.codeEmployeesRestaurant = codeEmployeesRestaurant;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getMethodsPaymentsRestaurants() {

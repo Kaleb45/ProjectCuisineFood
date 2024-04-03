@@ -53,7 +53,7 @@ public class Cocinero extends AppCompatActivity {
             String currentUserId = currentUser.getUid(); // Obtiene el UID del usuario
 
             // Consultar el documento del usuario para obtener el ID del restaurante asignado
-            db.collection("users").document(currentUserId).get()
+            db.collection("user").document(currentUserId).get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
