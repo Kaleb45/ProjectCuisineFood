@@ -29,94 +29,80 @@ import com.squareup.picasso.Picasso;
 public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.ViewHolder> {
 
     private Context context;
-    private String currentUserRestaurantId;
 
-    public OrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, Context context, String currentUserRestaurantId) {
+    public OrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, Context context) {
         super(options);
         this.context = context;
-        this.currentUserRestaurantId = currentUserRestaurantId;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull OrderAdapter.ViewHolder holder, int position, @NonNull Orders model) {
         final int pos = position;
         // Verificar si el estado de la orden es "en espera"
-        if (model.getStatus().equals("en espera")) {
-            holder.numberTable.setText(model.getNumberTable());
+        holder.numberTable.setText(model.getNumberTable());
 
-            String dishId = model.getDishId(); // Obtener el dishId de la orden
+        String dishId = model.getDishId(); // Obtener el dishId de la orden
 
-            // Realizar consulta para obtener los datos del platillo
-            holder.db.collection("dish").document(dishId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot.exists()) {
-                        // Obtener los datos del platillo del documento
-                        String dishName = documentSnapshot.getString("name");
-                        String dishDescription = documentSnapshot.getString("description");
-                        holder.orderImage = documentSnapshot.getString("photo");
+        // Realizar consulta para obtener los datos del platillo
+        holder.db.collection("dish").document(dishId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    // Obtener los datos del platillo del documento
+                    String dishName = documentSnapshot.getString("name");
+                    String dishDescription = documentSnapshot.getString("description");
+                    holder.orderImage = documentSnapshot.getString("photo");
 
-                        // Asignar los datos del platillo a los elementos de la vista del ViewHolder
-                        holder.name.setText(dishName);
-                        holder.description.setText(dishDescription);
+                    // Asignar los datos del platillo a los elementos de la vista del ViewHolder
+                    holder.name.setText(dishName);
+                    holder.description.setText(dishDescription);
 
-                        // Cargar la imagen del platillo usando Picasso
-                        if (holder.orderImage != null && !holder.orderImage.isEmpty()) {
-                            Picasso.get().load(holder.orderImage).resize(720, 720).into(holder.photo);
+                    // Cargar la imagen del platillo usando Picasso
+                    if (holder.orderImage != null && !holder.orderImage.isEmpty()) {
+                        Picasso.get().load(holder.orderImage).resize(720, 720).into(holder.photo);
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("OrderAdapter", "Error al obtener los datos del platillo: " + e.getMessage());
+            }
+        });
+
+        // Agregar un OnCheckedChangeListener al CheckBox
+        holder.isComplete.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Mostrar un cuadro de diálogo para confirmar si el platillo ha sido completado
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Confirmar completado");
+                    builder.setMessage("¿El platillo ha sido completado?");
+                    builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Actualizar el estado de la orden a "completado" en Firestore
+                            holder.updateOrderStatus(getSnapshots().getSnapshot(pos).getId(), "completado");
                         }
-                    }
+                    });
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Desmarcar el CheckBox
+                            holder.isComplete.setChecked(false);
+                        }
+                    });
+                    builder.create().show();
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e("OrderAdapter", "Error al obtener los datos del platillo: " + e.getMessage());
-                }
-            });
-
-            // Agregar un OnCheckedChangeListener al CheckBox
-            holder.isComplete.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        // Mostrar un cuadro de diálogo para confirmar si el platillo ha sido completado
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setTitle("Confirmar completado");
-                        builder.setMessage("¿El platillo ha sido completado?");
-                        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Actualizar el estado de la orden a "completado" en Firestore
-                                holder.updateOrderStatus(getSnapshots().getSnapshot(pos).getId(), "completado");
-                            }
-                        });
-                        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Desmarcar el CheckBox
-                                holder.isComplete.setChecked(false);
-                            }
-                        });
-                        builder.create().show();
-                    }
-                }
-            });
-
-        } else {
-            // Si el estado de la orden no es "en espera", ocultar la vista del ViewHolder
-            holder.itemView.setVisibility(View.GONE);
-            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
-        }
+            }
+        });
     }
 
     @NonNull
     @Override
     public OrderAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_order,parent,false);
-        // Verificar si el usuario actual pertenece al restaurante de la orden
-        if (!getItem(viewType).getRestaurantId().equals(currentUserRestaurantId)) {
-            // Si el usuario no pertenece al restaurante, devolver una vista vacía
-            return new ViewHolder(new View(context));
-        }
         return new ViewHolder(v);
     }
 

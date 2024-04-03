@@ -44,58 +44,26 @@ public class Cocinero extends AppCompatActivity {
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        orderRecyclerView = findViewById(R.id.r_restaurant);
+        orderRecyclerView = findViewById(R.id.r_order_cook);
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        currentRestaurantId = getIntent().getStringExtra("restaurantId");
 
         // Obtener el nombre de usuario del administrador actualmente autenticado
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String currentUserId = currentUser.getUid(); // Obtiene el UID del usuario
 
-            // Consultar el documento del usuario para obtener el ID del restaurante asignado
-            db.collection("user").document(currentUserId).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                // Obtener el ID del restaurante asignado al usuario cocinero
-                                currentRestaurantId = documentSnapshot.getString("restaurantAssigned");
+            Query query = db.collection("orders");
 
-                                // Verificar que se haya obtenido el ID del restaurante
-                                if (currentRestaurantId != null && !currentRestaurantId.isEmpty()) {
-                                    // Consultar las órdenes del restaurante actualmente asignado al cocinero
-                                    Query query = db.collection("orders").whereEqualTo("restaurantId", currentRestaurantId);
+            FirestoreRecyclerOptions<Orders> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Orders>()
+                    .setQuery(query, Orders.class).build();
 
-                                    FirestoreRecyclerOptions<Orders> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Orders>()
-                                            .setQuery(query, Orders.class).build();
-
-                                    // Crear el adaptador y pasar el ID del restaurante
-                                    orderAdapter = new OrderAdapter(firestoreRecyclerOptions, Cocinero.this, currentRestaurantId);
-                                    orderAdapter.notifyDataSetChanged();
-                                    orderRecyclerView.setAdapter(orderAdapter);
-                                } else {
-                                    Toast.makeText(Cocinero.this, "El restaurante no existe", Toast.LENGTH_SHORT).show();
-                                    Log.e("Cocinero", "ID del restaurante no encontrado para el usuario");
-                                }
-                            } else {
-                                Toast.makeText(Cocinero.this, "El cocinero no esta asignado a ningun restaurante", Toast.LENGTH_SHORT).show();
-                                Log.e("Cocinero", "El documento del usuario no existe");
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(Cocinero.this, "El restaurante no existe", Toast.LENGTH_SHORT).show();
-                            Log.e("Cocinero", "Error al obtener el ID del restaurante: " + e.getMessage());
-                        }
-                    });
+            // Crear el adaptador
+            orderAdapter = new OrderAdapter(firestoreRecyclerOptions, Cocinero.this);
+            orderAdapter.notifyDataSetChanged();
+            orderRecyclerView.setAdapter(orderAdapter);
         }
-    }
-
-    private void onClickCreateRestaurant() {
-        startActivity(new Intent(Cocinero.this, CreateRestaurant.class));
-        finish();
     }
 
     @Override
