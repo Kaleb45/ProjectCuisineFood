@@ -86,8 +86,38 @@ public class MainActivity extends AppCompatActivity {
                                         finish();
                                         return;
                                     case "Cocinero":
-                                        startActivity(new Intent(MainActivity.this, Cocinero.class));
-                                        finish();
+                                        // Consultar el documento del usuario para obtener el ID del restaurante asignado
+                                        db.collection("user").document(userId).get()
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        if (documentSnapshot.exists()) {
+                                                            // Obtener el ID del restaurante asignado al usuario cocinero
+                                                            String currentRestaurantId = documentSnapshot.getString("restaurantAssigned");
+
+                                                            // Verificar que se haya obtenido el ID del restaurante
+                                                            if (currentRestaurantId != null && !currentRestaurantId.isEmpty()) {
+                                                                Intent intent = new Intent(MainActivity.this, Cocinero.class);
+                                                                intent.putExtra("restaurantId", currentRestaurantId);
+                                                                startActivity(intent);
+                                                                finish();
+                                                            } else {
+                                                                Toast.makeText(MainActivity.this, "El restaurante no existe", Toast.LENGTH_SHORT).show();
+                                                                Log.e("Cocinero", "ID del restaurante no encontrado para el usuario");
+                                                            }
+                                                        } else {
+                                                            Toast.makeText(MainActivity.this, "El cocinero no esta asignado a ningun restaurante", Toast.LENGTH_SHORT).show();
+                                                            Log.e("Cocinero", "El documento del usuario no existe");
+                                                        }
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(MainActivity.this, "Error al obtener el ID del restaurante: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                        Log.e("Cocinero", "Error al obtener el ID del restaurante: " + e.getMessage());
+                                                    }
+                                                });
                                         return;
                                     case "Mesero":
                                         startActivity(new Intent(MainActivity.this, Mesero.class));

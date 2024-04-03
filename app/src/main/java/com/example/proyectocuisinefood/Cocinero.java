@@ -54,12 +54,12 @@ public class Cocinero extends AppCompatActivity {
         if (currentUser != null) {
             String currentUserId = currentUser.getUid(); // Obtiene el UID del usuario
 
-            Query query = db.collection("orders");
+            Query query = db.collection("orders").whereEqualTo("restaurantId", currentRestaurantId);
 
             FirestoreRecyclerOptions<Orders> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Orders>()
                     .setQuery(query, Orders.class).build();
 
-            // Crear el adaptador
+            // Crear el adaptador y pasar el ID del restaurante
             orderAdapter = new OrderAdapter(firestoreRecyclerOptions, Cocinero.this);
             orderAdapter.notifyDataSetChanged();
             orderRecyclerView.setAdapter(orderAdapter);
