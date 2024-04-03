@@ -87,7 +87,7 @@ public class Cocinero extends AppCompatActivity {
         if(id == R.id.i_signout){
             mAuth.signOut();
             finish();
-            startActivity(new Intent(Cocinero.this, LogIn.class));
+            startActivity(new Intent(Cocinero.this, MainActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
