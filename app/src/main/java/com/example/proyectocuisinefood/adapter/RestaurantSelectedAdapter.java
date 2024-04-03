@@ -37,7 +37,7 @@ public class RestaurantSelectedAdapter extends FirestoreRecyclerAdapter<Restaura
             if(!photoLogo.equals("")){
                 Picasso.get()
                         .load(photoLogo)
-                        .resize(400, 400)
+                        .resize(100, 100)
                         .into(holder.logo);
             }
         }catch (Exception e){
