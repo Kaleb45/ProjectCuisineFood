@@ -1,17 +1,18 @@
 package com.example.proyectocuisinefood.model;
 
 public class Orders {
-    String numberTable, dishId, status, restaurantId;
+    String numberTable, dishId, status, restaurantId, userId;
 
     public Orders(){
 
     }
 
-    public Orders(String numberTable, String dishId, String status, String restaurantId) {
+    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId) {
         this.numberTable = numberTable;
         this.dishId = dishId;
         this.status = status;
         this.restaurantId = restaurantId;
+        this.userId = userId;
     }
 
     public String getNumberTable() {
@@ -44,5 +45,13 @@ public class Orders {
 
     public void setRestaurantId(String restaurantId) {
         this.restaurantId = restaurantId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

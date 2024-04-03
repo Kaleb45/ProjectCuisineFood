@@ -49,10 +49,7 @@ public class Cocinero extends AppCompatActivity {
 
         restaurantId = getIntent().getStringExtra("restaurantId");
 
-        // Obtener el nombre de usuario del administrador actualmente autenticado
-        FirebaseUser currentUser = mAuth.getCurrentUser();
         if (restaurantId != null && !restaurantId.isEmpty()) {
-            String restaurantId = currentUser.getUid(); // Obtiene el UID del usuario
 
             Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId);
 

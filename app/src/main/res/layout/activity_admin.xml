@@ -35,9 +35,16 @@
 
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Admin" />
+                    android:text="Administrador"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/white"
+                    android:background="@color/anaranjado"
+                    android:padding="5dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/r_restaurant"
