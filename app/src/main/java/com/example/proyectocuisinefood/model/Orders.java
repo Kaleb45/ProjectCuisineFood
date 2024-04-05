@@ -1,18 +1,23 @@
 package com.example.proyectocuisinefood.model;
 
+import java.util.ArrayList;
+
 public class Orders {
-    String numberTable, dishId, status, restaurantId, userId;
+    String numberTable, dishId, status, restaurantId, userId, quantity;
+    ArrayList<String> ingredientIds;
 
     public Orders(){
 
     }
 
-    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId) {
+    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId, String quantity, ArrayList<String> ingredientIds) {
         this.numberTable = numberTable;
         this.dishId = dishId;
         this.status = status;
         this.restaurantId = restaurantId;
         this.userId = userId;
+        this.ingredientIds = ingredientIds;
+        this.quantity = quantity;
     }
 
     public String getNumberTable() {
@@ -53,5 +58,21 @@ public class Orders {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public ArrayList<String> getIngredientIds() {
+        return ingredientIds;
+    }
+
+    public void setIngredientIds(ArrayList<String> ingredientIds) {
+        this.ingredientIds = ingredientIds;
+    }
+
+    public String getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
     }
 }

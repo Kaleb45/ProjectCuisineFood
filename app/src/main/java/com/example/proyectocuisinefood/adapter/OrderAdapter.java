@@ -2,7 +2,14 @@ package com.example.proyectocuisinefood.adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.proyectocuisinefood.CreateIngredients;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.model.Orders;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -26,8 +34,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.ViewHolder> {
 
@@ -180,6 +192,76 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                 }
             }
         });
+
+        holder.name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.userType.equals("Cocinero")) {
+                    // Si el usuario es un cocinero, mostrar los ingredientes al hacer clic en el nombre del platillo
+                    if (model.getIngredientIds() != null && !model.getIngredientIds().isEmpty() && model.getIngredientIds().size() != 0) {
+                        showIngredientsDialog(holder, model);
+                    } else {
+                        // Si la lista de ingredientIds está vacía, mostrar un mensaje de que no hay ingredientes
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setTitle("Ordenes");
+                        builder.setMessage(model.getQuantity());
+                        builder.create().show();
+
+                        Toast.makeText(context, "Esta orden no tiene ingredientes", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
+
+    private void showIngredientsDialog(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model) {
+
+        ArrayList<String> ingredientIds = model.getIngredientIds();
+
+        // Consultar Firestore para obtener los detalles de los ingredientes basándote en los IDs
+        holder.db.collection("ingredients")
+                .whereIn(FieldPath.documentId(), ingredientIds)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        StringBuilder ingredientsText = new StringBuilder();
+                        StringBuilder quantityText = new StringBuilder();
+
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            // Obtener el nombre del ingrediente del documento y agregarlo al texto
+                            String ingredientName = documentSnapshot.getString("name");
+                            ingredientsText.append("\t\t\u2022 "+ingredientName+"\n\n");
+                        }
+                        quantityText.append("\n\t\tOrdenes: ");
+
+                        // Crear el cuadro de diálogo para mostrar los ingredientes
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setTitle("Ingredientes");
+
+                        // Configurar el tamaño de la letra del texto del mensaje
+                        TextView messageTextView = new TextView(context);
+                        messageTextView.setText(ingredientsText+quantityText.toString()+model.getQuantity());
+                        messageTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18); // Tamaño de letra en SP, puedes ajustarlo según lo necesites
+                        builder.setView(messageTextView);
+
+                        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.create().show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Manejar el error si la consulta falla
+                        Log.e("OrderAdapter", "Error al obtener los ingredientes: " + e.getMessage());
+                        Toast.makeText(context, "Error al obtener los ingredientes", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @NonNull
