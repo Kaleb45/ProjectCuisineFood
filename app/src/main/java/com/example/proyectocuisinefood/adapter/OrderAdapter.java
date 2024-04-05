@@ -2,12 +2,6 @@ package com.example.proyectocuisinefood.adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Typeface;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -20,11 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.proyectocuisinefood.CreateIngredients;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.auxiliaryclass.SortedOrders;
 import com.example.proyectocuisinefood.model.Orders;
@@ -98,57 +90,14 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
     private void bindOrder(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model, int position) {
         final int pos = position;
 
+        // Limpiar la lista sortedOrders antes de agregar nuevas órdenes
+        sortedOrders.clear();
+
         holder.numberTable.setText(model.getNumberTable());
 
         String dishId = model.getDishId(); // Obtener el dishId de la orden
         String userId = model.getUserId(); // Obtener el userId de la orden
         String restaurantId = model.getRestaurantId(); // Obtener el restaurantId de la orden
-
-        // Realizar consulta para obtener los datos del platillo
-        holder.db.collection("dish").document(dishId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()) {
-                    // Obtener los datos del platillo del documento
-                    String dishName = documentSnapshot.getString("name");
-                    String dishDescription = documentSnapshot.getString("description");
-                    String dishTime = documentSnapshot.getString("time");
-                    Integer time = Integer.valueOf(dishTime);
-                    Toast.makeText(context, time, Toast.LENGTH_SHORT).show();
-                    holder.orderImage = documentSnapshot.getString("photo");
-
-                    // Asignar los datos del platillo a los elementos de la vista del ViewHolder
-                    holder.name.setText(dishName);
-                    holder.description.setText(dishDescription);
-
-                    // Cargar la imagen del platillo usando Picasso
-                    if (holder.orderImage != null && !holder.orderImage.isEmpty()) {
-                        Picasso.get().load(holder.orderImage).resize(720, 720).into(holder.photo);
-                    }
-
-                    // Añadir la orden a la lista de órdenes ordenadas con su tiempo de preparación
-                    //sortedOrders.add(new SortedOrders(model, dishTime));
-
-                    // Ordenar la lista de órdenes según el tiempo de preparación del platillo
-                    Collections.sort(sortedOrders, new Comparator<SortedOrders>() {
-                        @Override
-                        public int compare(SortedOrders o1, SortedOrders o2) {
-                            // Ordenar en orden ascendente (menor tiempo de preparación primero)
-                            return Integer.compare(o1.getTime(), o2.getTime());
-                        }
-                    });
-
-                    // Llamar a bindOrder con la orden ordenada
-                    //bindOrderSorted(holder, sortedOrders.get(pos).getOrder(), pos);
-
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("OrderAdapter", "Error al obtener los datos del platillo: " + e.getMessage());
-            }
-        });
 
         holder.db.collection("user").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -158,6 +107,8 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     String userName = documentSnapshot.getString("name");
 
                     holder.user.setText(userName);
+
+                    model.setUserName(userName);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -180,6 +131,56 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e("OrderAdapter", "Error al obtener los datos del cliente: " + e.getMessage());
+            }
+        });
+
+        // Realizar consulta para obtener los datos del platillo
+        holder.db.collection("dish").document(dishId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    // Obtener los datos del platillo del documento
+                    String dishName = documentSnapshot.getString("name");
+                    String dishDescription = documentSnapshot.getString("description");
+
+                    int dishTime = Integer.parseInt(documentSnapshot.getString("time"));
+                    Toast.makeText(context, ""+dishTime, Toast.LENGTH_SHORT).show();
+                    holder.orderImage = documentSnapshot.getString("photo");
+
+                    // Asignar los datos del platillo a los elementos de la vista del ViewHolder
+                    holder.name.setText(dishName);
+                    holder.description.setText(dishDescription);
+
+                    // Cargar la imagen del platillo usando Picasso
+                    if (holder.orderImage != null && !holder.orderImage.isEmpty()) {
+                        Picasso.get().load(holder.orderImage).resize(720, 720).into(holder.photo);
+                    }
+
+                    // Añadir la orden a la lista de órdenes ordenadas con su tiempo de preparación
+                    sortedOrders.add(new SortedOrders(model, dishTime));
+
+                    // Ordenar la lista de órdenes según el tiempo de preparación del platillo
+                    Collections.sort(sortedOrders, new Comparator<SortedOrders>() {
+                        @Override
+                        public int compare(SortedOrders o1, SortedOrders o2) {
+                            // Ordenar en orden ascendente (menor tiempo de preparación primero)
+                            return Integer.compare(o1.getTime(), o2.getTime());
+                        }
+                    });
+
+                    // Establecer el nombre y la descripción del platillo en el objeto model
+                    model.setDishName(dishName);
+                    model.setDishDescription(dishDescription);
+                    model.setDishImage(holder.orderImage);
+
+                    // Llamar a bindOrder con la orden ordenada
+                    //holder.updateOrderView(sortedOrders.get(pos).getOrder());
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("OrderAdapter", "Error al obtener los datos del platillo: " + e.getMessage());
             }
         });
 
@@ -236,10 +237,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                 }
             }
         });
-    }
-
-    private void bindOrderSorted(ViewHolder holder, Orders order, int pos) {
-
     }
 
     private void showIngredientsDialog(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model) {
@@ -306,7 +303,7 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
         CheckBox isComplete;
         FirebaseFirestore db;
         FirebaseAuth mAuth;
-        String orderImage, orderMap, userType;
+        String orderImage, orderMap, userType, isSorted;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -348,16 +345,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
             });
         }
 
-        // Método para actualizar la vista de la orden con los datos de la orden ordenada según el tiempo de preparación
-        public void updateOrderView(Orders model, int position) {
-            // Obtener la orden de la lista ordenada en la posición especificada
-            Orders orderedOrder = sortedOrders.get(position).getOrder();
-
-            // Asignar los datos de la orden ordenada a los elementos de la vista del ViewHolder
-            numberTable.setText(orderedOrder.getNumberTable());
-
-        }
-
         // Método para actualizar el estado de la orden en Firestore
         private void updateOrderStatus(String orderId, String status) {
             FirebaseFirestore.getInstance().collection("orders").document(orderId)
@@ -376,6 +363,16 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                             Log.e("OrderAdapter", "Error al actualizar el estado de la orden: " + e.getMessage());
                         }
                     });
+        }
+
+        private void updateOrderView(Orders model) {
+            numberTable.setText(model.getNumberTable());
+            name.setText(model.getDishName());
+            description.setText(model.getDishDescription());
+            user.setText(model.getUserName());
+            if (model.getDishImage() != null && !model.getDishImage().isEmpty()) {
+                Picasso.get().load(model.getDishImage()).resize(720, 720).into(photo);
+            }
         }
     }
 }
