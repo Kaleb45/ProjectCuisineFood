@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.CreateIngredients;
 import com.example.proyectocuisinefood.R;
+import com.example.proyectocuisinefood.auxiliaryclass.SortedOrders;
 import com.example.proyectocuisinefood.model.Orders;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -40,10 +41,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.ViewHolder> {
 
     private Context context;
+    private ArrayList<SortedOrders> sortedOrders = new ArrayList<>();
 
     public OrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, Context context) {
         super(options);
@@ -93,6 +97,7 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
     // Método para vincular los datos de la orden al ViewHolder
     private void bindOrder(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model, int position) {
         final int pos = position;
+
         holder.numberTable.setText(model.getNumberTable());
 
         String dishId = model.getDishId(); // Obtener el dishId de la orden
@@ -107,6 +112,9 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     // Obtener los datos del platillo del documento
                     String dishName = documentSnapshot.getString("name");
                     String dishDescription = documentSnapshot.getString("description");
+                    String dishTime = documentSnapshot.getString("time");
+                    Integer time = Integer.valueOf(dishTime);
+                    Toast.makeText(context, time, Toast.LENGTH_SHORT).show();
                     holder.orderImage = documentSnapshot.getString("photo");
 
                     // Asignar los datos del platillo a los elementos de la vista del ViewHolder
@@ -117,6 +125,22 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     if (holder.orderImage != null && !holder.orderImage.isEmpty()) {
                         Picasso.get().load(holder.orderImage).resize(720, 720).into(holder.photo);
                     }
+
+                    // Añadir la orden a la lista de órdenes ordenadas con su tiempo de preparación
+                    //sortedOrders.add(new SortedOrders(model, dishTime));
+
+                    // Ordenar la lista de órdenes según el tiempo de preparación del platillo
+                    Collections.sort(sortedOrders, new Comparator<SortedOrders>() {
+                        @Override
+                        public int compare(SortedOrders o1, SortedOrders o2) {
+                            // Ordenar en orden ascendente (menor tiempo de preparación primero)
+                            return Integer.compare(o1.getTime(), o2.getTime());
+                        }
+                    });
+
+                    // Llamar a bindOrder con la orden ordenada
+                    //bindOrderSorted(holder, sortedOrders.get(pos).getOrder(), pos);
+
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -212,6 +236,10 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                 }
             }
         });
+    }
+
+    private void bindOrderSorted(ViewHolder holder, Orders order, int pos) {
+
     }
 
     private void showIngredientsDialog(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model) {
@@ -318,6 +346,16 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     return true;
                 }
             });
+        }
+
+        // Método para actualizar la vista de la orden con los datos de la orden ordenada según el tiempo de preparación
+        public void updateOrderView(Orders model, int position) {
+            // Obtener la orden de la lista ordenada en la posición especificada
+            Orders orderedOrder = sortedOrders.get(position).getOrder();
+
+            // Asignar los datos de la orden ordenada a los elementos de la vista del ViewHolder
+            numberTable.setText(orderedOrder.getNumberTable());
+
         }
 
         // Método para actualizar el estado de la orden en Firestore

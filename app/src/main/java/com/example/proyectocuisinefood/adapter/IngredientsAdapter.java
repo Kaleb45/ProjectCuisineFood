@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.proyectocuisinefood.global.info;
+import com.example.proyectocuisinefood.auxiliaryclass.info;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;

@@ -27,7 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.proyectocuisinefood.global.info;
+import com.example.proyectocuisinefood.auxiliaryclass.info;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -48,7 +48,6 @@ import com.squareup.picasso.Picasso;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CreateMenu extends AppCompatActivity {

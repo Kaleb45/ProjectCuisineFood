@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood.global;
+package com.example.proyectocuisinefood.auxiliaryclass;
 
 import com.example.proyectocuisinefood.model.Ingredients;
 
