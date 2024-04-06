@@ -51,7 +51,7 @@
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="100dp"
             android:id="@+id/swipe_refresh_layout_waiter">
 
             <RelativeLayout
