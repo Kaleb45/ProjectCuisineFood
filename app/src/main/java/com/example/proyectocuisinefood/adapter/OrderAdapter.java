@@ -39,16 +39,18 @@ import java.util.Comparator;
 public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.ViewHolder> {
 
     private Context context;
-    private ArrayList<SortedOrders> sortedOrders = new ArrayList<>();
+    private ArrayList<Orders> sortedOrders;
 
-    public OrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, Context context) {
+    public OrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, ArrayList<Orders> sortedOrders, Context context) {
         super(options);
+        this.sortedOrders = sortedOrders;
         this.context = context;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull OrderAdapter.ViewHolder holder, int position, @NonNull Orders model) {
         final int pos = position;
+
         // Obtener el tipo de usuario actual
         FirebaseUser currentUser = holder.mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -65,10 +67,10 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                         if (holder.userType != null) {
                             if (holder.userType.equals("Cocinero") && model.getStatus().equals("En preparación")) {
                                 // Mostrar solo las órdenes con estado "En preparación" para los cocineros
-                                bindOrder(holder, model, position);
+                                bindOrder(holder, sortedOrders.get(pos), position);
                             } else if (holder.userType.equals("Mesero") && model.getStatus().equals("En camino a la mesa")) {
                                 // Mostrar solo las órdenes con estado "En camino a la mesa" para los meseros
-                                bindOrder(holder, model, position);
+                                bindOrder(holder, sortedOrders.get(pos), position);
                             } else {
                                 // Ocultar la vista del ViewHolder si no coincide con el tipo de usuario
                                 holder.itemView.setVisibility(View.GONE);
@@ -90,9 +92,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
     private void bindOrder(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model, int position) {
         final int pos = position;
 
-        // Limpiar la lista sortedOrders antes de agregar nuevas órdenes
-        sortedOrders.clear();
-
         holder.numberTable.setText(model.getNumberTable());
 
         String dishId = model.getDishId(); // Obtener el dishId de la orden
@@ -107,8 +106,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     String userName = documentSnapshot.getString("name");
 
                     holder.user.setText(userName);
-
-                    model.setUserName(userName);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -143,8 +140,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                     String dishName = documentSnapshot.getString("name");
                     String dishDescription = documentSnapshot.getString("description");
 
-                    int dishTime = Integer.parseInt(documentSnapshot.getString("time"));
-                    Toast.makeText(context, ""+dishTime, Toast.LENGTH_SHORT).show();
                     holder.orderImage = documentSnapshot.getString("photo");
 
                     // Asignar los datos del platillo a los elementos de la vista del ViewHolder
@@ -156,25 +151,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                         Picasso.get().load(holder.orderImage).resize(720, 720).into(holder.photo);
                     }
 
-                    // Añadir la orden a la lista de órdenes ordenadas con su tiempo de preparación
-                    sortedOrders.add(new SortedOrders(model, dishTime));
-
-                    // Ordenar la lista de órdenes según el tiempo de preparación del platillo
-                    Collections.sort(sortedOrders, new Comparator<SortedOrders>() {
-                        @Override
-                        public int compare(SortedOrders o1, SortedOrders o2) {
-                            // Ordenar en orden ascendente (menor tiempo de preparación primero)
-                            return Integer.compare(o1.getTime(), o2.getTime());
-                        }
-                    });
-
-                    // Establecer el nombre y la descripción del platillo en el objeto model
-                    model.setDishName(dishName);
-                    model.setDishDescription(dishDescription);
-                    model.setDishImage(holder.orderImage);
-
-                    // Llamar a bindOrder con la orden ordenada
-                    //holder.updateOrderView(sortedOrders.get(pos).getOrder());
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -303,7 +279,7 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
         CheckBox isComplete;
         FirebaseFirestore db;
         FirebaseAuth mAuth;
-        String orderImage, orderMap, userType, isSorted;
+        String orderImage, orderMap, userType;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -363,16 +339,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                             Log.e("OrderAdapter", "Error al actualizar el estado de la orden: " + e.getMessage());
                         }
                     });
-        }
-
-        private void updateOrderView(Orders model) {
-            numberTable.setText(model.getNumberTable());
-            name.setText(model.getDishName());
-            description.setText(model.getDishDescription());
-            user.setText(model.getUserName());
-            if (model.getDishImage() != null && !model.getDishImage().isEmpty()) {
-                Picasso.get().load(model.getDishImage()).resize(720, 720).into(photo);
-            }
         }
     }
 }
