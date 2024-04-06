@@ -4,8 +4,8 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/rojo_carmesi</item>
+        <item name="colorPrimaryVariant">@color/rojo_frambuesa</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
@@ -17,4 +17,11 @@
     </style>
 
     <style name="Theme.ProyectoCuisineFood" parent="Base.Theme.ProyectoCuisineFood" />
+
+    <style name="BottomNavigation">
+        <item name="background">@color/anaranjado</item>
+        <item name="backgroundTint">@color/anaranjado</item>
+        <item name="itemIconTint">@color/white</item>
+        <item name="itemTextColor">@color/white</item>
+    </style>
 </resources>
