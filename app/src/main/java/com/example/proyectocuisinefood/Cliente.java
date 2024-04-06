@@ -93,6 +93,11 @@ public class Cliente extends AppCompatActivity {
             startActivity(new Intent(Cliente.this, MainActivity.class));
             return true;
         }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(Cliente.this, UserProfileActivity.class));
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }

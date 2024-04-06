@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UserProfileActivity"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/imb_profile_image"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/circle_profile"
+                android:src="@drawable/ic_user_profile"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/t_user_name"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:hint="Nombre de Usuario"
+            android:gravity="center"
+            android:layout_marginTop="30dp"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fb_edit_user"
+            app:srcCompat="@android:drawable/ic_menu_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|right"
+            android:layout_margin="15dp"
+            app:backgroundTint="@color/anaranjado"
+            android:elevation="8dp"
+            android:scaleType="center"
+            app:borderWidth="0dp"
+            android:outlineProvider="background"
+            app:shapeAppearance="@style/ShapeAppearanceOverlay.MaterialAlertDialog.Material3"/>
+
+    </LinearLayout>
+
+</LinearLayout>

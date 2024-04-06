@@ -1,8 +1,12 @@
 package com.example.proyectocuisinefood;
 
-import static android.app.Activity.RESULT_OK;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,30 +16,19 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,11 +43,12 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserProfileFragment extends Fragment {
+public class UserProfileActivity extends AppCompatActivity {
 
     TextView userName;
     ImageButton profileImage;
     FloatingActionButton editUserProfile;
+    Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     private static final int PERMISSION_REQUEST_CODE = 300;
@@ -65,31 +59,23 @@ public class UserProfileFragment extends Fragment {
     StorageReference storageReference;
     private Uri imageUrl;
     ProgressDialog progressDialog;
-    String loadProfileImage, currentUserId;
-    public UserProfileFragment() {
-        // Required empty public constructor
-    }
-
+    String loadProfileImage, currentUserId, userType;
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_user_profile, container, false);
+        setContentView(R.layout.activity_user_profile);
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference();
 
-        progressDialog = new ProgressDialog(v.getContext());
+        toolbar=findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        userName = v.findViewById(R.id.t_user_name);
-        profileImage = v.findViewById(R.id.imb_profile_image);
-        editUserProfile = v.findViewById(R.id.fb_edit_user);
+        progressDialog = new ProgressDialog(this);
+
+        userName = findViewById(R.id.t_user_name);
+        profileImage = findViewById(R.id.imb_profile_image);
+        editUserProfile = findViewById(R.id.fb_edit_user);
 
         getUserData();
 
@@ -111,16 +97,42 @@ public class UserProfileFragment extends Fragment {
         editUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Actualmente no esta disponible esta función", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserProfileActivity.this, "Actualmente no esta disponible esta función", Toast.LENGTH_SHORT).show();
             }
         });
 
-        return v;
+        // Habilitar el botón de retroceso en la barra de herramientas
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Manejar el evento de clic en el botón de retroceso para volver a la actividad de Admin
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (userType){
+                    case "Administrador":
+                        startActivity(new Intent(UserProfileActivity.this, Admin.class));
+                        finish();
+                        break;
+                    case "Cocinero":
+                        startActivity(new Intent(UserProfileActivity.this, Cocinero.class));
+                        finish();
+                        break;
+                    case "Mesero":
+                        startActivity(new Intent(UserProfileActivity.this, Mesero.class));
+                        finish();
+                        break;
+                    case "Cliente":
+                        startActivity(new Intent(UserProfileActivity.this, Cliente.class));
+                        finish();
+                        break;
+                }
+            }
+        });
     }
 
     private void uploadImage() {
         // Crear un diálogo de opciones para seleccionar entre la galería y la cámara
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Seleccionar fuente de imagen");
         builder.setItems(new CharSequence[]{"Galería", "Cámara"}, new DialogInterface.OnClickListener() {
             @Override
@@ -133,13 +145,13 @@ public class UserProfileFragment extends Fragment {
                         break;
                     case 1:
                         // Verificar si la aplicación tiene permiso para acceder a la cámara
-                        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        if (ContextCompat.checkSelfPermission(UserProfileActivity.this, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                             // Abrir la cámara
                             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                             startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
                         } else {
                             // Solicitar permiso de cámara
-                            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
+                            ActivityCompat.requestPermissions(UserProfileActivity.this, new String[]{android.Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
                         }
                         break;
                 }
@@ -166,7 +178,7 @@ public class UserProfileFragment extends Fragment {
                 if (data != null && data.getExtras() != null) {
                     Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
                     if (imageBitmap != null) {
-                        imageUrl = getImageUri(getContext(), imageBitmap);
+                        imageUrl = getImageUri(this, imageBitmap);
                         loadProfileImage = imageUrl.toString();
                         profileImage.setBackgroundResource(android.R.color.transparent);
                         Picasso.get().load(loadProfileImage).resize(400,400).centerCrop().into(profileImage);
@@ -191,33 +203,29 @@ public class UserProfileFragment extends Fragment {
         db.collection("user").document(currentUserId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                Toast.makeText(getContext(), "Actualizado correctamente", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserProfileActivity.this, "Actualizado correctamente", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(), "Error al actualizar el perfil de usuario", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserProfileActivity.this, "Error al actualizar el perfil de usuario", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void showProfileImage() {
-        // Verificar si loadProfileImage no es nulo
-        if (loadProfileImage != null) {
-            // Crear un diálogo personalizado para mostrar la imagen en tamaño completo
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_layout_image_viewer, null);
-            ImageView imageViewDialog = dialogView.findViewById(R.id.image_view_dialog);
-            Picasso.get().load(loadProfileImage).into(imageViewDialog); // Cargar la imagen en el ImageView del diálogo
-            builder.setView(dialogView);
-            builder.setCancelable(true);
 
-            // Mostrar el diálogo
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        } else {
-            Toast.makeText(getContext(), "No se encontró ninguna imagen para mostrar", Toast.LENGTH_SHORT).show();
-        }
+        // Crear un diálogo personalizado para mostrar la imagen en tamaño completo
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_layout_image_viewer, null);
+        ImageView imageViewDialog = dialogView.findViewById(R.id.image_view_dialog);
+        Picasso.get().load(loadProfileImage).into(imageViewDialog); // Cargar la imagen en el ImageView del diálogo
+        builder.setView(dialogView);
+        builder.setCancelable(true);
+
+        // Mostrar el diálogo
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void sendPhoto(Uri imageUrl) {
@@ -234,7 +242,7 @@ public class UserProfileFragment extends Fragment {
                     uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            Toast.makeText(getContext(), "Foto actualizada", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserProfileActivity.this, "Foto actualizada", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             saveImage();
                         }
@@ -244,7 +252,7 @@ public class UserProfileFragment extends Fragment {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(), "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserProfileActivity.this, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -258,6 +266,7 @@ public class UserProfileFragment extends Fragment {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if (documentSnapshot.exists()) {
+                        userType = documentSnapshot.getString("usertype");
                         String name = documentSnapshot.getString("username");
                         userName.setText(name);
 
@@ -266,7 +275,7 @@ public class UserProfileFragment extends Fragment {
                             profileImage.setBackgroundResource(android.R.color.transparent);
                             Picasso.get().load(loadProfileImage).resize(350,350).centerCrop().into(profileImage);
                         } else {
-                            Toast.makeText(getContext(), "Puede añadir una foto de perfil", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserProfileActivity.this, "Puede añadir una foto de perfil", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -277,5 +286,29 @@ public class UserProfileFragment extends Fragment {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == R.id.i_signout){
+            mAuth.signOut();
+            finish();
+            startActivity(new Intent(UserProfileActivity.this, MainActivity.class));
+            return true;
+        }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(UserProfileActivity.this, UserProfileActivity.class));
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

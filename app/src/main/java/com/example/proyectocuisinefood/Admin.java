@@ -113,6 +113,11 @@ public class Admin extends AppCompatActivity {
             startActivity(new Intent(Admin.this, MainActivity.class));
             return true;
         }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(Admin.this, UserProfileActivity.class));
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }
