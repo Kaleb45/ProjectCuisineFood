@@ -28,6 +28,7 @@ public class Cliente extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cliente);
+        mAuth = FirebaseAuth.getInstance();
 
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
