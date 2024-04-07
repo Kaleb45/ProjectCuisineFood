@@ -134,6 +134,11 @@ public class Mesero extends AppCompatActivity {
             startActivity(new Intent(Mesero.this, MainActivity.class));
             return true;
         }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(Mesero.this, UserProfileActivity.class));
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }

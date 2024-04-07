@@ -930,6 +930,11 @@ public class CreateRestaurant extends AppCompatActivity{
             startActivity(new Intent(CreateRestaurant.this, MainActivity.class));
             return true;
         }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(CreateRestaurant.this, UserProfileActivity.class));
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }

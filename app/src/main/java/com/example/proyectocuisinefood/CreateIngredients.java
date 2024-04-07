@@ -40,6 +40,7 @@ public class CreateIngredients extends DialogFragment {
     RecyclerView recyclerViewShowIngredient;
     IngredientsAdapter ingredientsAdapter;
     FirebaseFirestore db;
+    ArrayList<String> ingredientIds = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,7 @@ public class CreateIngredients extends DialogFragment {
         FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
                 .setQuery(query, Ingredients.class).build();
 
-        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions);
+        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions, v.getContext(), ingredientIds);
         ingredientsAdapter.notifyDataSetChanged();
         recyclerViewShowIngredient.setAdapter(ingredientsAdapter);
 

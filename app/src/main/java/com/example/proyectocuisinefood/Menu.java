@@ -135,6 +135,11 @@ public class Menu extends AppCompatActivity {
             startActivity(new Intent(Menu.this, MainActivity.class));
             return true;
         }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(Menu.this, UserProfileActivity.class));
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }

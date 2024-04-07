@@ -404,6 +404,11 @@ public class PaymentMethods extends AppCompatActivity {
             startActivity(new Intent(PaymentMethods.this, MainActivity.class));
             return true;
         }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(PaymentMethods.this, UserProfileActivity.class));
+            finish();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }

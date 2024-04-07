@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.proyectocuisinefood.auxiliaryclass.info;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -58,13 +57,13 @@ public class CreateMenu extends AppCompatActivity {
     RecyclerView recyclerViewIngredients;
     IngredientsAdapter ingredientsAdapter;
     Toolbar toolbar;
-    AppBarLayout appBarLayout;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     StorageReference storageReference;
     Uri imageUrl;
     ProgressDialog progressDialog;
     String downloadUri, restaurantId, photoDish;
+    ArrayList<String> ingredientIds = new ArrayList<>();
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
@@ -79,7 +78,6 @@ public class CreateMenu extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
 
-        appBarLayout = findViewById(R.id.appBarLayout_create_menu);
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -98,7 +96,7 @@ public class CreateMenu extends AppCompatActivity {
         restaurantId = getIntent().getStringExtra("restaurantId");
         String dishId = getIntent().getStringExtra("dishId");
 
-        if(dishId == null || dishId.isEmpty()){
+        if(dishId == null || dishId.isEmpty() || dishId == ""){
             dishCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -135,7 +133,7 @@ public class CreateMenu extends AppCompatActivity {
         FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
                 .setQuery(query, Ingredients.class).build();
 
-        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions);
+        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions, this, ingredientIds);
         ingredientsAdapter.notifyDataSetChanged();
         recyclerViewIngredients.setAdapter(ingredientsAdapter);
 
@@ -186,12 +184,13 @@ public class CreateMenu extends AppCompatActivity {
         map.put("type",type);
         map.put("restaurantId", restaurantId);
         map.put("photo", photoDish);
-        map.put("ingredientIds", info.ListAddIngredients);
+        map.put("ingredientIds", ingredientIds);
 
         db.collection("dish").document(id).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 Toast.makeText(CreateMenu.this, "Actualizado correctamente", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(CreateMenu.this, Menu.class));
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -213,7 +212,7 @@ public class CreateMenu extends AppCompatActivity {
                 photoDish = documentSnapshot.getString("photo");
                 restaurantId = documentSnapshot.getString("restaurantId");
 
-                ArrayList<String> ingredientIds = (ArrayList<String>) documentSnapshot.get("ingredientIds");
+                ingredientIds = (ArrayList<String>) documentSnapshot.get("ingredientIds");
 
                 Picasso.get().load(photoDish).resize(150,150).into(dishImage);
                 dishName.setText(name);
@@ -270,13 +269,14 @@ public class CreateMenu extends AppCompatActivity {
         map.put("type",type);
         map.put("restaurantId", restaurantId);
         map.put("photo", downloadUri);
-        map.put("ingredientIds", info.ListAddIngredients);
+        map.put("ingredientIds", ingredientIds);
 
         db.collection("dish").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 String restaurantId = documentReference.getId(); // Aquí obtienes el ID del restaurante
                 Toast.makeText(CreateMenu.this, "Creado Exitosamente", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(CreateMenu.this, Menu.class));
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -476,6 +476,11 @@ public class CreateMenu extends AppCompatActivity {
             mAuth.signOut();
             finish();
             startActivity(new Intent(CreateMenu.this, MainActivity.class));
+            return true;
+        }
+        if(id== R.id.i_profile){
+            startActivity(new Intent(CreateMenu.this, UserProfileActivity.class));
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
