@@ -1,17 +1,22 @@
 package com.example.proyectocuisinefood.model;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class Dish {
     String name, cost, photo, restaurantId;
+    ArrayList<String> ingredientIds;
 
     public Dish(){
 
     }
 
-    public Dish(String name, String cost, String photo, String restaurantId) {
+    public Dish(String name, String cost, String photo, String restaurantId, ArrayList<String> ingredientIds) {
         this.name = name;
         this.cost = cost;
         this.photo = photo;
         this.restaurantId = restaurantId;
+        this.ingredientIds = ingredientIds;
     }
 
     public String getName() {
@@ -44,5 +49,13 @@ public class Dish {
 
     public void setRestaurantId(String restaurantId) {
         this.restaurantId = restaurantId;
+    }
+
+    public ArrayList<String> getIngredientIds() {
+        return ingredientIds;
+    }
+
+    public void setIngredientIds(ArrayList<String> ingredientIds) {
+        this.ingredientIds = ingredientIds;
     }
 }
