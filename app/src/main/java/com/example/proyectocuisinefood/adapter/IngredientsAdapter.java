@@ -51,6 +51,7 @@ public class IngredientsAdapter extends FirestoreRecyclerAdapter<Ingredients, In
         }
     }
 
+
     public ArrayList<String> getSelectedIngredientIds(){
         return selectedIngredientIds;
     }

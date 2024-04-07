@@ -79,6 +79,7 @@ public class CreateIngredients extends DialogFragment {
         return v;
     }
 
+
     private void onClickAddIngredient() {
         String name = newIngredient.getText().toString().trim();
         if(name.isEmpty()){

@@ -18,7 +18,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.R;
-import com.example.proyectocuisinefood.auxiliaryclass.SortedOrders;
 import com.example.proyectocuisinefood.model.Orders;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -33,8 +32,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.ViewHolder> {
 
