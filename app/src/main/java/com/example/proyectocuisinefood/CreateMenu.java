@@ -65,6 +65,7 @@ public class CreateMenu extends AppCompatActivity {
     Uri imageUrl;
     ProgressDialog progressDialog;
     String downloadUri, restaurantId, photoDish;
+    ArrayList<String> ingredientIds;
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
@@ -185,7 +186,8 @@ public class CreateMenu extends AppCompatActivity {
         map.put("type",type);
         map.put("restaurantId", restaurantId);
         map.put("photo", photoDish);
-        map.put("ingredientIds", info.ListAddIngredients);
+
+        map.put("ingredientIds", ingredientsAdapter.getSelectedIngredientIds());
 
         db.collection("dish").document(id).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -213,7 +215,7 @@ public class CreateMenu extends AppCompatActivity {
                 photoDish = documentSnapshot.getString("photo");
                 restaurantId = documentSnapshot.getString("restaurantId");
 
-                ArrayList<String> ingredientIds = (ArrayList<String>) documentSnapshot.get("ingredientIds");
+                ingredientIds = (ArrayList<String>) documentSnapshot.get("ingredientIds");
 
                 Picasso.get().load(photoDish).resize(150,150).into(dishImage);
                 dishName.setText(name);
@@ -271,7 +273,8 @@ public class CreateMenu extends AppCompatActivity {
         map.put("type",type);
         map.put("restaurantId", restaurantId);
         map.put("photo", downloadUri);
-        map.put("ingredientIds", info.ListAddIngredients);
+
+        map.put("ingredientIds", ingredientsAdapter.getSelectedIngredientIds());
 
         db.collection("dish").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -343,18 +346,23 @@ public class CreateMenu extends AppCompatActivity {
             if (requestCode == GALLERY_REQUEST_CODE && data != null) {
                 imageUrl = data.getData();
                 loadImageIntoButton(dishImage, imageUrl);
-
+                getIngredientIds();
                 sendPhoto(imageUrl);
             } else if (requestCode == CAMERA_REQUEST_CODE && data != null) {
                 // Si el usuario toma una foto con la cámara, obtener la URI de la imagen desde los datos extras
                 imageUrl = getImageUriFromCamera(data);
                 // Verificar qué ImageButton fue seleccionado y establecer la imagen en consecuencia
                 loadImageIntoButton(dishImage, imageUrl);
-
+                getIngredientIds();
                 sendPhoto(imageUrl);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void getIngredientIds(){
+        ingredientsAdapter.notifyDataSetChanged();
+        recyclerViewIngredients.setAdapter(ingredientsAdapter);
     }
 
     // Método para obtener la URI de la imagen capturada con la cámara
@@ -371,7 +379,7 @@ public class CreateMenu extends AppCompatActivity {
         // Utilizar Picasso para cargar la imagen en el ImageButton
         try {
             // Utilizar Picasso para cargar la imagen en el ImageButton
-            Picasso.get().load(imageUrl.toString()).resize(100, 100).into(imageButton);
+            Picasso.get().load(imageUrl.toString()).resize(300, 300).centerCrop().into(imageButton);
         } catch (Exception e) {
             // Manejar cualquier excepción que ocurra durante la carga de la imagen
             Log.e("LoadImageError", "Error loading image: " + e.getMessage());

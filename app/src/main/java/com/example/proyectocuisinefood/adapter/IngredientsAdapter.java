@@ -28,29 +28,28 @@ public class IngredientsAdapter extends FirestoreRecyclerAdapter<Ingredients, In
     @Override
     protected void onBindViewHolder(@NonNull IngredientsAdapter.ViewHolder holder, int position, @NonNull Ingredients model) {
         final int pos = position;
+        final String ingredientId = getSnapshots().getSnapshot(position).getId();
         holder.name.setText(model.getName());
 
         if (selectedIngredientIds.contains(getSnapshots().getSnapshot(pos).getId())) {
             holder.isDefault.setChecked(true);
-
         } else {
             holder.isDefault.setChecked(false);
-
-            holder.isDefault.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Ingredients ingredient = getItem(pos);
-                    String ingredientId = getSnapshots().getSnapshot(pos).getId();
-                    if (isChecked) {
-                        info.ListAddIngredients.add(ingredientId);
-                    } else {
-                        info.ListAddIngredients.remove(ingredientId);
-                    }
-                }
-            });
         }
-    }
 
+        holder.isDefault.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    if (!selectedIngredientIds.contains(ingredientId)) {
+                        selectedIngredientIds.add(ingredientId);
+                    }
+                } else {
+                    selectedIngredientIds.remove(ingredientId);
+                }
+            }
+        });
+    }
 
     public ArrayList<String> getSelectedIngredientIds(){
         return selectedIngredientIds;
@@ -58,9 +57,11 @@ public class IngredientsAdapter extends FirestoreRecyclerAdapter<Ingredients, In
 
     // Método para establecer los ingredientes seleccionados
     public void setSelectedIngredients(ArrayList<String> ingredientIds) {
-        selectedIngredientIds.clear();
-        selectedIngredientIds.addAll(ingredientIds);
-        notifyDataSetChanged();
+        if(!selectedIngredientIds.contains(ingredientIds)){
+            selectedIngredientIds.clear();
+            selectedIngredientIds.addAll(ingredientIds);
+            notifyDataSetChanged();
+        }
     }
 
     @NonNull

@@ -48,6 +48,7 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
                 Picasso.get()
                         .load(photoDish)
                         .resize(720,720)
+                        .centerCrop()
                         .into(holder.photo);
             }
         }catch (Exception e){
