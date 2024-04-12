@@ -56,7 +56,7 @@ public class Mesero extends AppCompatActivity {
 
         if (restaurantId != null && !restaurantId.isEmpty()) {
             ArrayList<Orders> ordersList = new ArrayList<>();
-            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId).whereEqualTo("status","En preparación");
+            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId).whereEqualTo("status","En camino a la mesa");
 
             query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
@@ -87,6 +87,7 @@ public class Mesero extends AppCompatActivity {
 
             // Crear el adaptador y pasar la lista de órdenes ordenadas
             orderAdapter = new OrderAdapter(firestoreRecyclerOptions, ordersList, Mesero.this);
+            orderAdapter.startListening();
             orderAdapter.notifyDataSetChanged();
             orderRecyclerView.setAdapter(orderAdapter);
         }

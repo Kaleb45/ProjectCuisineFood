@@ -90,6 +90,7 @@ public class Cocinero extends AppCompatActivity {
 
             // Crear el adaptador y pasar la lista de órdenes ordenadas
             orderAdapter = new OrderAdapter(firestoreRecyclerOptions, ordersList, Cocinero.this);
+            orderAdapter.startListening();
             orderAdapter.notifyDataSetChanged();
             orderRecyclerView.setAdapter(orderAdapter);
         }
