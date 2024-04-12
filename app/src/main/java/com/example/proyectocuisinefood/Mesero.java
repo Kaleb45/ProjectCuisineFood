@@ -78,7 +78,7 @@ public class Mesero extends AppCompatActivity {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.e("Cocinero", "Error al obtener las órdenes: " + e.getMessage());
+                    Log.e("Mesero", "Error al obtener las órdenes: " + e.getMessage());
                 }
             });
 
@@ -87,6 +87,7 @@ public class Mesero extends AppCompatActivity {
 
             // Crear el adaptador y pasar la lista de órdenes ordenadas
             orderAdapter = new OrderAdapter(firestoreRecyclerOptions, ordersList, Mesero.this);
+            orderAdapter.notifyDataSetChanged();
             orderRecyclerView.setAdapter(orderAdapter);
         }
 
