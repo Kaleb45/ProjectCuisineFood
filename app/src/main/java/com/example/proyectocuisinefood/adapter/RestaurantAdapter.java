@@ -24,6 +24,7 @@ import com.example.proyectocuisinefood.CreateRestaurant;
 import com.example.proyectocuisinefood.Menu;
 import com.example.proyectocuisinefood.PaymentMethods;
 import com.example.proyectocuisinefood.R;
+import com.example.proyectocuisinefood.RestaurantProfile;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -90,7 +91,7 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
                                 holder.deleteIcon.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        // Obtener el ID del platillo actual
+                                        // Obtener el ID del restaurante actual
                                         String restaurantId = getSnapshots().getSnapshot(pos).getId();
 
                                         // Eliminar el platillo de la base de datos
@@ -113,6 +114,16 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
                             } else if(holder.userType.equals("Cliente")){
                                 holder.direction.setVisibility(View.VISIBLE);
                                 holder.direction.setText(model.getDirection());
+
+                                holder.name.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent(context, RestaurantProfile.class);
+                                        String restaurantId = getSnapshots().getSnapshot(pos).getId();
+                                        intent.putExtra("restaurantId",restaurantId);
+                                        context.startActivity(intent);
+                                    }
+                                });
 
                             }
                         }

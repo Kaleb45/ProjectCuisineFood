@@ -1,34 +1,25 @@
 package com.example.proyectocuisinefood.model;
 
 public class Restaurant {
-    String name,
-            logo,
-            direction,
-            categoryPrimaryRestaurant,
-            categorySecondaryRestaurant,
-            phoneRestaurant,
-            addressRestaurant,
-            relatedRestaurants,
-            distributionTablesRestaurant,
-            code,
-            methodsPaymentsRestaurants,
-            adminRestaurant;
+    String name, logo, direction, category1, category2, code, paymentMethodId, phone, photo, quantityTables, relationedRestaurantId, tableDistribution, tableIndication, userId;
 
     public Restaurant(){}
 
-    public Restaurant(String name, String logo, String direction, String categoryPrimaryRestaurant, String categorySecondaryRestaurant, String phoneRestaurant, String addressRestaurant, String relatedRestaurants, String distributionTablesRestaurant, String code, String methodsPaymentsRestaurants, String adminRestaurant) {
+    public Restaurant(String name, String logo, String direction, String category1, String category2, String code, String paymentMethodId, String phone, String photo, String quantityTables, String relationedRestaurantId, String tableDistribution, String tableIndication, String userId) {
         this.name = name;
         this.logo = logo;
         this.direction = direction;
-        this.categoryPrimaryRestaurant = categoryPrimaryRestaurant;
-        this.categorySecondaryRestaurant = categorySecondaryRestaurant;
-        this.phoneRestaurant = phoneRestaurant;
-        this.addressRestaurant = addressRestaurant;
-        this.relatedRestaurants = relatedRestaurants;
-        this.distributionTablesRestaurant = distributionTablesRestaurant;
+        this.category1 = category1;
+        this.category2 = category2;
         this.code = code;
-        this.methodsPaymentsRestaurants = methodsPaymentsRestaurants;
-        this.adminRestaurant = adminRestaurant;
+        this.paymentMethodId = paymentMethodId;
+        this.phone = phone;
+        this.photo = photo;
+        this.quantityTables = quantityTables;
+        this.relationedRestaurantId = relationedRestaurantId;
+        this.tableDistribution = tableDistribution;
+        this.tableIndication = tableIndication;
+        this.userId = userId;
     }
 
     public String getName() {
@@ -55,52 +46,20 @@ public class Restaurant {
         this.direction = direction;
     }
 
-    public String getCategoryPrimaryRestaurant() {
-        return categoryPrimaryRestaurant;
+    public String getCategory1() {
+        return category1;
     }
 
-    public void setCategoryPrimaryRestaurant(String categoryPrimaryRestaurant) {
-        this.categoryPrimaryRestaurant = categoryPrimaryRestaurant;
+    public void setCategory1(String category1) {
+        this.category1 = category1;
     }
 
-    public String getCategorySecondaryRestaurant() {
-        return categorySecondaryRestaurant;
+    public String getCategory2() {
+        return category2;
     }
 
-    public void setCategorySecondaryRestaurant(String categorySecondaryRestaurant) {
-        this.categorySecondaryRestaurant = categorySecondaryRestaurant;
-    }
-
-    public String getPhoneRestaurant() {
-        return phoneRestaurant;
-    }
-
-    public void setPhoneRestaurant(String phoneRestaurant) {
-        this.phoneRestaurant = phoneRestaurant;
-    }
-
-    public String getAddressRestaurant() {
-        return addressRestaurant;
-    }
-
-    public void setAddressRestaurant(String addressRestaurant) {
-        this.addressRestaurant = addressRestaurant;
-    }
-
-    public String getRelatedRestaurants() {
-        return relatedRestaurants;
-    }
-
-    public void setRelatedRestaurants(String relatedRestaurants) {
-        this.relatedRestaurants = relatedRestaurants;
-    }
-
-    public String getDistributionTablesRestaurant() {
-        return distributionTablesRestaurant;
-    }
-
-    public void setDistributionTablesRestaurant(String distributionTablesRestaurant) {
-        this.distributionTablesRestaurant = distributionTablesRestaurant;
+    public void setCategory2(String category2) {
+        this.category2 = category2;
     }
 
     public String getCode() {
@@ -111,19 +70,67 @@ public class Restaurant {
         this.code = code;
     }
 
-    public String getMethodsPaymentsRestaurants() {
-        return methodsPaymentsRestaurants;
+    public String getPaymentMethodId() {
+        return paymentMethodId;
     }
 
-    public void setMethodsPaymentsRestaurants(String methodsPaymentsRestaurants) {
-        this.methodsPaymentsRestaurants = methodsPaymentsRestaurants;
+    public void setPaymentMethodId(String paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
     }
 
-    public String getAdminRestaurant() {
-        return adminRestaurant;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setAdminRestaurant(String adminRestaurant) {
-        this.adminRestaurant = adminRestaurant;
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getQuantityTables() {
+        return quantityTables;
+    }
+
+    public void setQuantityTables(String quantityTables) {
+        this.quantityTables = quantityTables;
+    }
+
+    public String getRelationedRestaurantId() {
+        return relationedRestaurantId;
+    }
+
+    public void setRelationedRestaurantId(String relationedRestaurantId) {
+        this.relationedRestaurantId = relationedRestaurantId;
+    }
+
+    public String getTableDistribution() {
+        return tableDistribution;
+    }
+
+    public void setTableDistribution(String tableDistribution) {
+        this.tableDistribution = tableDistribution;
+    }
+
+    public String getTableIndication() {
+        return tableIndication;
+    }
+
+    public void setTableIndication(String tableIndication) {
+        this.tableIndication = tableIndication;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

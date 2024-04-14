@@ -108,50 +108,19 @@
 
             </LinearLayout>
 
-            <HorizontalScrollView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none"
+                android:orientation="horizontal"
+                android:layout_margin="5dp"
                 android:background="@drawable/border">
 
-                <LinearLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/r_photo_restaurant_profile"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_margin="5dp">
+                    android:layout_height="wrap_content"/>
 
-                    <ImageView
-                        android:id="@+id/im_photo_restaurant_profile_1"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"/>
-
-                    <ImageView
-                        android:id="@+id/im_photo_restaurant_profile_2"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_marginLeft="10dp"/>
-
-                    <ImageView
-                        android:id="@+id/im_photo_restaurant_profile_3"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_marginLeft="10dp"/>
-
-                    <ImageView
-                        android:id="@+id/im_photo_restaurant_profile_4"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_marginLeft="10dp"/>
-
-                    <ImageView
-                        android:id="@+id/im_photo_restaurant_profile_5"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_marginLeft="10dp"/>
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="265dp"
@@ -237,7 +206,7 @@
                             android:background="@drawable/border"/>
 
                         <TextView
-                            android:id="@+id/im_name_dish_restaurant_profile"
+                            android:id="@+id/t_name_dish_restaurant_profile"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
@@ -247,7 +216,7 @@
                             android:layout_margin="5dp"/>
 
                         <TextView
-                            android:id="@+id/im_cost_dish_restaurant_profile"
+                            android:id="@+id/t_cost_dish_restaurant_profile"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
