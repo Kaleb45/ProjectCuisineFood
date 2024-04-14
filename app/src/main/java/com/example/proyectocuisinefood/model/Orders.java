@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 public class Orders {
     //Orders
-    String numberTable, dishId, status, restaurantId, userId, quantity, time;
+    String numberTable, dishId, status, restaurantId, userId, quantity, time, orderId;
     ArrayList<String> ingredientIds;
 
     public Orders(){
 
     }
 
-    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId, String quantity, String time, ArrayList<String> ingredientIds) {
+    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId, String quantity, String time, String orderId, ArrayList<String> ingredientIds) {
         this.numberTable = numberTable;
         this.dishId = dishId;
         this.status = status;
@@ -20,6 +20,7 @@ public class Orders {
         this.ingredientIds = ingredientIds;
         this.quantity = quantity;
         this.time = time;
+        this.orderId = orderId;
     }
 
     public String getNumberTable() {
@@ -84,5 +85,13 @@ public class Orders {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

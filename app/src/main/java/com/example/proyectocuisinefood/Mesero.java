@@ -87,7 +87,6 @@ public class Mesero extends AppCompatActivity {
 
             // Crear el adaptador y pasar la lista de órdenes ordenadas
             orderAdapter = new OrderAdapter(firestoreRecyclerOptions, ordersList, Mesero.this);
-            orderAdapter.startListening();
             orderAdapter.notifyDataSetChanged();
             orderRecyclerView.setAdapter(orderAdapter);
         }

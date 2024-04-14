@@ -83,17 +83,54 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                 }
             });
         }
+
+        // Agregar un OnCheckedChangeListener al CheckBox
+        holder.isComplete.setOnCheckedChangeListener(null); // Eliminar el listener anterior para evitar llamadas múltiples
+
+        // Agregar un OnCheckedChangeListener al CheckBox
+        holder.isComplete.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Mostrar un cuadro de diálogo para confirmar si el platillo ha sido completado
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Confirmar completado");
+                    builder.setMessage("¿El platillo ha sido completado?");
+                    builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Actualizar el estado de la orden en Firestore
+                            String newStatus;
+                            if (sortedOrders.get(pos).getStatus().equals("En preparación")) {
+                                newStatus = "En camino a la mesa";
+                            } else {
+                                newStatus = "Entregado";
+                            }
+                            holder.updateOrderStatus(sortedOrders.get(pos).getOrderId(), newStatus);
+                        }
+                    });
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Desmarcar el CheckBox
+                            holder.isComplete.setChecked(false);
+                        }
+                    });
+                    builder.create().show();
+                }
+            }
+        });
     }
 
     // Método para vincular los datos de la orden al ViewHolder
     private void bindOrder(@NonNull OrderAdapter.ViewHolder holder, @NonNull Orders model, int position) {
         final int pos = position;
 
-        holder.numberTable.setText(model.getNumberTable());
+        holder.numberTable.setText(sortedOrders.get(pos).getNumberTable());
 
-        String dishId = model.getDishId(); // Obtener el dishId de la orden
-        String userId = model.getUserId(); // Obtener el userId de la orden
-        String restaurantId = model.getRestaurantId(); // Obtener el restaurantId de la orden
+        String dishId = sortedOrders.get(pos).getDishId(); // Obtener el dishId de la orden
+        String userId = sortedOrders.get(pos).getUserId(); // Obtener el userId de la orden
+        String restaurantId = sortedOrders.get(pos).getRestaurantId(); // Obtener el restaurantId de la orden
 
         holder.db.collection("user").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -157,47 +194,13 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
             }
         });
 
-        // Agregar un OnCheckedChangeListener al CheckBox
-        holder.isComplete.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    // Mostrar un cuadro de diálogo para confirmar si el platillo ha sido completado
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Confirmar completado");
-                    builder.setMessage("¿El platillo ha sido completado?");
-                    builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Actualizar el estado de la orden en Firestore
-                            String newStatus;
-                            if (model.getStatus().equals("En preparación")) {
-                                newStatus = "En camino a la mesa";
-                            } else {
-                                newStatus = "Entregado";
-                            }
-                            holder.updateOrderStatus(getSnapshots().getSnapshot(pos).getId(), newStatus);
-                        }
-                    });
-                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Desmarcar el CheckBox
-                            holder.isComplete.setChecked(false);
-                        }
-                    });
-                    builder.create().show();
-                }
-            }
-        });
-
         holder.name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (holder.userType.equals("Cocinero")) {
                     // Si el usuario es un cocinero, mostrar los ingredientes al hacer clic en el nombre del platillo
                     if (model.getIngredientIds() != null && !model.getIngredientIds().isEmpty() && model.getIngredientIds().size() != 0) {
-                        showIngredientsDialog(holder, model);
+                        showIngredientsDialog(holder, sortedOrders.get(pos));
                     } else {
                         // Si la lista de ingredientIds está vacía, mostrar un mensaje de que no hay ingredientes
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -320,7 +323,7 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
 
         // Método para actualizar el estado de la orden en Firestore
         private void updateOrderStatus(String orderId, String status) {
-            FirebaseFirestore.getInstance().collection("orders").document(orderId)
+            db.collection("orders").document(orderId)
                     .update("status", status)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
