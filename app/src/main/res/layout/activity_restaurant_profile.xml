@@ -66,14 +66,18 @@
                         android:padding="5dp"
                         android:textSize="18sp"/>
 
-                    <TextView
+                    <Button
                         android:id="@+id/t_phone_restaurant_profile"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="Teléfono"
+                        android:layout_marginTop="10dp"
+                        android:backgroundTint="@color/anaranjado"
                         android:padding="5dp"
+                        android:text="Teléfono"
+                        android:textColor="@color/white"
                         android:textSize="18sp"
-                        android:layout_marginTop="10dp"/>
+                        android:textStyle="bold"
+                        app:icon="@drawable/baseline_local_phone_24" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -81,26 +85,59 @@
                         android:orientation="horizontal"
                         android:layout_marginTop="10dp">
 
-                        <TextView
-                            android:id="@+id/t_open_restaurant_profile"
-                            android:layout_width="100dp"
+                        <LinearLayout
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:hint="Hora de apertura"
-                            android:padding="5dp"
-                            android:textSize="18sp"
-                            android:layout_gravity="left"
-                            android:gravity="left"/>
+                            android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/t_close_restaurant_profile"
-                            android:layout_width="100dp"
+                            <TextView
+                                android:layout_width="100dp"
+                                android:layout_height="wrap_content"
+                                android:text="Horario de apertura:"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:gravity="left"
+                                android:padding="5dp"/>
+
+                            <TextView
+                                android:id="@+id/t_open_restaurant_profile"
+                                android:layout_width="100dp"
+                                android:layout_height="wrap_content"
+                                android:hint="Hora de apertura"
+                                android:padding="5dp"
+                                android:textSize="18sp"
+                                android:layout_gravity="left"
+                                android:gravity="left"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:hint="Hora de cierre"
-                            android:padding="5dp"
-                            android:textSize="18sp"
-                            android:layout_gravity="right"
-                            android:gravity="right"
-                            android:layout_marginLeft="25dp" />
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="100dp"
+                                android:layout_height="wrap_content"
+                                android:text="Horario de cierre:"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:layout_marginLeft="25dp"
+                                android:gravity="right"
+                                android:padding="5dp"/>
+
+                            <TextView
+                                android:id="@+id/t_close_restaurant_profile"
+                                android:layout_width="100dp"
+                                android:layout_height="wrap_content"
+                                android:hint="Hora de cierre"
+                                android:padding="5dp"
+                                android:textSize="18sp"
+                                android:layout_gravity="right"
+                                android:gravity="right"
+                                android:layout_marginLeft="25dp" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -118,12 +155,13 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/r_photo_restaurant_profile"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:visibility="visible"/>
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="265dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_margin="10dp"
@@ -143,7 +181,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginTop="5dp">
 
                     <ImageView
                         android:id="@+id/im_map_tables_restaurant_profile"
@@ -190,12 +229,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_margin="5dp">
+                    android:layout_margin="5dp"
+                    android:layout_marginTop="10dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:background="@drawable/border">
 
                         <ImageView
                             android:id="@+id/im_photo_dish_restaurant_profile"
@@ -242,6 +283,7 @@
                             android:text="Ver más"
                             android:textSize="18sp"
                             android:textColor="@color/white"
+                            android:backgroundTint="@color/anaranjado"
                             android:textStyle="bold"
                             android:layout_gravity="center"/>
 

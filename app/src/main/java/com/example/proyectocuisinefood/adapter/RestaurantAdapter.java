@@ -91,7 +91,7 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
                                 holder.deleteIcon.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        // Obtener el ID del restaurante actual
+                                        // Obtener el ID del platillo actual
                                         String restaurantId = getSnapshots().getSnapshot(pos).getId();
 
                                         // Eliminar el platillo de la base de datos
@@ -120,11 +120,10 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
                                     public void onClick(View view) {
                                         Intent intent = new Intent(context, RestaurantProfile.class);
                                         String restaurantId = getSnapshots().getSnapshot(pos).getId();
-                                        intent.putExtra("restaurantId",restaurantId);
+                                        intent.putExtra("restaurantId", restaurantId);
                                         context.startActivity(intent);
                                     }
                                 });
-
                             }
                         }
                     }

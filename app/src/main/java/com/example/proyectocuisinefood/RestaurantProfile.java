@@ -230,4 +230,16 @@ public class RestaurantProfile extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        photoRestaurantAdapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        photoRestaurantAdapter.stopListening();
+    }
 }

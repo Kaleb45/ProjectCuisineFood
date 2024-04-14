@@ -1,11 +1,14 @@
 package com.example.proyectocuisinefood.model;
 
-public class Restaurant {
-    String name, logo, direction, category1, category2, code, paymentMethodId, phone, photo, quantityTables, relationedRestaurantId, tableDistribution, tableIndication, userId;
+import java.util.ArrayList;
 
+public class Restaurant {
+    String name, logo, direction, category1, category2, code, paymentMethodId, phone, quantityTables, relationedRestaurantId, tableDistribution, tableIndication, userId;
+
+    ArrayList<String> photo;
     public Restaurant(){}
 
-    public Restaurant(String name, String logo, String direction, String category1, String category2, String code, String paymentMethodId, String phone, String photo, String quantityTables, String relationedRestaurantId, String tableDistribution, String tableIndication, String userId) {
+    public Restaurant(String name, String logo, String direction, String category1, String category2, String code, String paymentMethodId, String phone, String quantityTables, String relationedRestaurantId, String tableDistribution, String tableIndication, String userId, ArrayList<String> photo) {
         this.name = name;
         this.logo = logo;
         this.direction = direction;
@@ -86,14 +89,6 @@ public class Restaurant {
         this.phone = phone;
     }
 
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
-
     public String getQuantityTables() {
         return quantityTables;
     }
@@ -132,5 +127,13 @@ public class Restaurant {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public ArrayList<String> getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(ArrayList<String> photo) {
+        this.photo = photo;
     }
 }
