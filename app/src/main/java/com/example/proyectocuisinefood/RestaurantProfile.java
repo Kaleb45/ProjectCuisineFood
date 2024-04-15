@@ -14,6 +14,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -306,5 +308,29 @@ public class RestaurantProfile extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         photoRestaurantAdapter.stopListening();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == R.id.i_signout){
+            mAuth.signOut();
+            finish();
+            startActivity(new Intent(RestaurantProfile.this, MainActivity.class));
+            return true;
+        }
+        if(id== R.id.i_profile){
+            UserProfileFragmentDialog upfd = new UserProfileFragmentDialog();
+            upfd.show(getSupportFragmentManager(), "Navegar a Perfil de Usuario");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

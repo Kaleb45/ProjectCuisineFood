@@ -488,6 +488,11 @@ public class CreateMenu extends AppCompatActivity {
             startActivity(new Intent(CreateMenu.this, MainActivity.class));
             return true;
         }
+        if(id== R.id.i_profile){
+            UserProfileFragmentDialog upfd = new UserProfileFragmentDialog();
+            upfd.show(getSupportFragmentManager(), "Navegar a Perfil de Usuario");
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }

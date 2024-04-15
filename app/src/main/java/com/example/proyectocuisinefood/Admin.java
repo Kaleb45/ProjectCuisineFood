@@ -114,8 +114,8 @@ public class Admin extends AppCompatActivity {
             return true;
         }
         if(id== R.id.i_profile){
-            startActivity(new Intent(Admin.this, UserProfileActivity.class));
-            finish();
+            UserProfileFragmentDialog upfd = new UserProfileFragmentDialog();
+            upfd.show(getSupportFragmentManager(), "Navegar a Perfil de Usuario");
             return true;
         }
         return super.onOptionsItemSelected(item);

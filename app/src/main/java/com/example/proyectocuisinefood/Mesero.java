@@ -96,12 +96,13 @@ public class Mesero extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 // Realizar la acción de recarga
-                cargarDatos(); // Método que debes implementar para cargar los datos nuevamente
+                loadData(); // Método que debes implementar para cargar los datos nuevamente
+
             }
         });
     }
 
-    private void cargarDatos() {
+    private void loadData() {
         Intent intent = getIntent(); // Obtener el intent actual
         finish(); // Finalizar la actividad actual
         startActivity(intent); // Iniciar la actividad de nuevo
@@ -110,13 +111,18 @@ public class Mesero extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        orderAdapter.startListening();
+        if(orderAdapter != null){
+            orderAdapter.startListening();
+        }
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        orderAdapter.stopListening();
+        if(orderAdapter != null){
+            orderAdapter.stopListening();
+        }
     }
 
     @Override
@@ -136,8 +142,8 @@ public class Mesero extends AppCompatActivity {
             return true;
         }
         if(id== R.id.i_profile){
-            startActivity(new Intent(Mesero.this, UserProfileActivity.class));
-            finish();
+            UserProfileFragmentDialog upfd = new UserProfileFragmentDialog();
+            upfd.show(getSupportFragmentManager(), "Navegar a Perfil de Usuario");
             return true;
         }
         return super.onOptionsItemSelected(item);

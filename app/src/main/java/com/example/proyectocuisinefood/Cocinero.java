@@ -99,12 +99,12 @@ public class Cocinero extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 // Realizar la acción de recarga
-                cargarDatos(); // Método que debes implementar para cargar los datos nuevamente
+                loadData(); // Método que debes implementar para cargar los datos nuevamente
             }
         });
     }
 
-    private void cargarDatos() {
+    private void loadData() {
         Intent intent = getIntent(); // Obtener el intent actual
         finish(); // Finalizar la actividad actual
         startActivity(intent); // Iniciar la actividad de nuevo
@@ -139,8 +139,8 @@ public class Cocinero extends AppCompatActivity {
             return true;
         }
         if(id== R.id.i_profile){
-            startActivity(new Intent(Cocinero.this, UserProfileActivity.class));
-            finish();
+            UserProfileFragmentDialog upfd = new UserProfileFragmentDialog();
+            upfd.show(getSupportFragmentManager(), "Navegar a Perfil de Usuario");
             return true;
         }
         return super.onOptionsItemSelected(item);
