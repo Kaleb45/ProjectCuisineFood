@@ -67,7 +67,7 @@
                         android:textSize="18sp"/>
 
                     <Button
-                        android:id="@+id/t_phone_restaurant_profile"
+                        android:id="@+id/b_phone_restaurant_profile"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"

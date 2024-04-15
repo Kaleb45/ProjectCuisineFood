@@ -204,17 +204,15 @@ public class UserProfileFragment extends Fragment {
     private void showProfileImage() {
         // Verificar si loadProfileImage no es nulo
         if (loadProfileImage != null) {
-            // Crear un diálogo personalizado para mostrar la imagen en tamaño completo
+            // Obtener la vista de la imagen
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_layout_image_viewer, null);
-            ImageView imageViewDialog = dialogView.findViewById(R.id.image_view_dialog);
-            Picasso.get().load(loadProfileImage).into(imageViewDialog); // Cargar la imagen en el ImageView del diálogo
-            builder.setView(dialogView);
-            builder.setCancelable(true);
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            View dialogView = inflater.inflate(R.layout.dialog_layout_image_viewer, null);
+            ImageView dialogImage = dialogView.findViewById(R.id.image_view_dialog);
 
-            // Mostrar el diálogo
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            Picasso.get().load(loadProfileImage).into(dialogImage);
+
+            builder.setView(dialogView).show();
         } else {
             Toast.makeText(getContext(), "No se encontró ninguna imagen para mostrar", Toast.LENGTH_SHORT).show();
         }

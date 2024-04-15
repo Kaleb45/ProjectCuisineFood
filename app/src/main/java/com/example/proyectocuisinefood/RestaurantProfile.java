@@ -3,11 +3,17 @@ package com.example.proyectocuisinefood;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,6 +29,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -33,13 +40,14 @@ import java.util.Calendar;
 public class RestaurantProfile extends AppCompatActivity {
 
     ImageView logoRestaurant, mapDistributionRestaurant, photoDish;
-    TextView nameRestaurant, phoneRestaurant, directionRestaurant, openRestaurant, closeRestaurant, nameDish, costDish, tableIndicationRestaurant;
-    Button seeMoreDish;
+    TextView nameRestaurant, directionRestaurant, openRestaurant, closeRestaurant, nameDish, costDish, tableIndicationRestaurant;
+    Button seeMoreDish, phoneRestaurant;
     RecyclerView recyclerViewPhotoRestaurant;
     PhotoRestaurantAdapter photoRestaurantAdapter;
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
+    String logo, tableDistribution, dishPhoto;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +62,7 @@ public class RestaurantProfile extends AppCompatActivity {
         mapDistributionRestaurant = findViewById(R.id.im_map_tables_restaurant_profile);
         photoDish = findViewById(R.id.im_photo_dish_restaurant_profile);
         nameRestaurant = findViewById(R.id.t_name_restaurant_profile);
-        phoneRestaurant = findViewById(R.id.t_phone_restaurant_profile);
+        phoneRestaurant = findViewById(R.id.b_phone_restaurant_profile);
         directionRestaurant = findViewById(R.id.t_direction_restaurant_profile);
         openRestaurant = findViewById(R.id.t_open_restaurant_profile);
         closeRestaurant = findViewById(R.id.t_close_restaurant_profile);
@@ -64,13 +72,13 @@ public class RestaurantProfile extends AppCompatActivity {
         seeMoreDish = findViewById(R.id.b_dish_restaurant_profile);
 
         recyclerViewPhotoRestaurant = findViewById(R.id.r_photo_restaurant_profile);
-        recyclerViewPhotoRestaurant.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewPhotoRestaurant.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         String restaurantId = getIntent().getStringExtra("restaurantId");
 
         if(restaurantId != null || !restaurantId.isEmpty()){
             getRestaurant(restaurantId);
-            Query query = db.collection("restaurant").whereEqualTo("restaurantId", restaurantId);
+            Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), restaurantId);
 
             FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
                     .setQuery(query, Restaurant.class).build();
@@ -79,6 +87,39 @@ public class RestaurantProfile extends AppCompatActivity {
             photoRestaurantAdapter.notifyDataSetChanged();
             recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
         }
+
+        logoRestaurant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(logo);
+            }
+        });
+
+        mapDistributionRestaurant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(tableDistribution);
+            }
+        });
+
+        photoDish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(dishPhoto);
+            }
+        });
+
+        phoneRestaurant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String phoneNumber = phoneRestaurant.getText().toString().trim();
+                if (!phoneNumber.isEmpty()) {
+                    makePhoneCall(phoneNumber);
+                } else {
+                    Toast.makeText(RestaurantProfile.this, "Número de teléfono no válido", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         // Habilitar el botón de retroceso en la barra de herramientas
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -95,6 +136,30 @@ public class RestaurantProfile extends AppCompatActivity {
 
     }
 
+    private void makePhoneCall(String phoneNumber) {
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // Solicitar permisos si no están concedidos
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+            return;
+        }
+        startActivity(intent);
+    }
+
+    private void showImageDialog(String imageUrl) {
+        // Obtener la vista de la imagen
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_layout_image_viewer, null);
+        ImageView dialogImage = dialogView.findViewById(R.id.image_view_dialog);
+
+        Picasso.get().load(imageUrl).into(dialogImage);
+
+        builder.setView(dialogView).show();
+    }
+
     private void getRestaurant (String id){
         db.collection("restaurant").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -102,8 +167,8 @@ public class RestaurantProfile extends AppCompatActivity {
                 String name = documentSnapshot.getString("name");
                 String phone = documentSnapshot.getString("phone");
                 String direction = documentSnapshot.getString("direction");
-                String logo = documentSnapshot.getString("logo");
-                String tableDistribution = documentSnapshot.getString("tableDistribution");
+                logo = documentSnapshot.getString("logo");
+                tableDistribution = documentSnapshot.getString("tableDistribution");
                 String tableIndication = documentSnapshot.getString("tableIndication");
 
                 if(!logo.isEmpty() || logo != null){
@@ -136,7 +201,7 @@ public class RestaurantProfile extends AppCompatActivity {
 
                             String dishName = dishSnapshot.getString("name");
                             String dishCost = dishSnapshot.getString("cost");
-                            String dishPhoto = dishSnapshot.getString("photo");
+                            dishPhoto = dishSnapshot.getString("photo");
 
                             nameDish.setText(dishName);
                             costDish.setText(dishCost);
