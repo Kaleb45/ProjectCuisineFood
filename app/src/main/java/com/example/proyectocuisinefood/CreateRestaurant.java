@@ -740,10 +740,10 @@ public class CreateRestaurant extends AppCompatActivity{
                 photoRestaurant = documentSnapshot.getString("photo");
                 tableDistribution = documentSnapshot.getString("tableDistribution");
 
-                if(logoRestaurant.isEmpty() || photoRestaurant.isEmpty() || tableDistribution.isEmpty() || logoRestaurant == null || photoRestaurant == null || tableDistribution == null){
-                    Picasso.get().load(logoRestaurant).resize(150,150).into(restaurantLogo);
-                    /*Picasso.get().load(photoRestaurant).resize(150,150).into(restaurantImage);
-                    Picasso.get().load(tableDistribution).resize(150,150).into(restaurantMap);*/
+                if(!logoRestaurant.isEmpty() || !photoRestaurant.isEmpty() || !tableDistribution.isEmpty() || logoRestaurant != null || photoRestaurant != null || tableDistribution != null){
+                    Picasso.get().load(logoRestaurant).resize(150,150).centerCrop().into(restaurantLogo);
+                    //Picasso.get().load(photoRestaurant).resize(150,150).centerCrop().into(restaurantImage);
+                    Picasso.get().load(tableDistribution).resize(150,150).centerCrop().into(restaurantMap);
                 }
 
                 restaurantName.setText(name);
