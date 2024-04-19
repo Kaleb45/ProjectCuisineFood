@@ -132,6 +132,8 @@ public class PlaceOrders extends AppCompatActivity {
                 if(mapPhoto != null || !mapPhoto.isEmpty()){
                     mapDistribution.setVisibility(View.VISIBLE);
                     Picasso.get().load(mapPhoto).resize(150,150).into(mapDistribution);
+                } else {
+                    mapDistribution.setVisibility(View.GONE);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
