@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ public class PlaceOrders extends AppCompatActivity {
     ImageView dishImage, mapDistribution;
     TextView dishName, dishCost, dishDescription, dishTime;
     Button orderFinish;
+    Spinner tableNumber;
     RecyclerView recyclerViewIngredients;
     IngredientsAdapter ingredientsAdapter;
     Toolbar toolbar;
@@ -71,6 +73,8 @@ public class PlaceOrders extends AppCompatActivity {
         dishDescription = findViewById(R.id.ed_description_dish_restaurant);
         dishTime = findViewById(R.id.ed_time_dish_restaurant);
         orderFinish = findViewById(R.id.b_finish_order_restaurant);
+
+        tableNumber = findViewById(R.id.s_number_table_restaurant);
 
         recyclerViewIngredients = findViewById(R.id.r_ingredients_restaurant);
         recyclerViewIngredients.setLayoutManager(new LinearLayoutManager(this));
