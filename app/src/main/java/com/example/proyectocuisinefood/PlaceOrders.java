@@ -54,7 +54,7 @@ public class PlaceOrders extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, photoDish, name, cost, description, time, mapPhoto;
+    String restaurantId, dishId, photoDish, name, cost, description, time, mapPhoto;
     ArrayList<String> ingredientIds;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +81,7 @@ public class PlaceOrders extends AppCompatActivity {
 
         // Recoge el ID del restaurante del Intent
         restaurantId = getIntent().getStringExtra("restaurantId");
-        String dishId = getIntent().getStringExtra("dishId");
+        dishId = getIntent().getStringExtra("dishId");
 
         if(dishId == null || dishId.isEmpty()){
             getDish(dishId);
