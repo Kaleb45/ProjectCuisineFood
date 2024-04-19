@@ -123,6 +123,16 @@ public class RestaurantProfile extends AppCompatActivity {
             }
         });
 
+        seeMoreDish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(RestaurantProfile.this, Cliente.class);
+                intent.putExtra("restaurantId",restaurantId);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         // Habilitar el botón de retroceso en la barra de herramientas
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

@@ -26,6 +26,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".PlaceOrders"
+            android:exported="false" />
+        <activity
+            android:name=".MenuRestaurant"
+            android:exported="false" />
+        <activity
             android:name=".RestaurantProfile"
             android:exported="false" />
         <activity

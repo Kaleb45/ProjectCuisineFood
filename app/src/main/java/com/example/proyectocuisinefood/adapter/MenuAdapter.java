@@ -18,14 +18,19 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.CreateMenu;
+import com.example.proyectocuisinefood.CreateRestaurant;
 import com.example.proyectocuisinefood.Menu;
 import com.example.proyectocuisinefood.R;
+import com.example.proyectocuisinefood.RestaurantProfile;
 import com.example.proyectocuisinefood.model.Dish;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
@@ -55,30 +60,58 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
             Log.d("Exception","e: "+e);
         }
 
-        // Agregar un OnClickListener al botón de eliminar
-        holder.deleteIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Obtener el ID del platillo actual
-                String dishId = getSnapshots().getSnapshot(pos).getId();
+        // Obtener el tipo de usuario actual
+        FirebaseUser currentUser = holder.mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
 
-                // Eliminar el platillo de la base de datos
-                deleteDish(dishId);
-            }
-        });
+            // Verificar el tipo de usuario
+            holder.db.collection("user").document(currentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        holder.userType = documentSnapshot.getString("usertype");
 
-        holder.editIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Obtener el ID del platillo actual
-                String dishId = getSnapshots().getSnapshot(pos).getId();
+                        // Filtrar según el tipo de usuario
+                        if (holder.userType != null) {
+                            if (holder.userType.equals("Administrador")) {
+                                // Agregar un OnClickListener al botón de eliminar
+                                holder.deleteIcon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        // Obtener el ID del platillo actual
+                                        String dishId = getSnapshots().getSnapshot(pos).getId();
 
-                // Iniciar la actividad para actualizar los datos del restaurante
-                Intent intent = new Intent(context, CreateMenu.class);
-                intent.putExtra("dishId", dishId);
-                context.startActivity(intent);
-            }
-        });
+                                        // Eliminar el platillo de la base de datos
+                                        deleteDish(dishId);
+                                    }
+                                });
+
+                                holder.editIcon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        // Obtener el ID del platillo actual
+                                        String dishId = getSnapshots().getSnapshot(pos).getId();
+
+                                        // Iniciar la actividad para actualizar los datos del restaurante
+                                        Intent intent = new Intent(context, CreateMenu.class);
+                                        intent.putExtra("dishId", dishId);
+                                        context.startActivity(intent);
+                                    }
+                                });
+                            } else if(holder.userType.equals("Cliente")){
+                                holder.dishId = getSnapshots().getSnapshot(pos).getId();
+                            }
+                        }
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("OrderAdapter", "Error al obtener el tipo de usuario: " + e.getMessage());
+                }
+            });
+        }
     }
 
     // Método para eliminar un platillo de la base de datos
@@ -112,8 +145,14 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
         ImageView photo;
         ImageButton deleteIcon, editIcon;
         int originalBackgroundColor;
+        FirebaseFirestore db;
+        FirebaseAuth mAuth;
+        String userType, dishId;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            mAuth = FirebaseAuth.getInstance();
+            db = FirebaseFirestore.getInstance();
+
             name = itemView.findViewById(R.id.t_name_dish);
             cost = itemView.findViewById(R.id.t_cost_dish);
             photo = itemView.findViewById(R.id.im_photo_dish);
@@ -147,18 +186,21 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
             name.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    // Guardar el color original del fondo del layout
-                    originalBackgroundColor = itemView.getSolidColor();
+                    if(userType.equals("Administrador")){
+                        // Guardar el color original del fondo del layout
+                        originalBackgroundColor = itemView.getSolidColor();
 
-                    // Cambiar el fondo del layout al opuesto del tema actual
-                    int themeBackground = getThemeBackgroundColor(itemView.getContext());
-                    int oppositeThemeBackground = getOppositeThemeBackground(themeBackground);
-                    itemView.setBackgroundColor(oppositeThemeBackground);
+                        // Cambiar el fondo del layout al opuesto del tema actual
+                        int themeBackground = getThemeBackgroundColor(itemView.getContext());
+                        int oppositeThemeBackground = getOppositeThemeBackground(themeBackground);
+                        itemView.setBackgroundColor(oppositeThemeBackground);
 
-                    // Mostrar los iconos adicionales (ic_delete y ic_edit)
-                    showAdditionalIcons(itemView);
+                        // Mostrar los iconos adicionales (ic_delete y ic_edit)
+                        showAdditionalIcons(itemView);
 
-                    return true;
+                        return true;
+                    }
+                    return false;
                 }
             });
 
@@ -166,14 +208,20 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
             name.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Restaurar el color original del fondo del layout
-                    itemView.setBackgroundColor(originalBackgroundColor);
+                    if(userType.equals("Administrador")){
+                        // Restaurar el color original del fondo del layout
+                        itemView.setBackgroundColor(originalBackgroundColor);
 
-                    // Agregar el borde al fondo del layout
-                    itemView.setBackgroundResource(R.drawable.border);
+                        // Agregar el borde al fondo del layout
+                        itemView.setBackgroundResource(R.drawable.border);
 
-                    // Ocultar los iconos adicionales (ic_delete y ic_edit)
-                    hideAdditionalIcons(itemView);
+                        // Ocultar los iconos adicionales (ic_delete y ic_edit)
+                        hideAdditionalIcons(itemView);
+                    } else if(userType.equals("Cliente")){
+                        Intent intent = new Intent(context, RestaurantProfile.class);
+                        intent.putExtra("dishId", dishId);
+                        context.startActivity(intent);
+                    }
                 }
             });
         }
