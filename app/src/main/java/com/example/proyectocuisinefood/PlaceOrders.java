@@ -44,7 +44,7 @@ import java.util.Map;
 
 public class PlaceOrders extends AppCompatActivity {
 
-    ImageView dishImage;
+    ImageView dishImage, mapDistribution;
     TextView dishName, dishCost, dishDescription, dishTime;
     Button orderFinish;
     RecyclerView recyclerViewIngredients;
@@ -52,7 +52,7 @@ public class PlaceOrders extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, photoDish;
+    String restaurantId, photoDish, name, cost, description, time, mapPhoto;
     ArrayList<String> ingredientIds;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,8 @@ public class PlaceOrders extends AppCompatActivity {
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        dishImage = findViewById(R.id.imb_photo_dish_restaurant);
+        dishImage = findViewById(R.id.im_photo_dish_restaurant);
+        mapDistribution = findViewById(R.id.im_map_distribution_restaurant);
         dishName = findViewById(R.id.ed_name_dish_restaurant);
         dishCost = findViewById(R.id.ed_cost_dish_restaurant);
         dishDescription = findViewById(R.id.ed_description_dish_restaurant);
@@ -120,13 +121,28 @@ public class PlaceOrders extends AppCompatActivity {
     }
 
     private void getDish (String id){
+        db.collection("restaurant").document(restaurantId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                mapPhoto = documentSnapshot.getString("tableDistribution");
+                if(mapPhoto != null || !mapPhoto.isEmpty()){
+                    mapDistribution.setVisibility(View.VISIBLE);
+                    Picasso.get().load(mapPhoto).resize(150,150).into(mapDistribution);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PlaceOrders.this, "Error al obtner los datos", Toast.LENGTH_SHORT).show();
+            }
+        });
         db.collection("dish").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String name = documentSnapshot.getString("name");
-                String cost = documentSnapshot.getString("cost");
-                String description = documentSnapshot.getString("description");
-                String time = documentSnapshot.getString("time");
+                name = documentSnapshot.getString("name");
+                cost = documentSnapshot.getString("cost");
+                description = documentSnapshot.getString("description");
+                time = documentSnapshot.getString("time");
                 photoDish = documentSnapshot.getString("photo");
                 restaurantId = documentSnapshot.getString("restaurantId");
 
