@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -48,7 +49,7 @@ public class PlaceOrders extends AppCompatActivity {
     ImageView dishImage, mapDistribution;
     TextView dishName, dishCost, dishDescription, dishTime;
     Button orderFinish;
-    Spinner tableNumber;
+    Spinner table;
     RecyclerView recyclerViewIngredients;
     IngredientsAdapter ingredientsAdapter;
     Toolbar toolbar;
@@ -56,6 +57,7 @@ public class PlaceOrders extends AppCompatActivity {
     FirebaseFirestore db;
     String restaurantId, dishId, photoDish, name, cost, description, time, mapPhoto;
     ArrayList<String> ingredientIds;
+    int numberTable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +76,11 @@ public class PlaceOrders extends AppCompatActivity {
         dishTime = findViewById(R.id.ed_time_dish_restaurant);
         orderFinish = findViewById(R.id.b_finish_order_restaurant);
 
-        tableNumber = findViewById(R.id.s_number_table_restaurant);
+        table = findViewById(R.id.s_number_table_restaurant);
+
+        /*ArrayAdapter adapterSpinCategory1 = new ArrayAdapter(this, android.R.layout.simple_spinner_item,typeCategory1);
+        adapterSpinCategory1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        table.setAdapter(adapterSpinCategory1);*/
 
         recyclerViewIngredients = findViewById(R.id.r_ingredients_restaurant);
         recyclerViewIngredients.setLayoutManager(new LinearLayoutManager(this));
