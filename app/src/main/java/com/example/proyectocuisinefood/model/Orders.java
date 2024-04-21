@@ -4,23 +4,27 @@ import java.util.ArrayList;
 
 public class Orders {
     //Orders
-    String numberTable, dishId, status, restaurantId, userId, quantity, time, orderId;
+    String numberTable, dishId, status, restaurantId, userId, quantity, time, orderId, paymentMethodId, scheduleId, timestamp, totalPrice;
     ArrayList<String> ingredientIds;
 
     public Orders(){
 
     }
 
-    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId, String quantity, String time, String orderId, ArrayList<String> ingredientIds) {
+    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId, String quantity, String time, String orderId, String paymentMethodId, String scheduleId, String timestamp, String totalPrice, ArrayList<String> ingredientIds) {
         this.numberTable = numberTable;
         this.dishId = dishId;
         this.status = status;
         this.restaurantId = restaurantId;
         this.userId = userId;
-        this.ingredientIds = ingredientIds;
         this.quantity = quantity;
         this.time = time;
         this.orderId = orderId;
+        this.paymentMethodId = paymentMethodId;
+        this.scheduleId = scheduleId;
+        this.timestamp = timestamp;
+        this.totalPrice = totalPrice;
+        this.ingredientIds = ingredientIds;
     }
 
     public String getNumberTable() {
@@ -63,14 +67,6 @@ public class Orders {
         this.userId = userId;
     }
 
-    public ArrayList<String> getIngredientIds() {
-        return ingredientIds;
-    }
-
-    public void setIngredientIds(ArrayList<String> ingredientIds) {
-        this.ingredientIds = ingredientIds;
-    }
-
     public String getQuantity() {
         return quantity;
     }
@@ -93,5 +89,45 @@ public class Orders {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getPaymentMethodId() {
+        return paymentMethodId;
+    }
+
+    public void setPaymentMethodId(String paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
+    }
+
+    public String getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(String scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(String totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public ArrayList<String> getIngredientIds() {
+        return ingredientIds;
+    }
+
+    public void setIngredientIds(ArrayList<String> ingredientIds) {
+        this.ingredientIds = ingredientIds;
     }
 }
