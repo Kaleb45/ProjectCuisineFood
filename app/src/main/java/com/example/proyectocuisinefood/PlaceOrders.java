@@ -1,29 +1,23 @@
 package com.example.proyectocuisinefood;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +27,6 @@ import com.example.proyectocuisinefood.model.Orders;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -41,8 +34,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -61,7 +52,7 @@ public class PlaceOrders extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String dishId;
+    String dishId, photoDish, mapPhoto;
     ArrayList<String> ingredientIds;
     int numberTable;
     Orders orders;
@@ -113,6 +104,20 @@ public class PlaceOrders extends AppCompatActivity {
         ingredientsAdapter.notifyDataSetChanged();
         recyclerViewIngredients.setAdapter(ingredientsAdapter);
 
+        dishImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(photoDish);
+            }
+        });
+
+        mapDistribution.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(mapPhoto);
+            }
+        });
+
         // Habilitar el botón de retroceso en la barra de herramientas
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -120,7 +125,8 @@ public class PlaceOrders extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PlaceOrders.this, Cliente.class);
+                Intent intent = new Intent(PlaceOrders.this, MenuRestaurant.class);
+                intent.putExtra("restaurantId",orders.getRestaurantId());
                 startActivity(intent);
                 finish();
             }
@@ -130,9 +136,21 @@ public class PlaceOrders extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(PlaceOrders.this, Cliente.class);
-        startActivity(intent);
+        Intent intent = new Intent(PlaceOrders.this, MenuRestaurant.class);
+        intent.putExtra("restaurantId",orders.getRestaurantId());
         finish();
+    }
+
+    private void showImageDialog(String imageUrl) {
+        // Obtener la vista de la imagen
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_layout_image_viewer, null);
+        ImageView dialogImage = dialogView.findViewById(R.id.image_view_dialog);
+
+        Picasso.get().load(imageUrl).into(dialogImage);
+
+        builder.setView(dialogView).show();
     }
 
     private void onClickCreateOrder() {
@@ -148,32 +166,32 @@ public class PlaceOrders extends AppCompatActivity {
                             // Obtener el primer documento (debería haber solo uno)
                             DocumentSnapshot orderSnapshot = queryDocumentSnapshots.getDocuments().get(0);
 
-                            // Obtener el ID del documento existente
-                            String orderId = orderSnapshot.getId();
+                            // Obtener el número de mesa de la orden existente
+                            String existingTable = orderSnapshot.getString("numberTable");
+
+                            // Verificar si el número de mesa es diferente
+                            if (existingTable != null && !existingTable.isEmpty() && !existingTable.equals(String.valueOf(numberTable))) {
+                                Toast.makeText(PlaceOrders.this, "No puedes cambiar la mesa.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            // Obtener los ingredientes de la orden existente
+                            ArrayList<String> existingIngredientIds = (ArrayList<String>) orderSnapshot.get("ingredientIds");
 
                             // Obtener la cantidad actual
                             String currentQuantity = orderSnapshot.getString("quantity");
 
                             // Incrementar la cantidad
-                            int newQuantity = Integer.parseInt(currentQuantity + 1);
+                            int newQuantity = Integer.parseInt(currentQuantity) + 1;
 
-                            // Actualizar el campo quantity del documento existente
-                            db.collection("orders").document(orderId)
-                                    .update("quantity", String.valueOf(newQuantity))
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Intent intent = new Intent(PlaceOrders.this, Cliente.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(PlaceOrders.this, "Error al actualizar la orden existente", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                            // Verificar si los ingredientes son iguales
+                            if (ingredientsAdapter.getSelectedIngredientIds().equals(existingIngredientIds)) {
+                                // Si los ingredientes son iguales, actualizar la cantidad
+                                updateOrderQuantity(orderSnapshot.getId(), newQuantity);
+                            } else {
+                                // Si los ingredientes son diferentes, agregar una nueva orden
+                                addNewOrder();
+                            }
                         } else {
                             // Si no existe una orden con el mismo dishId y userId, agregar una nueva orden
                             addNewOrder();
@@ -188,10 +206,30 @@ public class PlaceOrders extends AppCompatActivity {
                 });
     }
 
-    private void addNewOrder(){
+    private void updateOrderQuantity(String orderId, int newQuantity) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("quantity", String.valueOf(newQuantity));
 
-        // Obtener el horario actual
-        getScheduleIdOrder();
+        db.collection("orders").document(orderId)
+                .update(updateData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Intent intent = new Intent(PlaceOrders.this, MenuRestaurant.class);
+                        intent.putExtra("restaurantId", orders.getRestaurantId());
+                        startActivity(intent);
+                        finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(PlaceOrders.this, "Error al actualizar la orden existente", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void addNewOrder(){
 
         // Obtener el numero de mesa
         String numberTableString = String.valueOf(numberTable);
@@ -205,7 +243,6 @@ public class PlaceOrders extends AppCompatActivity {
         map.put("numberTable", numberTableString);
         map.put("quantity","1");
         map.put("restaurantId",orders.getRestaurantId());
-        map.put("scheduleId",orders.getScheduleId());
         map.put("status","En preparación");
         map.put("time",orders.getTime());
         map.put("timestamp", timestamp);
@@ -216,13 +253,16 @@ public class PlaceOrders extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 String orderId = documentReference.getId();  // Obtener el ID del nuevo documento
+                orders.setOrderId(orderId);
 
                 // Agregar el ID del nuevo documento al mismo documento con el nombre de campo "orderId"
                 documentReference.update("orderId", orderId)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Intent intent = new Intent(PlaceOrders.this, Cliente.class);
+                                getScheduleIdOrder();
+                                Intent intent = new Intent(PlaceOrders.this, MenuRestaurant.class);
+                                intent.putExtra("restaurantId",orders.getRestaurantId());
                                 startActivity(intent);
                                 finish();
                             }
@@ -243,6 +283,7 @@ public class PlaceOrders extends AppCompatActivity {
     }
 
     private void getScheduleIdOrder() {
+
         // Obtener el día actual
         Calendar calendar = Calendar.getInstance();
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -288,7 +329,13 @@ public class PlaceOrders extends AppCompatActivity {
                             DocumentSnapshot scheduleSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                             String scheduleId = scheduleSnapshot.getId();
 
+                            // Actualizar el scheduleId en el objeto orders
                             orders.setScheduleId(scheduleId);
+
+                            // Actualizar el scheduleId en la base de datos
+                            if (orders.getOrderId() != null && !orders.getOrderId().isEmpty()) {
+                                updateScheduleIdInOrder(orders.getOrderId(), scheduleId);
+                            }
                         }
                     }
                 })
@@ -296,6 +343,26 @@ public class PlaceOrders extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(PlaceOrders.this, "Error al obtener los datos del horario", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateScheduleIdInOrder(String orderId, String scheduleId) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("scheduleId", scheduleId);
+
+        db.collection("orders").document(orderId)
+                .update(updateData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(PlaceOrders.this, "ScheduleId actualizado con éxito", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(PlaceOrders.this, "Error al actualizar el ScheduleId", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -308,7 +375,7 @@ public class PlaceOrders extends AppCompatActivity {
                 String cost = documentSnapshot.getString("cost");
                 String description = documentSnapshot.getString("description");
                 String time = documentSnapshot.getString("time");
-                String photoDish = documentSnapshot.getString("photo");
+                photoDish = documentSnapshot.getString("photo");
 
                 String restaurantId = documentSnapshot.getString("restaurantId");
 
@@ -334,7 +401,7 @@ public class PlaceOrders extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String quantityTables = documentSnapshot.getString("quantityTables");
-                        String mapPhoto = documentSnapshot.getString("tableDistribution");
+                        mapPhoto = documentSnapshot.getString("tableDistribution");
 
                         if(mapPhoto != null || !mapPhoto.isEmpty()){
                             mapDistribution.setVisibility(View.VISIBLE);

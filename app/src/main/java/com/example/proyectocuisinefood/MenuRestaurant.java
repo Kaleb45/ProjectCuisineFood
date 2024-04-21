@@ -80,7 +80,8 @@ public class MenuRestaurant extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MenuRestaurant.this, Cliente.class);
+                Intent intent = new Intent(MenuRestaurant.this, RestaurantProfile.class);
+                intent.putExtra("restaurantId",restaurantId);
                 startActivity(intent);
                 finish();
             }
@@ -90,7 +91,8 @@ public class MenuRestaurant extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(MenuRestaurant.this, Cliente.class);
+        Intent intent = new Intent(MenuRestaurant.this, RestaurantProfile.class);
+        intent.putExtra("restaurantId",restaurantId);
         startActivity(intent);
         finish();
     }

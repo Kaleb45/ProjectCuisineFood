@@ -96,7 +96,7 @@ public class UserProfileFragment extends Fragment {
         profileImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                showProfileImage();
+                showImageDialog(loadProfileImage);
                 return true;
             }
         });
@@ -201,16 +201,15 @@ public class UserProfileFragment extends Fragment {
         });
     }
 
-    private void showProfileImage() {
-        // Verificar si loadProfileImage no es nulo
-        if (loadProfileImage != null) {
+    private void showImageDialog(String imageUrl) {
+        if(imageUrl != null){
             // Obtener la vista de la imagen
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             LayoutInflater inflater = LayoutInflater.from(getContext());
             View dialogView = inflater.inflate(R.layout.dialog_layout_image_viewer, null);
             ImageView dialogImage = dialogView.findViewById(R.id.image_view_dialog);
 
-            Picasso.get().load(loadProfileImage).into(dialogImage);
+            Picasso.get().load(imageUrl).into(dialogImage);
 
             builder.setView(dialogView).show();
         } else {
