@@ -86,10 +86,9 @@ public class PlaceOrders extends AppCompatActivity {
         recyclerViewIngredients.setLayoutManager(new LinearLayoutManager(this));
 
         // Recoge el ID del restaurante del Intent
-        restaurantId = getIntent().getStringExtra("restaurantId");
         dishId = getIntent().getStringExtra("dishId");
 
-        if(dishId == null || dishId.isEmpty()){
+        if(dishId != null || !dishId.isEmpty()){
             getDish(dishId);
             orderFinish.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -139,23 +138,6 @@ public class PlaceOrders extends AppCompatActivity {
     }
 
     private void getDish (String id){
-        db.collection("restaurant").document(restaurantId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                mapPhoto = documentSnapshot.getString("tableDistribution");
-                if(mapPhoto != null || !mapPhoto.isEmpty()){
-                    mapDistribution.setVisibility(View.VISIBLE);
-                    Picasso.get().load(mapPhoto).resize(150,150).into(mapDistribution);
-                } else {
-                    mapDistribution.setVisibility(View.GONE);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(PlaceOrders.this, "Error al obtner los datos", Toast.LENGTH_SHORT).show();
-            }
-        });
         db.collection("dish").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -176,6 +158,24 @@ public class PlaceOrders extends AppCompatActivity {
 
                 // Marcar los ingredientes seleccionados
                 ingredientsAdapter.setSelectedIngredients(ingredientIds);
+
+                db.collection("restaurant").document(restaurantId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        mapPhoto = documentSnapshot.getString("tableDistribution");
+                        if(mapPhoto != null || !mapPhoto.isEmpty()){
+                            mapDistribution.setVisibility(View.VISIBLE);
+                            Picasso.get().load(mapPhoto).resize(150,150).into(mapDistribution);
+                        } else {
+                            mapDistribution.setVisibility(View.GONE);
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(PlaceOrders.this, "Error al obtner los datos", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

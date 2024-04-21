@@ -126,7 +126,7 @@ public class RestaurantProfile extends AppCompatActivity {
         seeMoreDish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(RestaurantProfile.this, Cliente.class);
+                Intent intent = new Intent(RestaurantProfile.this, MenuRestaurant.class);
                 intent.putExtra("restaurantId",restaurantId);
                 startActivity(intent);
                 finish();

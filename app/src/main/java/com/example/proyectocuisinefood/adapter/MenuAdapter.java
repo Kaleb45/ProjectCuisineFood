@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.proyectocuisinefood.CreateMenu;
 import com.example.proyectocuisinefood.CreateRestaurant;
 import com.example.proyectocuisinefood.Menu;
+import com.example.proyectocuisinefood.PlaceOrders;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.RestaurantProfile;
 import com.example.proyectocuisinefood.model.Dish;
@@ -101,6 +102,15 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
                                 });
                             } else if(holder.userType.equals("Cliente")){
                                 holder.dishId = getSnapshots().getSnapshot(pos).getId();
+
+                                holder.name.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent(context, PlaceOrders.class);
+                                        intent.putExtra("dishId", holder.dishId);
+                                        context.startActivity(intent);
+                                    }
+                                });
                             }
                         }
                     }
@@ -217,10 +227,6 @@ public class MenuAdapter extends FirestoreRecyclerAdapter<Dish, MenuAdapter.View
 
                         // Ocultar los iconos adicionales (ic_delete y ic_edit)
                         hideAdditionalIcons(itemView);
-                    } else if(userType.equals("Cliente")){
-                        Intent intent = new Intent(context, RestaurantProfile.class);
-                        intent.putExtra("dishId", dishId);
-                        context.startActivity(intent);
                     }
                 }
             });
