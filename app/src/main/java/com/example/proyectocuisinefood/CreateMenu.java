@@ -153,6 +153,14 @@ public class CreateMenu extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(CreateMenu.this, Admin.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void onClickUpdateDish(String dishId) {
         String name = dishName.getText().toString().trim();
         String cost = dishCost.getText().toString().trim();

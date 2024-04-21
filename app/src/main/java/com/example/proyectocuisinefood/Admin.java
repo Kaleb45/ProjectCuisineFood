@@ -80,6 +80,12 @@ public class Admin extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
+    }
+
     private void onClickCreateRestaurant() {
         startActivity(new Intent(Admin.this, CreateRestaurant.class));
         finish();

@@ -391,10 +391,17 @@ public class CreateRestaurant extends AppCompatActivity{
             public void onClick(View v) {
                 Intent intent = new Intent(CreateRestaurant.this, Admin.class);
                 startActivity(intent);
-                finish(); // Opcional, dependiendo de si deseas mantener la actividad actual en la pila de actividades
+                finish();
             }
         });
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(CreateRestaurant.this, Admin.class);
+        startActivity(intent);
+        finish();
     }
 
     private void startPlacePicker() {

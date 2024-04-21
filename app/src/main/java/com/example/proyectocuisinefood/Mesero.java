@@ -102,6 +102,12 @@ public class Mesero extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
+    }
+
     private void loadData() {
         Intent intent = getIntent(); // Obtener el intent actual
         finish(); // Finalizar la actividad actual

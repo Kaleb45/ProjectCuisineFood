@@ -73,6 +73,14 @@ public class LogIn extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(LogIn.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void onclickLogIn() {
         String user = usuario.getText().toString().trim();
         String passwordUser = password.getText().toString().trim();

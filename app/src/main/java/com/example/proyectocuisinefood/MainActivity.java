@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.proyectocuisinefood.adapter.OrderAdapter;
@@ -24,7 +26,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 public class MainActivity extends AppCompatActivity {
+
+    TextView message;
     Button logIn, signIn;
+    ProgressBar progressBar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
 
@@ -35,8 +40,11 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        message = findViewById(R.id.t_message_progress_bar);
         logIn = findViewById(R.id.log_in);
         signIn = findViewById(R.id.sign_in);
+
+        progressBar = findViewById(R.id.progress_bar);
 
         logIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
                 onclick_signin();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
     }
 
     private void onclick_signin() {
@@ -70,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
+            logIn.setVisibility(View.GONE);
+            signIn.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            message.setVisibility(View.VISIBLE);
             // Si hay un usuario autenticado, redirigirlo a la actividad correspondiente según su tipo de usuario
             String userId = user.getUid();
             db.collection("user").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

@@ -123,6 +123,14 @@ public class PlaceOrders extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(PlaceOrders.this, Cliente.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void onClickCreateOrder(String dishId) {
         Intent intent = new Intent(PlaceOrders.this, Cliente.class);
         intent.putExtra("dishId",dishId);

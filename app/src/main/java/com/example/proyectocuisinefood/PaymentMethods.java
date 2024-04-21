@@ -168,7 +168,7 @@ public class PaymentMethods extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(PaymentMethods.this, Admin.class);
                 startActivity(intent);
-                finish(); // Opcional, dependiendo de si deseas mantener la actividad actual en la pila de actividades
+                finish();
             }
         });
 
@@ -199,6 +199,14 @@ public class PaymentMethods extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(PaymentMethods.this, Admin.class);
+        startActivity(intent);
+        finish();
     }
 
     private void onClickAssignedPaymentMethods() {

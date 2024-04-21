@@ -145,7 +145,14 @@ public class RestaurantProfile extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(RestaurantProfile.this, Cliente.class);
+        startActivity(intent);
+        finish();
     }
 
     private void makePhoneCall(String phoneNumber) {

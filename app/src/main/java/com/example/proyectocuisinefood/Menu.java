@@ -95,9 +95,17 @@ public class Menu extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Menu.this, Admin.class);
                 startActivity(intent);
-                finish(); // Opcional, dependiendo de si deseas mantener la actividad actual en la pila de actividades
+                finish();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(Menu.this, Admin.class);
+        startActivity(intent);
+        finish();
     }
 
     private void onClickCreateMenu() {

@@ -131,6 +131,14 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
         searchViewRestaurant();
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(SignIn.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void searchViewRestaurant() {
         restauranteAsignado.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
