@@ -220,6 +220,7 @@ public class PlaceOrders extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        Toast.makeText(PlaceOrders.this, "Se agrego una orden más a su pedido original", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(PlaceOrders.this, MenuRestaurant.class);
                         intent.putExtra("restaurantId", orders.getRestaurantId());
                         startActivity(intent);
@@ -362,7 +363,7 @@ public class PlaceOrders extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        //Toast.makeText(PlaceOrders.this, "ScheduleId actualizado con éxito", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PlaceOrders.this, "Orden realizada", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
