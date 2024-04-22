@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.proyectocuisinefood.BuyOrders;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.model.Orders;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -32,16 +33,33 @@ import java.util.Map;
 
 public class UserOrderAdapter extends FirestoreRecyclerAdapter<Orders, UserOrderAdapter.ViewHolder> {
     private Context context;
-    private ArrayList<Orders> ordersToBuy;
-    public UserOrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, ArrayList<Orders> ordersToBuy, Context context) {
+    private OnOrderCanceledListener onOrderCanceledListener;
+    public UserOrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, Context context) {
         super(options);
-        this.ordersToBuy = ordersToBuy;
         this.context = context;
+    }
+
+    public interface OnOrderCanceledListener {
+        void onOrderCanceled();
+    }
+
+    public void setOnOrderCanceledListener(OnOrderCanceledListener listener) {
+        this.onOrderCanceledListener = listener;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull UserOrderAdapter.ViewHolder holder, int position, @NonNull Orders model) {
         final int pos = position;
+
+        if ("Cancelada".equals(model.getStatus())) {
+            // Si el estado es "Cancelada", ocultar la vista del ViewHolder
+            holder.itemView.setVisibility(View.GONE);
+            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+            return;
+        } else {
+            holder.itemView.setVisibility(View.VISIBLE);
+            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
 
         holder.deleteIcon.setVisibility(View.VISIBLE);
 
@@ -69,6 +87,7 @@ public class UserOrderAdapter extends FirestoreRecyclerAdapter<Orders, UserOrder
                     holder.deleteIcon.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+
                             if(model.getStatus().equals("En preparación")){
                                 // Cancelar la orden
                                 canceledOrder(holder, model.getOrderId());
@@ -96,6 +115,10 @@ public class UserOrderAdapter extends FirestoreRecyclerAdapter<Orders, UserOrder
             @Override
             public void onSuccess(Void unused) {
                 Toast.makeText(context, "Orden cancelada", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Recargue en caso de que el precio no se actualice", Toast.LENGTH_SHORT).show();
+                if (onOrderCanceledListener != null) {
+                    onOrderCanceledListener.onOrderCanceled(); // Notificar a la actividad
+                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

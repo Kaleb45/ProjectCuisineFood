@@ -98,7 +98,7 @@ public class MenuRestaurant extends AppCompatActivity {
     }
 
     private void onClickShoppingCart() {
-        Intent intent = new Intent(MenuRestaurant.this, RestaurantProfile.class);
+        Intent intent = new Intent(MenuRestaurant.this, BuyOrders.class);
         intent.putExtra("restaurantId",restaurantId);
         startActivity(intent);
         finish();

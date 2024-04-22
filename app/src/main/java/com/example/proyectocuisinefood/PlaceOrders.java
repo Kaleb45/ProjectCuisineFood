@@ -241,6 +241,7 @@ public class PlaceOrders extends AppCompatActivity {
         map.put("dishId",dishId);
         map.put("ingredientIds", ingredientsAdapter.getSelectedIngredientIds());
         map.put("numberTable", numberTableString);
+        map.put("paymentMethodId",null);
         map.put("quantity","1");
         map.put("restaurantId",orders.getRestaurantId());
         map.put("status","En preparación");

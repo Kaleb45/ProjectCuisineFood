@@ -1,17 +1,21 @@
 package com.example.proyectocuisinefood.model;
 
+import com.google.firebase.Timestamp;
+
 import java.util.ArrayList;
 
 public class Orders {
     //Orders
-    String numberTable, dishId, status, restaurantId, userId, quantity, time, orderId, paymentMethodId, scheduleId, timestamp, totalPrice;
+    String numberTable, dishId, status, restaurantId, userId, quantity, time, orderId, paymentMethodId, scheduleId, totalPrice;
+
+    Timestamp timestamp;
     ArrayList<String> ingredientIds;
 
     public Orders(){
 
     }
 
-    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId, String quantity, String time, String orderId, String paymentMethodId, String scheduleId, String timestamp, String totalPrice, ArrayList<String> ingredientIds) {
+    public Orders(String numberTable, String dishId, String status, String restaurantId, String userId, String quantity, String time, String orderId, String paymentMethodId, String scheduleId, Timestamp timestamp, String totalPrice, ArrayList<String> ingredientIds) {
         this.numberTable = numberTable;
         this.dishId = dishId;
         this.status = status;
@@ -107,11 +111,11 @@ public class Orders {
         this.scheduleId = scheduleId;
     }
 
-    public String getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 
