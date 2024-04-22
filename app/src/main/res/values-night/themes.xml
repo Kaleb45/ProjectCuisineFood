@@ -17,9 +17,16 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="BottomNavigation">
+    <style name="BottomNavigationCustomer">
         <item name="background">@color/anaranjado</item>
         <item name="backgroundTint">@color/anaranjado</item>
+        <item name="itemIconTint">@color/white</item>
+        <item name="itemTextColor">@color/white</item>
+    </style>
+
+    <style name="BottomNavigationFollow">
+        <item name="background">@color/rojo_frambuesa</item>
+        <item name="backgroundTint">@color/rojo_frambuesa</item>
         <item name="itemIconTint">@color/white</item>
         <item name="itemTextColor">@color/white</item>
     </style>

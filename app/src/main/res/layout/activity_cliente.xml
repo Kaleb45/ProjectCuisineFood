@@ -28,6 +28,6 @@
         android:elevation="8dp"
         app:menu="@menu/bottom_navigation"
         app:labelVisibilityMode="selected"
-        style="@style/BottomNavigation"/>
+        style="@style/BottomNavigationCustomer"/>
 
 </RelativeLayout>

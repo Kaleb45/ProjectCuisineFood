@@ -58,10 +58,13 @@ public class UserOrderAdapter extends FirestoreRecyclerAdapter<Orders, UserOrder
             return;
         } else {
             holder.itemView.setVisibility(View.VISIBLE);
-            holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
 
-        holder.deleteIcon.setVisibility(View.VISIBLE);
+        if(model.getPaymentMethodId() != null){
+            holder.deleteIcon.setVisibility(View.GONE);
+        } else {
+            holder.deleteIcon.setVisibility(View.VISIBLE);
+        }
 
         String dishId = model.getDishId(); // Obtener el dishId de la orden
 
@@ -77,7 +80,7 @@ public class UserOrderAdapter extends FirestoreRecyclerAdapter<Orders, UserOrder
 
                     // Asignar los datos del platillo a los elementos de la vista del ViewHolder
                     holder.name.setText(dishName);
-                    holder.cost.setText(model.getTotalPrice());
+                    holder.cost.setText(model.getTotalPrice()+"$");
 
                     // Cargar la imagen del platillo usando Picasso
                     if (holder.orderImage != null && !holder.orderImage.isEmpty()) {

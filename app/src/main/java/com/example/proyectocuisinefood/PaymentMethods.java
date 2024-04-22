@@ -174,9 +174,15 @@ public class PaymentMethods extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PaymentMethods.this, Admin.class);
-                startActivity(intent);
-                finish();
+                if(userType.equals("Administrador")){
+                    Intent intent = new Intent(PaymentMethods.this, Admin.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Intent intent = new Intent(PaymentMethods.this, Cliente.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
 
@@ -214,9 +220,15 @@ public class PaymentMethods extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(PaymentMethods.this, Admin.class);
-        startActivity(intent);
-        finish();
+        if(userType.equals("Administrador")){
+            Intent intent = new Intent(PaymentMethods.this, Admin.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Intent intent = new Intent(PaymentMethods.this, Cliente.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void getUserType(){
@@ -448,8 +460,6 @@ public class PaymentMethods extends AppCompatActivity {
                                         Toast.makeText(PaymentMethods.this, "Error al obtener los datos de los métodos de pago", Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                    } else {
-                        Toast.makeText(PaymentMethods.this, "El usuario no tiene métodos de pago registrados", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

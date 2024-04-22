@@ -64,8 +64,7 @@ public class Cliente extends AppCompatActivity {
                 return true;
             }
             if(id == R.id.option_follow_up){
-                //loadFragment(followUpOrderFragment);
-                Toast.makeText(Cliente.this, "Actualmente no esta disponible el seguimiento de pedidos", Toast.LENGTH_SHORT).show();
+                loadFragment(followUpOrderFragment);
                 return true;
             }
             if(id == R.id.option_user){

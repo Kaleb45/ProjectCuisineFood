@@ -362,7 +362,7 @@ public class PlaceOrders extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(PlaceOrders.this, "ScheduleId actualizado con éxito", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(PlaceOrders.this, "ScheduleId actualizado con éxito", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
