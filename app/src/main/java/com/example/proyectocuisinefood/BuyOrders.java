@@ -38,7 +38,7 @@ public class BuyOrders extends AppCompatActivity implements UserOrderAdapter.OnO
     SwipeRefreshLayout swipeRefreshLayout;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId;
+    String restaurantId, price;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,7 +132,8 @@ public class BuyOrders extends AppCompatActivity implements UserOrderAdapter.OnO
     }
 
     private void onClickContinueShopping() {
-        Intent intent = new Intent(BuyOrders.this, BuyOrders.class);
+        Intent intent = new Intent(BuyOrders.this, PaymentMethods.class);
+        intent.putExtra("totalPrice",price);
         intent.putExtra("restaurantId",restaurantId);
         startActivity(intent);
         finish();
@@ -158,6 +159,7 @@ public class BuyOrders extends AppCompatActivity implements UserOrderAdapter.OnO
                             }
                         }
                         totalPrice.setText(String.format("%.2f", total)+"$");  // Formatear el total a dos decimales
+                        price = String.format("%.2f", total);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override

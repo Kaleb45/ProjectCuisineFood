@@ -17,14 +17,17 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
@@ -35,6 +38,8 @@ import java.util.Map;
 public class PaymentMethods extends AppCompatActivity {
 
     ImageButton paypalDrop, vmDrop, payDrop;
+
+    TextView instructionPayTV;
     EditText nameVM, numberCardVM, dateVM, cvvVM, instructionPay;
     Button continuePaymentMethods;
     ToggleButton toggleButtonShowNumberCard, toggleButtonShowDate, toggleButtonShowCVV;
@@ -42,7 +47,7 @@ public class PaymentMethods extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, typePaymentMethods;
+    String restaurantId, typePaymentMethods, userType, price, paymentMethodId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +58,6 @@ public class PaymentMethods extends AppCompatActivity {
 
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        // Recoge el ID del restaurante del Intent
-        restaurantId = getIntent().getStringExtra("restaurantId");
 
         paypalDrop = findViewById(R.id.imb_paypal_payment_methods);
         vmDrop = findViewById(R.id.imb_vm_payment_methods);
@@ -68,12 +70,18 @@ public class PaymentMethods extends AppCompatActivity {
         toggleButtonShowDate = findViewById(R.id.tb_date);
         toggleButtonShowCVV = findViewById(R.id.tb_cvv);
         instructionPay = findViewById(R.id.ed_instruction_pay);
+        instructionPayTV = findViewById(R.id.t_instruction_pay);
         continuePaymentMethods = findViewById(R.id.b_continue_payment_methods);
         layoutPaypal = findViewById(R.id.layout_paypal);
         layoutVM = findViewById(R.id.layout_vm);
         layoutPay = findViewById(R.id.layout_pay);
 
-        if(restaurantId == null || restaurantId.isEmpty()){
+        // Recoge el ID del restaurante del Intent
+        restaurantId = getIntent().getStringExtra("restaurantId");
+        price = getIntent().getStringExtra("totalPrice");
+
+        if(price != null || !price.isEmpty()){
+            getPaymentMethodsCustomer();
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -81,7 +89,7 @@ public class PaymentMethods extends AppCompatActivity {
                 }
             });
         } else {
-            getPaymentMethods(restaurantId);
+            getPaymentMethodsAdmin(restaurantId);
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -199,6 +207,8 @@ public class PaymentMethods extends AppCompatActivity {
                 }
             }
         });
+
+        getUserType();
     }
 
     @Override
@@ -207,6 +217,24 @@ public class PaymentMethods extends AppCompatActivity {
         Intent intent = new Intent(PaymentMethods.this, Admin.class);
         startActivity(intent);
         finish();
+    }
+
+    private void getUserType(){
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            db.collection("user").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    userType = documentSnapshot.getString("usertype");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(PaymentMethods.this, "Error al obtener el tipo de usuario", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void onClickAssignedPaymentMethods() {
@@ -248,7 +276,11 @@ public class PaymentMethods extends AppCompatActivity {
             }
         }
 
-        assignedPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+        if(userType.equals("Administrador")){
+            assignedPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+        } else {
+            createPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+        }
     }
 
     // Método para formatear el número de tarjeta agregando un espacio cada 4 dígitos
@@ -264,6 +296,66 @@ public class PaymentMethods extends AppCompatActivity {
             count++;
         }
         return formattedNumber.toString();
+    }
+
+    private void createPaymentMethodsRestaurant(String name, String numberCard, String date, String cvv) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("cardNumber", numberCard);
+        map.put("date", date);
+        map.put("cvv", cvv);
+        map.put("type", typePaymentMethods);
+
+        db.collection("paymentMethods").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                paymentMethodId = documentReference.getId();
+
+                // Actualizar las órdenes del usuario con el ID del método de pago
+                updateOrdersWithPaymentMethod(paymentMethodId);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al asignar las credenciales", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateOrdersWithPaymentMethod(String id) {
+        db.collection("orders").whereEqualTo("userId", mAuth.getUid()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    String orderId = documentSnapshot.getId();
+                    Map<String, Object> updateMap = new HashMap<>();
+                    updateMap.put("paymentMethodId", id);
+
+                    db.collection("orders").document(orderId).update(updateMap)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(PaymentMethods.this, "Ordenes pagadas", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(PaymentMethods.this, MenuRestaurant.class);
+                                    intent.putExtra("restaurantId",restaurantId);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(PaymentMethods.this, "Error al actualizar las órdenes", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al obtener las órdenes del usuario", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void assignedPaymentMethodsRestaurant(String name, String numberCard, String date, String cvv) {
@@ -319,7 +411,57 @@ public class PaymentMethods extends AppCompatActivity {
                 });
     }
 
-    private void getPaymentMethods(String restaurantId) {
+    private void getPaymentMethodsCustomer () {
+        db.collection("orders").whereEqualTo("userId",mAuth.getUid()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    paymentMethodId = documentSnapshot.getString("paymentMethodId");
+
+                    if (paymentMethodId != null) {
+                        // Consultar el documento correspondiente en la colección "paymentMethods"
+                        db.collection("paymentMethods")
+                                .document(paymentMethodId)
+                                .get()
+                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()) {
+                                            String name = documentSnapshot.getString("name");
+                                            String numberCard = documentSnapshot.getString("cardNumber");
+                                            String date = documentSnapshot.getString("date");
+                                            String cvv = documentSnapshot.getString("cvv");
+                                            typePaymentMethods = documentSnapshot.getString("type");
+
+                                            nameVM.setText(name);
+                                            numberCardVM.setText(numberCard);
+                                            dateVM.setText(date);
+                                            cvvVM.setText(cvv);
+                                        } else {
+                                            Toast.makeText(PaymentMethods.this, "No se encontraron métodos de pago asociados al usuario", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(PaymentMethods.this, "Error al obtener los datos de los métodos de pago", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(PaymentMethods.this, "El usuario no tiene métodos de pago registrados", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al obtener las credenciales", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getPaymentMethodsAdmin(String restaurantId) {
         // Consultar la colección "restaurant" para obtener el ID de paymentMethods
         db.collection("restaurant")
                 .document(restaurantId)
@@ -328,12 +470,12 @@ public class PaymentMethods extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            String paymentMethodsId = documentSnapshot.getString("paymentMethodId");
+                            paymentMethodId = documentSnapshot.getString("paymentMethodId");
 
-                            if (paymentMethodsId != null) {
+                            if (paymentMethodId != null) {
                                 // Consultar el documento correspondiente en la colección "paymentMethods"
                                 db.collection("paymentMethods")
-                                        .document(paymentMethodsId)
+                                        .document(paymentMethodId)
                                         .get()
                                         .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                             @Override

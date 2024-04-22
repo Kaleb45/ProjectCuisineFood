@@ -168,6 +168,7 @@ public class PlaceOrders extends AppCompatActivity {
 
                             // Obtener el número de mesa de la orden existente
                             String existingTable = orderSnapshot.getString("numberTable");
+                            String paymentMethodId = orderSnapshot.getString("paymentMethodId");
 
                             // Verificar si el número de mesa es diferente
                             if (existingTable != null && !existingTable.isEmpty() && !existingTable.equals(String.valueOf(numberTable))) {
@@ -184,12 +185,16 @@ public class PlaceOrders extends AppCompatActivity {
                             // Incrementar la cantidad
                             int newQuantity = Integer.parseInt(currentQuantity) + 1;
 
-                            // Verificar si los ingredientes son iguales
-                            if (ingredientsAdapter.getSelectedIngredientIds().equals(existingIngredientIds)) {
-                                // Si los ingredientes son iguales, actualizar la cantidad
-                                updateOrderQuantity(orderSnapshot.getId(), newQuantity);
+                            if(paymentMethodId == null){
+                                // Verificar si los ingredientes son iguales
+                                if (ingredientsAdapter.getSelectedIngredientIds().equals(existingIngredientIds)) {
+                                    // Si los ingredientes son iguales, actualizar la cantidad
+                                    updateOrderQuantity(orderSnapshot.getId(), newQuantity);
+                                } else {
+                                    // Si los ingredientes son diferentes, agregar una nueva orden
+                                    addNewOrder();
+                                }
                             } else {
-                                // Si los ingredientes son diferentes, agregar una nueva orden
                                 addNewOrder();
                             }
                         } else {

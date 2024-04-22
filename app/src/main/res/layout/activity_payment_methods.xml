@@ -280,13 +280,29 @@
                     android:orientation="horizontal"
                     android:layout_gravity="center">
 
-                    <EditText
-                        android:id="@+id/ed_instruction_pay"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="160dp"
-                        android:hint="Instrucciones adicionales"
-                        android:textSize="18sp"
-                        android:gravity="left"/>
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/ed_instruction_pay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="160dp"
+                            android:hint="Instrucciones adicionales"
+                            android:textSize="18sp"
+                            android:gravity="left"
+                            android:visibility="visible"/>
+
+                        <TextView
+                            android:id="@+id/t_instruction_pay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="160dp"
+                            android:hint="Instrucciones adicionales"
+                            android:textSize="18sp"
+                            android:gravity="left"
+                            android:visibility="gone"/>
+
+                    </RelativeLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
