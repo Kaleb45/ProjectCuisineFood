@@ -112,13 +112,14 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
     private static final int PLACE_PICKER_REQUEST = 2;
     private Uri imageUrl;
     ProgressDialog progressDialog;
-    String imageType, downloadUri, logoRestaurant, tableIndication, tableDistribution, photoRestaurant, idd, restaurantId, nameRestaurant, related;
+    String imageType, downloadUri, logoRestaurant, tableIndication, tableDistribution, idd, restaurantId, nameRestaurant, related;
     RecyclerView recyclerViewPhotoRestaurant, recyclerViewShowRestaurant;
     PhotoRestaurantAdapter photoRestaurantAdapter;
     SearchView relatedRestaurant;
     Query queryRestaurant;
     LinearLayout linearLayoutRestaurantSelected;
     RestaurantSelectedAdapter restaurantSelectedAdapter;
+    ArrayList<String> photoRestaurant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -279,10 +280,9 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     // Aquí actualizas la base de datos con el campo "tableIndication" como "Indicación"
-                    // Por ejemplo:
                     tableIndication = "Indicación";
                 } else {
-                    tableIndication = "";
+                    tableIndication = null;
                 }
             }
         });
@@ -579,7 +579,7 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
                     loadImageIntoButton(restaurantMap, imageUrl.toString());
                     tableDistribution = imageUrl.toString();
                 } else if (imageType.equals("photo")) {
-                    photoRestaurant = imageUrl.toString();
+                    photoRestaurantAdapter.setPhotoUrls(imageUrl.toString());
                 }
 
                 sendPhoto(imageUrl);
@@ -595,7 +595,7 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
                     loadImageIntoButton(restaurantMap, imageUrl.toString());
                     tableDistribution = imageUrl.toString();
                 } else if (imageType.equals("photo")) {
-                    photoRestaurant = imageUrl.toString();
+                    photoRestaurantAdapter.setPhotoUrls(imageUrl.toString());
                 }
 
                 sendPhoto(imageUrl);
@@ -728,7 +728,7 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
         map.put("tableIndication",tableIndication);
         map.put("direction", direction);
         map.put("logo", logoRestaurant);
-        map.put("photo", photoRestaurant);
+        map.put("photo", photoRestaurantAdapter.getPhotoUrls());
         // Añadir los datos del restaurante...
         map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
 
@@ -839,10 +839,10 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
                         });
 
                 logoRestaurant = documentSnapshot.getString("logo");
-                photoRestaurant = documentSnapshot.getString("photo");
+                photoRestaurant = photoRestaurantAdapter.getPhotoUrls();
                 tableDistribution = documentSnapshot.getString("tableDistribution");
 
-                if(!logoRestaurant.isEmpty() || !photoRestaurant.isEmpty() || !tableDistribution.isEmpty() || logoRestaurant != null || photoRestaurant != null || tableDistribution != null){
+                if(!logoRestaurant.isEmpty() || !tableDistribution.isEmpty() || logoRestaurant != null || tableDistribution != null){
                     Picasso.get().load(logoRestaurant).resize(150,150).centerCrop().into(restaurantLogo);
                     Picasso.get().load(tableDistribution).resize(150,150).centerCrop().into(restaurantMap);
                 }
@@ -912,7 +912,8 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
         map.put("tableIndication",tableIndication);
         map.put("direction", direction);
         map.put("logo", logoRestaurant);
-        map.put("photo", photoRestaurant);
+        map.put("relationedRestaurantId",related);
+        map.put("photo", photoRestaurantAdapter.getPhotoUrls());
         // Añadir los datos del restaurante...
         map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
 
@@ -1013,6 +1014,20 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
             day = button.getTag().toString();
         }
         return day;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        photoRestaurantAdapter.startListening();
+        restaurantSelectedAdapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        photoRestaurantAdapter.stopListening();
+        restaurantSelectedAdapter.stopListening();
     }
 
     @Override

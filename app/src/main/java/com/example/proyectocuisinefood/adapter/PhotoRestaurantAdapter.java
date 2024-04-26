@@ -30,6 +30,7 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
     private Context context;
     private String userType = "";
     private OnUploadImage onUploadImage;
+    private ArrayList<String> photoUrls;
 
     public PhotoRestaurantAdapter(@NonNull FirestoreRecyclerOptions<Restaurant> options, Context context) {
         super(options);
@@ -41,11 +42,11 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
         final int pos = position;
-        ArrayList<String> photoUrls = model.getPhoto();
+        photoUrls = model.getPhoto();
 
         // Asegurarse de que la lista de URLs no sea nula y contenga al menos una URL
-        if (photoUrls != null && !photoUrls.isEmpty()) {
-            for(int i = 0; i < photoUrls.size(); i++){
+        for(int i = 0; i < photoUrls.size(); i++){
+            if (photoUrls != null && !photoUrls.isEmpty()) {
                 if(photoUrls.get(i) != null || !photoUrls.get(i).isEmpty()){
                     Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
 
@@ -66,6 +67,14 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
                             }
                         });
                     }
+                } else if(userType.equals("Administrador")){
+                    int finalI = i;
+                    holder.photo[i].setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            onUploadImage.uploadImage(photoUrls.get(finalI));
+                        }
+                    });
                 }
             }
         }
@@ -73,6 +82,18 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
 
     public interface OnUploadImage{
         void uploadImage(String s);
+    }
+
+    public ArrayList<String> getPhotoUrls(){
+        return photoUrls;
+    }
+
+    public void setPhotoUrls(String photoUrlIds){
+        if(!photoUrls.contains(photoUrlIds)){
+            photoUrls.add(photoUrlIds);
+            notifyDataSetChanged();
+        }
+
     }
 
     private void showImageDialog(String imageUrl) {
