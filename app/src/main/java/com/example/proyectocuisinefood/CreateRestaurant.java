@@ -33,7 +33,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.proyectocuisinefood.adapter.PhotoRestaurantAdapter;
+import com.example.proyectocuisinefood.model.Restaurant;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,7 +52,9 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -62,7 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CreateRestaurant extends AppCompatActivity{
+public class CreateRestaurant extends AppCompatActivity implements PhotoRestaurantAdapter.OnUploadImage{
 
     String selectedItemCategory1, selectedItemCategory2;
     int hour, minute;
@@ -106,6 +113,8 @@ public class CreateRestaurant extends AppCompatActivity{
     String photo = "photo";
     ProgressDialog progressDialog;
     String imageType, downloadUri, logoRestaurant, tableIndication, tableDistribution, photoRestaurant, idd;
+    RecyclerView recyclerViewPhotoRestaurant;
+    PhotoRestaurantAdapter photoRestaurantAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +135,6 @@ public class CreateRestaurant extends AppCompatActivity{
 
         restaurantLogo = findViewById(R.id.imb_logo_restaurant);
         restaurantMap = findViewById(R.id.imb_map_tables_restaurant);
-        restaurantImage = findViewById(R.id.imb_images_restaurant);
 
         restaurantName = findViewById(R.id.ed_name_restaurant);
         restaurantPhone = findViewById(R.id.ed_phone_restaurant);
@@ -167,9 +175,20 @@ public class CreateRestaurant extends AppCompatActivity{
         adapterSpinCategory2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinRestaurantCategory2.setAdapter(adapterSpinCategory2);
 
+        recyclerViewPhotoRestaurant = findViewById(R.id.r_photo_restaurant_profile);
+        recyclerViewPhotoRestaurant.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
         String restaurantId = getIntent().getStringExtra("restaurantId");
 
         if(restaurantId == null || restaurantId.isEmpty()){
+            Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), null);
+
+            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                    .setQuery(query, Restaurant.class).build();
+
+            photoRestaurantAdapter = new PhotoRestaurantAdapter(firestoreRecyclerOptions, this);
+            photoRestaurantAdapter.notifyDataSetChanged();
+            recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
             continueCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -179,6 +198,14 @@ public class CreateRestaurant extends AppCompatActivity{
         } else {
             continueCreate.setText("Actualizar el Restaurante");
             getRestaurant(restaurantId);
+            Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), restaurantId);
+
+            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                    .setQuery(query, Restaurant.class).build();
+
+            photoRestaurantAdapter = new PhotoRestaurantAdapter(firestoreRecyclerOptions, this);
+            photoRestaurantAdapter.notifyDataSetChanged();
+            recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
             continueCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -402,6 +429,11 @@ public class CreateRestaurant extends AppCompatActivity{
         Intent intent = new Intent(CreateRestaurant.this, Admin.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void uploadImage(String s){
+        requestPermissions();
     }
 
     private void startPlacePicker() {

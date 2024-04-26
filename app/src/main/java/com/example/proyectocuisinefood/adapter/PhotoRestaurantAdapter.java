@@ -29,6 +29,7 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
 
     private Context context;
     private String userType = "";
+    private OnUploadImage onUploadImage;
 
     public PhotoRestaurantAdapter(@NonNull FirestoreRecyclerOptions<Restaurant> options, Context context) {
         super(options);
@@ -48,7 +49,7 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
                 if(photoUrls.get(i) != null || !photoUrls.get(i).isEmpty()){
                     Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
 
-                    if(userType != null || userType.equals("Cliente")){
+                    if(userType.equals("Cliente")){
                         int finalI = i;
                         holder.photo[i].setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -56,10 +57,22 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
                                 showImageDialog(photoUrls.get(finalI));
                             }
                         });
+                    } else if(userType.equals("Administrador")){
+                        int finalI = i;
+                        holder.photo[i].setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                onUploadImage.uploadImage(photoUrls.get(finalI));
+                            }
+                        });
                     }
                 }
             }
         }
+    }
+
+    public interface OnUploadImage{
+        void uploadImage(String s);
     }
 
     private void showImageDialog(String imageUrl) {
