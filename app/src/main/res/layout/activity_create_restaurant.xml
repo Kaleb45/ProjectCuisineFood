@@ -355,14 +355,31 @@
                 android:backgroundTint="@color/anaranjado"
                 android:layout_marginTop="15dp"/>
 
-            <Button
-                android:id="@+id/b_related_restaurant"
-                android:layout_width="280dp"
+            <SearchView
+                android:id="@+id/sv_restaurant"
+                android:layout_width="320dp"
                 android:layout_height="wrap_content"
-                android:text="Restaurantes Relacionados"
-                android:textSize="18sp"
-                android:backgroundTint="@color/anaranjado"
-                android:layout_marginTop="15dp"/>
+                android:iconifiedByDefault="false"
+                android:queryHint="Restaurante Relacionado"
+                app:iconifiedByDefault="false"
+                android:visibility="visible"
+                android:background="@drawable/border" />
+
+            <LinearLayout
+                android:id="@+id/l_restaurant_selected_restaurant"
+                android:layout_width="320dp"
+                android:layout_height="150dp"
+                android:orientation="vertical"
+                android:layout_marginTop="5dp"
+                android:visibility="gone"
+                android:background="@drawable/border">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/r_show_restaurant_selected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"

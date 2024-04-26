@@ -22,6 +22,8 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TimePicker;
@@ -37,6 +39,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.adapter.PhotoRestaurantAdapter;
+import com.example.proyectocuisinefood.adapter.RestaurantSelectedAdapter;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.Status;
@@ -73,9 +76,9 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
 
     String selectedItemCategory1, selectedItemCategory2;
     int hour, minute;
-    ImageButton restaurantLogo, restaurantMap, restaurantImage;
+    ImageButton restaurantLogo, restaurantMap;
     EditText restaurantName, restaurantPhone, restaurantCode;
-    Button restaurantDirection, restaurantRelated, continueCreate,
+    Button restaurantDirection, continueCreate,
             mondayOpenSchedule, tuesdayOpenSchedule, wednesdayOpenSchedule, thursdayOpenSchedule, fridayOpenSchedule, saturdayOpenSchedule, sundayOpenSchedule,
             mondayCloseSchedule, tuesdayCloseSchedule, wednesdayCloseSchedule, thursdayCloseSchedule, fridayCloseSchedule, saturdayCloseSchedule, sundayCloseSchedule;
     Switch restaurantTable, restaurantIndication, restaurantVMPay;
@@ -102,19 +105,20 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
     FirebaseFirestore db;
     StorageReference storageReference;
     PlacesClient placesClient;
-    String storagePath = "restaurant/*"; // Ubicacion de la carpeta de imagenes
-    private static final int codeSelectStorage = 200;
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int PLACE_PICKER_REQUEST = 2;
     private Uri imageUrl;
-    String photo = "photo";
     ProgressDialog progressDialog;
-    String imageType, downloadUri, logoRestaurant, tableIndication, tableDistribution, photoRestaurant, idd;
-    RecyclerView recyclerViewPhotoRestaurant;
+    String imageType, downloadUri, logoRestaurant, tableIndication, tableDistribution, photoRestaurant, idd, restaurantId, nameRestaurant, related;
+    RecyclerView recyclerViewPhotoRestaurant, recyclerViewShowRestaurant;
     PhotoRestaurantAdapter photoRestaurantAdapter;
+    SearchView relatedRestaurant;
+    Query queryRestaurant;
+    LinearLayout linearLayoutRestaurantSelected;
+    RestaurantSelectedAdapter restaurantSelectedAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +145,7 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
         restaurantCode = findViewById(R.id.ed_code_restaurant);
 
         restaurantDirection = findViewById(R.id.b_direction_restaurant);
-        restaurantRelated = findViewById(R.id.b_related_restaurant);
+        relatedRestaurant = findViewById(R.id.sv_restaurant);
         continueCreate = findViewById(R.id.b_continue_restaurant);
 
         mondayOpenSchedule = findViewById(R.id.b_monday_oschedule);
@@ -178,7 +182,7 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
         recyclerViewPhotoRestaurant = findViewById(R.id.r_photo_restaurant_profile);
         recyclerViewPhotoRestaurant.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        String restaurantId = getIntent().getStringExtra("restaurantId");
+        restaurantId = getIntent().getStringExtra("restaurantId");
 
         if(restaurantId == null || restaurantId.isEmpty()){
             Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), null);
@@ -213,6 +217,21 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
                 }
             });
         }
+
+        linearLayoutRestaurantSelected = findViewById(R.id.l_restaurant_selected);
+        recyclerViewShowRestaurant = findViewById(R.id.r_show_restaurant_selected);
+        recyclerViewShowRestaurant.setLayoutManager(new LinearLayoutManager(this));
+
+        queryRestaurant = db.collection("restaurant");
+
+        FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                .setQuery(queryRestaurant, Restaurant.class).build();
+
+        restaurantSelectedAdapter = new RestaurantSelectedAdapter(firestoreRecyclerOptions, this);
+        restaurantSelectedAdapter.notifyDataSetChanged();
+        recyclerViewShowRestaurant.setAdapter(restaurantSelectedAdapter);
+
+        searchViewRestaurant();
 
         spinRestaurantCategory1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -296,14 +315,6 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
             }
         });
 
-        restaurantImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                imageType = "photo"; // Indica que se está subiendo una foto general del restaurante
-                requestPermissions();
-            }
-        });
-
         restaurantDirection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -311,6 +322,7 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
                 startPlacePicker();
             }
         });
+
         mondayOpenSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -436,6 +448,51 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
         requestPermissions();
     }
 
+    private void searchViewRestaurant() {
+        relatedRestaurant.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                textSearch(s);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                textSearch(s);
+                return false;
+            }
+        });
+    }
+
+    private void textSearch(String s) {
+        if(s.isEmpty()){
+            linearLayoutRestaurantSelected.setVisibility(View.GONE);
+        } else {
+            linearLayoutRestaurantSelected.setVisibility(View.VISIBLE);
+            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                    .setQuery(queryRestaurant.orderBy("name").startAt(s).endAt(s+"~"), Restaurant.class).build();
+
+            restaurantSelectedAdapter = new RestaurantSelectedAdapter(firestoreRecyclerOptions, this);
+            restaurantSelectedAdapter.startListening();
+            recyclerViewShowRestaurant.setAdapter(restaurantSelectedAdapter);
+        }
+    }
+
+    public void setRestaurantName(String restaurantName) {
+        // Establece el nombre del restaurante en el SearchView
+        if (relatedRestaurant != null) {
+            relatedRestaurant.setQuery(restaurantName, false); // false para que no se dispare el listener de búsqueda
+            linearLayoutRestaurantSelected.setVisibility(View.GONE);
+        }
+    }
+
+    // Método para establecer el ID del restaurante asignado
+    public void setRestaurantAssigned(String restaurantId) {
+        related = restaurantId;
+
+        //Toast.makeText(this, restaurantAssignedId, Toast.LENGTH_SHORT).show();
+    }
+
     private void startPlacePicker() {
         List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
 
@@ -522,7 +579,6 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
                     loadImageIntoButton(restaurantMap, imageUrl.toString());
                     tableDistribution = imageUrl.toString();
                 } else if (imageType.equals("photo")) {
-                    loadImageIntoButton(restaurantImage, imageUrl.toString());
                     photoRestaurant = imageUrl.toString();
                 }
 
@@ -539,7 +595,6 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
                     loadImageIntoButton(restaurantMap, imageUrl.toString());
                     tableDistribution = imageUrl.toString();
                 } else if (imageType.equals("photo")) {
-                    loadImageIntoButton(restaurantImage, imageUrl.toString());
                     photoRestaurant = imageUrl.toString();
                 }
 
@@ -568,8 +623,16 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
     private void sendPhoto(Uri imageUrl) {
         progressDialog.setMessage("Actualizando foto");
         progressDialog.show();
-        String ruteStoragePhoto = storagePath+""+photo+""+mAuth.getUid()+""+imageType;
-        StorageReference reference = storageReference.child(ruteStoragePhoto);
+
+        String ruteStoragePhoto = "restaurant/";
+        StorageReference reference = storageReference.child(ruteStoragePhoto);;
+        if(restaurantId == null || !restaurantId.isEmpty()){
+            ruteStoragePhoto = "restaurant/"+nameRestaurant+"/imagenes/"+mAuth.getUid()+imageType;
+            reference = storageReference.child(ruteStoragePhoto);
+        } else {
+            ruteStoragePhoto = "restaurant/"+mAuth.getUid()+imageType;
+            reference = storageReference.child(ruteStoragePhoto);
+        }
         reference.putFile(imageUrl).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -716,7 +779,7 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
         db.collection("restaurant").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String name = documentSnapshot.getString("name");
+                nameRestaurant = documentSnapshot.getString("name");
                 String category1 = documentSnapshot.getString("category1");
                 String category2 = documentSnapshot.getString("category2");
                 String phone = documentSnapshot.getString("phone");
@@ -781,11 +844,10 @@ public class CreateRestaurant extends AppCompatActivity implements PhotoRestaura
 
                 if(!logoRestaurant.isEmpty() || !photoRestaurant.isEmpty() || !tableDistribution.isEmpty() || logoRestaurant != null || photoRestaurant != null || tableDistribution != null){
                     Picasso.get().load(logoRestaurant).resize(150,150).centerCrop().into(restaurantLogo);
-                    //Picasso.get().load(photoRestaurant).resize(150,150).centerCrop().into(restaurantImage);
                     Picasso.get().load(tableDistribution).resize(150,150).centerCrop().into(restaurantMap);
                 }
 
-                restaurantName.setText(name);
+                restaurantName.setText(nameRestaurant);
                 restaurantPhone.setText(phone);
                 restaurantCode.setText(code);
                 restaurantDirection.setText(direction);

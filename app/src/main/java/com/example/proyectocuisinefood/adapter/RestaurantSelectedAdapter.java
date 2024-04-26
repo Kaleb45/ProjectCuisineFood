@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.proyectocuisinefood.CreateRestaurant;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.SignIn;
 import com.example.proyectocuisinefood.model.Restaurant;
@@ -54,9 +55,11 @@ public class RestaurantSelectedAdapter extends FirestoreRecyclerAdapter<Restaura
 
                 // Enviar el nombre del restaurante al SearchView de SignIn
                 ((SignIn)context).setRestaurantName(restaurantName);
+                ((CreateRestaurant)context).setRestaurantName(restaurantName);
 
                 // Enviar el ID del restaurante a la variable restauranteAsigando
                 ((SignIn)context).setRestaurantAssigned(restaurantId);
+                ((CreateRestaurant)context).setRestaurantAssigned(restaurantId);
             }
         });
     }
