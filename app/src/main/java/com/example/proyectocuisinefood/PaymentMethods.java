@@ -80,8 +80,15 @@ public class PaymentMethods extends AppCompatActivity {
         restaurantId = getIntent().getStringExtra("restaurantId");
         price = getIntent().getStringExtra("totalPrice");
 
-        if(price != null || !price.isEmpty()){
+        if(restaurantId == null && restaurantId.isEmpty() && price != null && !price.isEmpty()){
             getPaymentMethodsCustomer();
+            continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickAssignedPaymentMethods();
+                }
+            });
+        } else if(restaurantId == null && restaurantId.isEmpty()) {
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -267,7 +274,13 @@ public class PaymentMethods extends AppCompatActivity {
         }
 
         if (!date.matches("\\d{2}/\\d{2}")) { // Verifica si la fecha tiene el formato correcto
-            Toast.makeText(this, "La fecha debe tener el formato número/número", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "La fecha debe tener el formato mes/día", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validar que la fecha sea válida
+        if (!isValidDate(date)) {
+            Toast.makeText(this, "La fecha ingresada no es válida", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -292,6 +305,19 @@ public class PaymentMethods extends AppCompatActivity {
             assignedPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
         } else {
             createPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+        }
+    }
+
+    // Método para validar si la fecha es válida
+    private boolean isValidDate(String date) {
+        try {
+            String[] parts = date.split("/");
+            int month = Integer.parseInt(parts[0]);
+            int day = Integer.parseInt(parts[1]);
+            // Validar que el mes esté entre 1 y 12 y que el día esté entre 1 y 31
+            return (month >= 1 && month <= 12) && (day >= 1 && day <= 31);
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 

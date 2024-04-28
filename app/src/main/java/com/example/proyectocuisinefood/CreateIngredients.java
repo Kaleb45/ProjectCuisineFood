@@ -14,12 +14,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.adapter.MenuAdapter;
+import com.example.proyectocuisinefood.adapter.RestaurantSelectedAdapter;
 import com.example.proyectocuisinefood.model.Dish;
 import com.example.proyectocuisinefood.model.Ingredients;
+import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -36,7 +39,9 @@ import java.util.Set;
 
 public class CreateIngredients extends DialogFragment {
     EditText newIngredient;
-    Button addIngredient;
+    Button addIngredient, subtractIngredient;
+    SearchView searchIngredient;
+    Query query;
     RecyclerView recyclerViewShowIngredient;
     IngredientsAdapter ingredientsAdapter;
     FirebaseFirestore db;
@@ -56,6 +61,8 @@ public class CreateIngredients extends DialogFragment {
 
         newIngredient = v.findViewById(R.id.ed_new_ingredient);
         addIngredient = v.findViewById(R.id.b_add_ingredient);
+        subtractIngredient = v.findViewById(R.id.b_subtract_ingredient);
+        searchIngredient = v.findViewById(R.id.sv_ingredient);
 
         recyclerViewShowIngredient = v.findViewById(R.id.r_show_ingredient);
         recyclerViewShowIngredient.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -67,7 +74,14 @@ public class CreateIngredients extends DialogFragment {
             }
         });
 
-        Query query = db.collection("ingredients");
+        subtractIngredient.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickSubtractIngredient();
+            }
+        });
+
+        query = db.collection("ingredients");
 
         FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
                 .setQuery(query, Ingredients.class).build();
@@ -76,7 +90,72 @@ public class CreateIngredients extends DialogFragment {
         ingredientsAdapter.notifyDataSetChanged();
         recyclerViewShowIngredient.setAdapter(ingredientsAdapter);
 
+        searchViewRestaurant();
+
         return v;
+    }
+
+    private void searchViewRestaurant() {
+        searchIngredient.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                textSearch(s);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                textSearch(s);
+                return false;
+            }
+        });
+    }
+
+    private void textSearch(String s) {
+        FirestoreRecyclerOptions<Ingredients> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ingredients>()
+                .setQuery(query.orderBy("name").startAt(s).endAt(s+"~"), Ingredients.class).build();
+
+        ingredientsAdapter = new IngredientsAdapter(firestoreRecyclerOptions);
+        ingredientsAdapter.startListening();
+        recyclerViewShowIngredient.setAdapter(ingredientsAdapter);
+    }
+
+    private void onClickSubtractIngredient() {
+        // Obtener los ingredientes seleccionados del adaptador
+        ArrayList<String> selectedIngredientIds = ingredientsAdapter.getSelectedIngredientIds();
+
+        // Verificar si hay ingredientes seleccionados
+        if (selectedIngredientIds.isEmpty()) {
+            Toast.makeText(getContext(), "No hay ingredientes seleccionados para eliminar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Eliminar los ingredientes seleccionados de la base de datos
+        deleteSelectedIngredients(selectedIngredientIds);
+    }
+
+    private void deleteSelectedIngredients(ArrayList<String> selectedIngredientIds) {
+        // Iterar sobre los ingredientes seleccionados y eliminarlos de la base de datos
+        for (String ingredientId : selectedIngredientIds) {
+            db.collection("ingredients").document(ingredientId)
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            // Ingredientes eliminados con éxito
+                            Toast.makeText(getContext(), "Ingrediente eliminado con éxito", Toast.LENGTH_SHORT).show();
+                            // Actualizar la lista de ingredientes en el adaptador después de eliminar
+                            ingredientsAdapter.notifyDataSetChanged();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Error al eliminar ingredientes
+                            Toast.makeText(getContext(), "Error al eliminar ingredientes: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 
 

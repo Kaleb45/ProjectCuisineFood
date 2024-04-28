@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".CreateIngredients"
     android:orientation="vertical">
 
@@ -19,25 +19,61 @@
             android:orientation="horizontal"
             android:layout_gravity="center">
 
-            <EditText
-                android:id="@+id/ed_new_ingredient"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:hint="Ingrediente"
-                android:gravity="center"
-                android:textSize="18sp"
-                android:layout_gravity="center"
-                android:layout_marginLeft="20dp"/>
+                android:orientation="vertical"
+                android:layout_gravity="start|center"
+                android:padding="5dp">
 
-            <Button
-                android:id="@+id/b_add_ingredient"
-                android:layout_width="wrap_content"
+                <SearchView
+                    android:id="@+id/sv_ingredient"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:iconifiedByDefault="false"
+                    android:queryHint="Buscar Ingrediente"
+                    app:iconifiedByDefault="false"
+                    android:visibility="visible"
+                    android:layout_gravity="center"/>
+
+                <EditText
+                    android:id="@+id/ed_new_ingredient"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Ingrediente"
+                    android:gravity="center"
+                    android:textSize="18sp"
+                    android:layout_gravity="left"
+                    android:layout_marginTop="5dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="+"
-                android:backgroundTint="@color/anaranjado"
-                android:textStyle="bold"
-                android:layout_marginLeft="30dp"
-                android:textSize="18sp"/>
+                android:orientation="vertical"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="end|center">
+
+                <Button
+                    android:id="@+id/b_add_ingredient"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+"
+                    android:backgroundTint="@color/anaranjado"
+                    android:textStyle="bold"
+                    android:textSize="18sp"/>
+
+                <Button
+                    android:id="@+id/b_subtract_ingredient"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:backgroundTint="@color/anaranjado"
+                    android:textStyle="bold"
+                    android:textSize="18sp"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -53,13 +53,18 @@ public class RestaurantSelectedAdapter extends FirestoreRecyclerAdapter<Restaura
                 String restaurantName = model.getName();
                 String restaurantId = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
 
-                // Enviar el nombre del restaurante al SearchView de SignIn
-                ((SignIn)context).setRestaurantName(restaurantName);
-                ((CreateRestaurant)context).setRestaurantName(restaurantName);
-
-                // Enviar el ID del restaurante a la variable restauranteAsigando
-                ((SignIn)context).setRestaurantAssigned(restaurantId);
-                ((CreateRestaurant)context).setRestaurantAssigned(restaurantId);
+                // Verificar si el contexto es una instancia de SignIn
+                if (context instanceof SignIn) {
+                    // Enviar el nombre y el ID del restaurante al SearchView de SignIn
+                    ((SignIn) context).setRestaurantName(restaurantName);
+                    ((SignIn) context).setRestaurantAssigned(restaurantId);
+                }
+                // Verificar si el contexto es una instancia de CreateRestaurant
+                else if (context instanceof CreateRestaurant) {
+                    // Enviar el nombre y el ID del restaurante a CreateRestaurant
+                    ((CreateRestaurant) context).setRestaurantName(restaurantName);
+                    ((CreateRestaurant) context).setRestaurantAssigned(restaurantId);
+                }
             }
         });
     }
