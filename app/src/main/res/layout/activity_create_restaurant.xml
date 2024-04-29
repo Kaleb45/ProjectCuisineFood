@@ -352,6 +352,7 @@
                 android:layout_height="wrap_content"
                 android:text="Dirección"
                 android:textSize="18sp"
+                android:textColor="@color/white"
                 android:backgroundTint="@color/anaranjado"
                 android:layout_marginTop="15dp"/>
 
@@ -504,6 +505,8 @@
                 android:layout_height="wrap_content"
                 android:text="Continuar"
                 android:textSize="18sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
                 android:backgroundTint="@color/anaranjado"
                 android:layout_marginTop="15dp"
                 android:layout_marginVertical="20dp"/>
