@@ -622,7 +622,7 @@ public class CreateRestaurant extends AppCompatActivity {
 
         String ruteStoragePhoto = "restaurant/";
         StorageReference reference = storageReference.child(ruteStoragePhoto);;
-        if(restaurantId != null || !restaurantId.isEmpty()){
+        if(restaurantId != null){
             if(imageType.equals("logo")){
                 ruteStoragePhoto = "restaurant/"+nameRestaurant+"/imagenes/"+mAuth.getUid()+imageType;
             } else if(imageType.equals("photo")){
@@ -632,7 +632,11 @@ public class CreateRestaurant extends AppCompatActivity {
             }
             reference = storageReference.child(ruteStoragePhoto);
         } else {
-            ruteStoragePhoto = "restaurant/"+mAuth.getUid()+imageType;
+            if(imageType.equals("logo") || imageType.equals("tableDistribution")){
+                ruteStoragePhoto = "restaurant/"+mAuth.getUid()+imageType;
+            } else if(imageType.equals("photo")){
+                ruteStoragePhoto = "restaurant/"+mAuth.getUid()+imageType+positionPhoto;
+            }
             reference = storageReference.child(ruteStoragePhoto);
         }
         reference.putFile(imageUrl).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -648,7 +652,7 @@ public class CreateRestaurant extends AppCompatActivity {
                                 logoRestaurant = uri.toString();
                             } else if (imageType.equals("tableDistribution")) {
                                 tableDistribution = uri.toString();
-                            } else if (imageType.equals("photo")) {
+                            } else if (imageType.equals("photo") && uri != null) {
                                 photoRestaurantAdapter.setPhotoUrls(uri.toString());
                             }
                             Toast.makeText(CreateRestaurant.this, "Foto actualizada", Toast.LENGTH_SHORT).show();

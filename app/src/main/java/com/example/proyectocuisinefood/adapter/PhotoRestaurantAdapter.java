@@ -58,8 +58,17 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
         final int pos = position;
 
         if(newRestaurant.equals("Nuevo")){
-            for (int i = 0; i < 10; i++) {
-                holder.photo[i].setImageResource(R.drawable.ic_upload);
+            if (photoUrls != null && !photoUrls.isEmpty()) {
+                for (int i = 0; i < photoUrls.size(); i++) {
+                    if (photoUrls.get(i) != null && !photoUrls.get(i).isEmpty()) {
+                        Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
+                        holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+                    }
+                }
+            } else {
+                for (int i = 0; i < 10; i++) {
+                    holder.photo[i].setImageResource(R.drawable.ic_upload);
+                }
             }
         } else {
             photoUrls = model.getPhoto();
@@ -100,7 +109,7 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
                 @Override
                 public boolean onLongClick(View v) {
                     if(userType.equals("Administrador")) {
-                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
+                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size() && newRestaurant.equals("Modificación")) {
                             // Eliminar la imagen seleccionada y su URL correspondiente
                             removePhotoUrl(finalI, pos);
                         }
@@ -196,7 +205,11 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
     }
 
     public void setPhotoUrls(String photoUrlIds){
-        if(!photoUrls.contains(photoUrlIds)){
+        if (photoUrls == null) {
+            photoUrls = new ArrayList<>();
+            notifyDataSetChanged();
+        }
+        if(photoUrlIds != null){
             photoUrls.add(photoUrlIds);
             notifyDataSetChanged();
         }
