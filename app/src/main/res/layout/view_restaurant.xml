@@ -87,16 +87,16 @@
 
                 <ImageButton
                     android:id="@+id/imb_delete_restaurant"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:src="@drawable/ic_delete"
                     android:background="@android:color/transparent"
                     android:visibility="gone"/>
 
                 <ImageButton
                     android:id="@+id/imb_edit_restaurant"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:src="@drawable/ic_edit"
                     android:background="@android:color/transparent"
                     android:layout_marginLeft="15dp"

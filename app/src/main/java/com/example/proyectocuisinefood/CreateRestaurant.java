@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -75,7 +77,7 @@ import java.util.Map;
 public class CreateRestaurant extends AppCompatActivity {
 
     String selectedItemCategory1, selectedItemCategory2;
-    int hour, minute;
+    int hour, minute, positionPhoto;
     ImageButton restaurantLogo, restaurantMap;
     EditText restaurantName, restaurantPhone, restaurantCode;
     Button restaurantDirection, continueCreate,
@@ -113,7 +115,7 @@ public class CreateRestaurant extends AppCompatActivity {
     private Uri imageUrl;
     ProgressDialog progressDialog;
     String imageType, downloadUri, logoRestaurant, tableIndication, tableDistribution, idd, restaurantId, nameRestaurant, related;
-    RecyclerView /*recyclerViewPhotoRestaurant,*/ recyclerViewShowRestaurant;
+    RecyclerView recyclerViewPhotoRestaurant, recyclerViewShowRestaurant;
     PhotoRestaurantAdapter photoRestaurantAdapter;
     SearchView relatedRestaurant;
     Query queryRestaurant;
@@ -180,8 +182,8 @@ public class CreateRestaurant extends AppCompatActivity {
         adapterSpinCategory2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinRestaurantCategory2.setAdapter(adapterSpinCategory2);
 
-        //recyclerViewPhotoRestaurant = findViewById(R.id.r_photo_restaurant);
-        //recyclerViewPhotoRestaurant.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewPhotoRestaurant = findViewById(R.id.r_photo_restaurant);
+        recyclerViewPhotoRestaurant.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         linearLayoutRestaurantSelected = findViewById(R.id.l_create_restaurant_selected);
         recyclerViewShowRestaurant = findViewById(R.id.r_create_show_restaurant_selected);
@@ -211,14 +213,14 @@ public class CreateRestaurant extends AppCompatActivity {
         } else {
             continueCreate.setText("Actualizar el Restaurante");
             getRestaurant(restaurantId);
-            /*Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), restaurantId);
+            Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), restaurantId);
 
             FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
                     .setQuery(query, Restaurant.class).build();
 
             photoRestaurantAdapter = new PhotoRestaurantAdapter(firestoreRecyclerOptions, this);
             photoRestaurantAdapter.notifyDataSetChanged();
-            recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);*/
+            recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
             continueCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -567,12 +569,8 @@ public class CreateRestaurant extends AppCompatActivity {
                     } else if (imageType.equals("tableDistribution")) {
                         loadImageIntoButton(restaurantMap, imageUrl.toString());
                         tableDistribution = imageUrl.toString();
-                    } else if (imageType.equals("photo")) {
-                        photoRestaurantAdapter.setPhotoUrls(imageUrl.toString());
                     }
 
-                    //getPhotos();
-                    getRestaurantSelected();
                     sendPhoto(imageUrl);
                 } else {
                     Toast.makeText(this, "No se pudo obtener la imagen seleccionada", Toast.LENGTH_SHORT).show();
@@ -589,13 +587,8 @@ public class CreateRestaurant extends AppCompatActivity {
                     } else if (imageType.equals("tableDistribution")) {
                         loadImageIntoButton(restaurantMap, imageUrl.toString());
                         tableDistribution = imageUrl.toString();
-                    } else if (imageType.equals("photo")) {
-                        photoRestaurantAdapter.setPhotoUrls(imageUrl.toString());
-                        photoRestaurant.add(imageUrl.toString());
                     }
 
-                    //getPhotos();
-                    getRestaurantSelected();
                     sendPhoto(imageUrl);
                 } else {
                     Toast.makeText(this, "Error al procesar la acción", Toast.LENGTH_SHORT).show();
@@ -605,24 +598,19 @@ public class CreateRestaurant extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    /*private void getPhotos(){
-        photoRestaurantAdapter.notifyDataSetChanged();
-        recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
-    }*/
-
-    private void getRestaurantSelected(){
-        restaurantSelectedAdapter.notifyDataSetChanged();
-        recyclerViewShowRestaurant.setAdapter(restaurantSelectedAdapter);
-    }
-
     public void setImageType(String imageType) {
         this.imageType = imageType;
+    }
+
+    public void setPositionPhoto(int positionPhoto){
+        this.positionPhoto = positionPhoto;
     }
 
     // Método para establecer la imagen en el ImageButton correspondiente
     private void loadImageIntoButton(ImageButton imageButton, String imageUrl) {
         // Utilizar Picasso para cargar la imagen en el ImageButton
-        Picasso.get().load(imageUrl).resize(150,150).into(imageButton);
+        Picasso.get().load(imageUrl).resize(300,300).centerCrop().into(imageButton);
+        imageButton.setBackground(new ColorDrawable(Color.TRANSPARENT));
     }
 
 
@@ -633,9 +621,11 @@ public class CreateRestaurant extends AppCompatActivity {
         String ruteStoragePhoto = "restaurant/";
         StorageReference reference = storageReference.child(ruteStoragePhoto);;
         if(restaurantId != null || !restaurantId.isEmpty()){
-            if(imageType.equals("logo") || imageType.equals("photo")){
+            if(imageType.equals("logo")){
                 ruteStoragePhoto = "restaurant/"+nameRestaurant+"/imagenes/"+mAuth.getUid()+imageType;
-            } else if(imageType.equals("tableDistribution")){
+            } else if(imageType.equals("photo")){
+                ruteStoragePhoto = "restaurant/"+nameRestaurant+"/imagenes/"+mAuth.getUid()+imageType+positionPhoto;
+            }else if(imageType.equals("tableDistribution")){
                 ruteStoragePhoto = "restaurant/"+nameRestaurant+"/mesas/"+mAuth.getUid()+imageType;
             }
             reference = storageReference.child(ruteStoragePhoto);
@@ -652,7 +642,13 @@ public class CreateRestaurant extends AppCompatActivity {
                     uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            downloadUri= uri.toString();
+                            if (imageType.equals("logo")) {
+                                logoRestaurant = uri.toString();
+                            } else if (imageType.equals("tableDistribution")) {
+                                tableDistribution = uri.toString();
+                            } else if (imageType.equals("photo")) {
+                                photoRestaurantAdapter.setPhotoUrls(uri.toString());
+                            }
                             Toast.makeText(CreateRestaurant.this, "Foto actualizada", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                         }
@@ -849,16 +845,20 @@ public class CreateRestaurant extends AppCompatActivity {
                         });
 
                 logoRestaurant = documentSnapshot.getString("logo");
-                //photoRestaurant = photoRestaurantAdapter.getPhotoUrls();
+                photoRestaurant = photoRestaurantAdapter.getPhotoUrls();
                 tableIndication = documentSnapshot.getString("tableIndication");
                 tableDistribution = documentSnapshot.getString("tableDistribution");
+                spinRestaurantCategory1.setSelection(Arrays.asList(typeCategory1).indexOf(category1));
+                spinRestaurantCategory2.setSelection(Arrays.asList(typeCategory2).indexOf(category2));
 
                 if(logoRestaurant != null || !logoRestaurant.isEmpty()){
-                    Picasso.get().load(logoRestaurant).resize(150,150).centerCrop().into(restaurantLogo);
+                    Picasso.get().load(logoRestaurant).resize(300,300).centerCrop().into(restaurantLogo);
+                    restaurantLogo.setBackground(new ColorDrawable(Color.TRANSPARENT));
                 }
 
                 if(tableDistribution != null){
-                    Picasso.get().load(tableDistribution).resize(150,150).centerCrop().into(restaurantMap);
+                    Picasso.get().load(tableDistribution).resize(300,300).centerCrop().into(restaurantMap);
+                    restaurantMap.setBackground(new ColorDrawable(Color.TRANSPARENT));
                     restaurantTable.setChecked(true);
                 }
 
@@ -1038,14 +1038,14 @@ public class CreateRestaurant extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //photoRestaurantAdapter.startListening();
+        photoRestaurantAdapter.startListening();
         restaurantSelectedAdapter.startListening();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        //photoRestaurantAdapter.stopListening();
+    protected void onDestroy() {
+        super.onDestroy();
+        photoRestaurantAdapter.stopListening();
         restaurantSelectedAdapter.stopListening();
     }
 

@@ -48,9 +48,7 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
         final int pos = position;
-
         holder.name.setText(model.getName());
-
 
         String photoLogo = model.getLogo();
         try{
@@ -135,7 +133,6 @@ public class RestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, Rest
                 }
             });
         }
-
     }
 
     // Método para eliminar un platillo de la base de datos

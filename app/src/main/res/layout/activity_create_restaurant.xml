@@ -442,7 +442,20 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="5dp"
+                android:background="@drawable/border">
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/r_photo_restaurant"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible"/>
+
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/ed_code_restaurant"

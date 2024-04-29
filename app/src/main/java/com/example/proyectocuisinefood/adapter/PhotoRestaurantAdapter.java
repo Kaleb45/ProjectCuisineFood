@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -73,13 +74,71 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
                     if (userType.equals("Cliente")) {
                         showImageDialog(photoUrls.get(finalI));
                     } else if(userType.equals("Administrador")) {
+                        ((CreateRestaurant) context).setImageType("photo");
+                        ((CreateRestaurant) context).setPositionPhoto(finalI);
                         uploadImage();
-                        notifyDataSetChanged();
                     }
                 }
             });
         }
 
+        // Agregar OnLongClickListener a cada ImageButton
+        for (int i = 0; i < 10; i++) {
+            final int index = i;
+            holder.photo[i].setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(userType.equals("Administrador")) {
+                        // Eliminar la imagen seleccionada
+                        removePhotoUrl(index, pos);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
+    private void removePhotoUrl(int index, int position) {
+        // Verificar que la posición sea válida
+        if (index >= 0 && index < photoUrls.size()) {
+            // Obtener la ID del restaurante al que pertenece la imagen
+            String restaurantId = getSnapshots().getSnapshot(position).getId();
+
+            // Obtener la URL de la imagen a eliminar
+            String imageUrl = photoUrls.get(index);
+
+            // Eliminar la URL de la imagen en la posición indicada
+            photoUrls.remove(index);
+
+            // Actualizar el documento del restaurante en la base de datos
+            updateRestaurantPhotoUrls(restaurantId, photoUrls);
+
+            // Notificar al adaptador sobre el cambio de datos
+            notifyDataSetChanged();
+        }
+    }
+
+    private void updateRestaurantPhotoUrls(String restaurantId, ArrayList<String> photoUrls) {
+        // Obtener la referencia al documento del restaurante en la base de datos
+        DocumentReference restaurantRef = FirebaseFirestore.getInstance().collection("restaurant").document(restaurantId);
+
+        // Actualizar el campo "photo" con la nueva lista de URLs
+        restaurantRef.update("photo", photoUrls)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Éxito al actualizar la base de datos
+                        Toast.makeText(context, "Imagen eliminada correctamente de la base de datos", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Error al actualizar la base de datos
+                        Toast.makeText(context, "Error al eliminar la imagen de la base de datos", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void uploadImage() {
@@ -123,7 +182,6 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
             photoUrls.add(photoUrlIds);
             notifyDataSetChanged();
         }
-
     }
 
     private void showImageDialog(String imageUrl) {
@@ -180,7 +238,6 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
             photo[7] = itemView.findViewById(R.id.imb_photo_restaurant_profile_8);
             photo[8] = itemView.findViewById(R.id.imb_photo_restaurant_profile_9);
             photo[9] = itemView.findViewById(R.id.imb_photo_restaurant_profile_10);
-
         }
     }
 }

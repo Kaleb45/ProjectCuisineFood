@@ -15,6 +15,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -225,7 +227,11 @@ public class CreateMenu extends AppCompatActivity {
 
                 ingredientIds = (ArrayList<String>) documentSnapshot.get("ingredientIds");
 
-                Picasso.get().load(photoDish).resize(150,150).into(dishImage);
+                if(photoDish != null || !photoDish.isEmpty()){
+                    Picasso.get().load(photoDish).resize(300,300).centerCrop().into(dishImage);
+                    dishImage.setBackground(new ColorDrawable(Color.TRANSPARENT));
+                }
+
                 dishName.setText(name);
                 dishCost.setText(cost);
                 dishDescription.setText(description);
@@ -388,6 +394,7 @@ public class CreateMenu extends AppCompatActivity {
         try {
             // Utilizar Picasso para cargar la imagen en el ImageButton
             Picasso.get().load(imageUrl.toString()).resize(300, 300).centerCrop().into(imageButton);
+            imageButton.setBackground(new ColorDrawable(Color.TRANSPARENT));
         } catch (Exception e) {
             // Manejar cualquier excepción que ocurra durante la carga de la imagen
             Log.e("LoadImageError", "Error loading image: " + e.getMessage());
@@ -434,7 +441,7 @@ public class CreateMenu extends AppCompatActivity {
                                     uriTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
                                         @Override
                                         public void onSuccess(Uri uri) {
-                                            downloadUri = uri.toString();
+                                            photoDish = uri.toString();
                                             Toast.makeText(CreateMenu.this, "Foto actualizada", Toast.LENGTH_SHORT).show();
                                             progressDialog.dismiss();
                                         }
