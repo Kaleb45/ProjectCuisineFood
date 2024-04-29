@@ -79,6 +79,7 @@ public class RestaurantProfile extends AppCompatActivity {
         String restaurantId = getIntent().getStringExtra("restaurantId");
 
         if(restaurantId != null || !restaurantId.isEmpty()){
+            photoRestaurantAdapter.setNewRestaurant("Modificación");
             getRestaurant(restaurantId);
             Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), restaurantId);
 
