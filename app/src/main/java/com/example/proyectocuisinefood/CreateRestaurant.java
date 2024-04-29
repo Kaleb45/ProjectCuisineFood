@@ -617,6 +617,12 @@ public class CreateRestaurant extends AppCompatActivity {
 
 
     private void sendPhoto(Uri imageUrl) {
+        if(nameRestaurant == null || nameRestaurant.isEmpty()){
+            Toast.makeText(this, "Ingrese primero un nombre de restaurante", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        nameRestaurant = restaurantName.getText().toString().trim();
         progressDialog.setMessage("Actualizando foto");
         progressDialog.show();
 
@@ -632,10 +638,12 @@ public class CreateRestaurant extends AppCompatActivity {
             }
             reference = storageReference.child(ruteStoragePhoto);
         } else {
-            if(imageType.equals("logo") || imageType.equals("tableDistribution")){
-                ruteStoragePhoto = "restaurant/"+mAuth.getUid()+imageType;
+            if(imageType.equals("logo")){
+                ruteStoragePhoto = "restaurant/"+nameRestaurant+"/imagenes/"+mAuth.getUid()+imageType;
             } else if(imageType.equals("photo")){
-                ruteStoragePhoto = "restaurant/"+mAuth.getUid()+imageType+positionPhoto;
+                ruteStoragePhoto = "restaurant/"+nameRestaurant+"/imagenes/"+mAuth.getUid()+imageType+positionPhoto;
+            } else if(imageType.equals("tableDistribution")){
+                ruteStoragePhoto = "restaurant/"+nameRestaurant+"/mesas/"+mAuth.getUid()+imageType;
             }
             reference = storageReference.child(ruteStoragePhoto);
         }
