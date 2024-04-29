@@ -109,7 +109,7 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
                 @Override
                 public boolean onLongClick(View v) {
                     if(userType.equals("Administrador")) {
-                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size() && newRestaurant.equals("Modificación")) {
+                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
                             // Eliminar la imagen seleccionada y su URL correspondiente
                             removePhotoUrl(finalI, pos);
                         }
@@ -139,7 +139,9 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
             photoUrls.remove(index);
 
             // Actualizar el documento del restaurante en la base de datos
-            updateRestaurantPhotoUrls(restaurantId, photoUrls);
+            if(newRestaurant.equals("Modificación")){
+                updateRestaurantPhotoUrls(restaurantId, photoUrls);
+            }
 
             // Notificar al adaptador sobre el cambio de datos
             notifyDataSetChanged();
