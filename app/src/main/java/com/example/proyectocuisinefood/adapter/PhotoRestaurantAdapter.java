@@ -41,7 +41,7 @@ import java.util.ArrayList;
 public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, PhotoRestaurantAdapter.ViewHolder> {
 
     private Context context;
-    private String userType = "";
+    private String userType, newRestaurant;
     private ArrayList<String> photoUrls;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
@@ -56,13 +56,22 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
         final int pos = position;
-        photoUrls = model.getPhoto();
 
-        // Asegurarse de que la lista de URLs no sea nula y contenga al menos una URL
-        for(int i = 0; i < photoUrls.size(); i++){
-            if(photoUrls.get(i) != null || !photoUrls.get(i).isEmpty()) {
-                Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
-                holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+        if(newRestaurant.equals("Nuevo")){
+            for (int i = 0; i < 10; i++) {
+                holder.photo[i].setImageResource(R.drawable.ic_upload);
+            }
+        } else {
+            photoUrls = model.getPhoto();
+
+            // Asegurarse de que la lista de URLs no sea nula y contenga al menos una URL
+            if (photoUrls != null && !photoUrls.isEmpty()) {
+                for (int i = 0; i < photoUrls.size(); i++) {
+                    if (photoUrls.get(i) != null && !photoUrls.get(i).isEmpty()) {
+                        Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
+                        holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+                    }
+                }
             }
         }
 
@@ -72,7 +81,9 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
                 @Override
                 public void onClick(View view) {
                     if (userType.equals("Cliente")) {
-                        showImageDialog(photoUrls.get(finalI));
+                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
+                            showImageDialog(photoUrls.get(finalI));
+                        }
                     } else if(userType.equals("Administrador")) {
                         ((CreateRestaurant) context).setImageType("photo");
                         ((CreateRestaurant) context).setPositionPhoto(finalI);
@@ -84,19 +95,26 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
 
         // Agregar OnLongClickListener a cada ImageButton
         for (int i = 0; i < 10; i++) {
-            final int index = i;
+            int finalI = i;
             holder.photo[i].setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     if(userType.equals("Administrador")) {
-                        // Eliminar la imagen seleccionada
-                        removePhotoUrl(index, pos);
+                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
+                            // Eliminar la imagen seleccionada y su URL correspondiente
+                            removePhotoUrl(finalI, pos);
+                        }
+
                         return true;
                     }
                     return false;
                 }
             });
         }
+    }
+
+    public void setNewRestaurant(String newRestaurant) {
+        this.newRestaurant = newRestaurant;
     }
 
     private void removePhotoUrl(int index, int position) {

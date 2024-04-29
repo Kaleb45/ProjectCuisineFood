@@ -114,7 +114,7 @@ public class CreateRestaurant extends AppCompatActivity {
     private static final int PLACE_PICKER_REQUEST = 2;
     private Uri imageUrl;
     ProgressDialog progressDialog;
-    String imageType, downloadUri, logoRestaurant, tableIndication, tableDistribution, idd, restaurantId, nameRestaurant, related;
+    String imageType, logoRestaurant, tableIndication, tableDistribution, idd, restaurantId, nameRestaurant, related;
     RecyclerView recyclerViewPhotoRestaurant, recyclerViewShowRestaurant;
     PhotoRestaurantAdapter photoRestaurantAdapter;
     SearchView relatedRestaurant;
@@ -189,6 +189,15 @@ public class CreateRestaurant extends AppCompatActivity {
         recyclerViewShowRestaurant = findViewById(R.id.r_create_show_restaurant_selected);
         recyclerViewShowRestaurant.setLayoutManager(new LinearLayoutManager(this));
 
+        Query query = db.collection("restaurant");
+
+        FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
+                .setQuery(query, Restaurant.class).build();
+
+        photoRestaurantAdapter = new PhotoRestaurantAdapter(firestoreRecyclerOptions, this);
+        photoRestaurantAdapter.notifyDataSetChanged();
+        recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
+
         queryRestaurant = db.collection("restaurant");
 
         FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptionsRestaurant = new FirestoreRecyclerOptions.Builder<Restaurant>()
@@ -203,7 +212,7 @@ public class CreateRestaurant extends AppCompatActivity {
         restaurantId = getIntent().getStringExtra("restaurantId");
 
         if(restaurantId == null || restaurantId.isEmpty()){
-
+            photoRestaurantAdapter.setNewRestaurant("Nuevo");
             continueCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -211,16 +220,9 @@ public class CreateRestaurant extends AppCompatActivity {
                 }
             });
         } else {
+            photoRestaurantAdapter.setNewRestaurant("Modificación");
             continueCreate.setText("Actualizar el Restaurante");
             getRestaurant(restaurantId);
-            Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), restaurantId);
-
-            FirestoreRecyclerOptions<Restaurant> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Restaurant>()
-                    .setQuery(query, Restaurant.class).build();
-
-            photoRestaurantAdapter = new PhotoRestaurantAdapter(firestoreRecyclerOptions, this);
-            photoRestaurantAdapter.notifyDataSetChanged();
-            recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
             continueCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
