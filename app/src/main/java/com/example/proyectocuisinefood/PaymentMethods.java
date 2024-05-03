@@ -1,10 +1,12 @@
 package com.example.proyectocuisinefood;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.icu.math.BigDecimal;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -30,7 +32,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,10 +51,16 @@ public class PaymentMethods extends AppCompatActivity {
     FirebaseFirestore db;
     String restaurantId, typePaymentMethods, userType, price, paymentMethodId;
 
+    public static final Integer REQUEST_CODE_PAYMENT = 5;
+    public static final Integer REQUEST_CODE_PAYMENT_RESULT = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_methods);
+        //ClipApi.init(getApplication(), new ClipPlusApi());
+
+
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -350,7 +358,9 @@ public class PaymentMethods extends AppCompatActivity {
                 paymentMethodId = documentReference.getId();
 
                 // Actualizar las órdenes del usuario con el ID del método de pago
-                updateOrdersWithPaymentMethod(paymentMethodId);
+                //updateOrdersWithPaymentMethod(paymentMethodId);
+
+                //initClipPaymentMethods(paymentMethodId);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -359,6 +369,41 @@ public class PaymentMethods extends AppCompatActivity {
             }
         });
     }
+
+    /*private void initClipPaymentMethods(String id) {
+        BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(price));
+        ClipPayment clipPayment = new ClipPayment.Builder()
+                .amount(amount.toBigDecimal())
+                .customTransactionId(id)
+                .enableTips(true)
+                .roundTips(true)
+                .enableContactless(true)
+                .build();
+
+        ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT);
+
+    }*/
+
+    /*@Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        String content;
+        if (requestCode == REQUEST_CODE_PAYMENT) {
+            switch(data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE)) {
+                case StatusCode . SUCCESSFUL :
+                    ClipTransaction transactionResult = data . getParcelableExtra (StatusCode.RESULT_PAYMENT_DATA);
+                    // Transaction succeeded
+                    break;
+                case StatusCode . FAILURE :
+                    int errorCode = data . getIntExtra (StatusCode.RESULT_ERROR, -1);
+                    String errorCodeDesc = data . getStringExtra (StatusCode.RESULT_ERROR_DESC);
+                    String messageError = data . getStringExtra (StatusCode.RESULT_ERROR_MESSAGE);
+                    // Transaction failed
+                    break;
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }*/
 
     private void updateOrdersWithPaymentMethod(String id) {
         db.collection("orders").whereEqualTo("userId", mAuth.getUid()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
