@@ -32,6 +32,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.payclip.common.StatusCode;
+import com.payclip.core_ui.ClipLoginActivity;
+import com.payclip.dspread.ClipPlusApi;
+import com.payclip.payments.models.transaction.ClipTransaction;
+import com.payclip.paymentui.Clip;
+import com.payclip.paymentui.client.ClipApi;
+import com.payclip.paymentui.client.LoginListener;
+import com.payclip.paymentui.models.ClipPayment;
 
 
 import java.util.HashMap;
@@ -58,8 +66,6 @@ public class PaymentMethods extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_methods);
-        //ClipApi.init(getApplication(), new ClipPlusApi());
-
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -88,7 +94,15 @@ public class PaymentMethods extends AppCompatActivity {
         restaurantId = getIntent().getStringExtra("restaurantId");
         price = getIntent().getStringExtra("totalPrice");
 
-        if(restaurantId == null && restaurantId.isEmpty() && price != null && !price.isEmpty()){
+        if(restaurantId != null && !restaurantId.isEmpty() && price != null && !price.isEmpty()){
+            getPaymentMethodsCustomer();
+            continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickAssignedPaymentMethods();
+                }
+            });
+        } else if(restaurantId == null && restaurantId.isEmpty() && price != null && !price.isEmpty()){
             getPaymentMethodsCustomer();
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -103,7 +117,7 @@ public class PaymentMethods extends AppCompatActivity {
                     onClickAssignedPaymentMethods();
                 }
             });
-        } else {
+        } else if(restaurantId != null && !restaurantId.isEmpty() && price == null && price.isEmpty()){
             getPaymentMethodsAdmin(restaurantId);
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -360,7 +374,7 @@ public class PaymentMethods extends AppCompatActivity {
                 // Actualizar las órdenes del usuario con el ID del método de pago
                 //updateOrdersWithPaymentMethod(paymentMethodId);
 
-                //initClipPaymentMethods(paymentMethodId);
+                initClipPaymentMethods(paymentMethodId);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -370,21 +384,25 @@ public class PaymentMethods extends AppCompatActivity {
         });
     }
 
-    /*private void initClipPaymentMethods(String id) {
+    private void initClipPaymentMethods(String id) {
+
+        ClipApi.init(getApplication(), new ClipPlusApi());
+
+
+
         BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(price));
         ClipPayment clipPayment = new ClipPayment.Builder()
                 .amount(amount.toBigDecimal())
                 .customTransactionId(id)
                 .enableTips(true)
                 .roundTips(true)
-                .enableContactless(true)
                 .build();
 
         ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT);
 
-    }*/
+    }
 
-    /*@Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         String content;
         if (requestCode == REQUEST_CODE_PAYMENT) {
@@ -403,7 +421,7 @@ public class PaymentMethods extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }*/
+    }
 
     private void updateOrdersWithPaymentMethod(String id) {
         db.collection("orders").whereEqualTo("userId", mAuth.getUid()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
