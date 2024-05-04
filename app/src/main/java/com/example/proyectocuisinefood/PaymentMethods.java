@@ -59,8 +59,7 @@ public class PaymentMethods extends AppCompatActivity {
     FirebaseFirestore db;
     String restaurantId, typePaymentMethods, userType, price, paymentMethodId;
 
-    public static final Integer REQUEST_CODE_PAYMENT = 5;
-    public static final Integer REQUEST_CODE_PAYMENT_RESULT = 0;
+    public static final Integer REQUEST_CODE_PAYMENT_RESULT = 1234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -386,9 +385,19 @@ public class PaymentMethods extends AppCompatActivity {
 
     private void initClipPaymentMethods(String id) {
 
+        ClipApi.login("a20300663@ceti.mx", "OyasumiReal203001145K", new LoginListener() {
+            @Override
+            public void onLoginSuccess() {
+
+            }
+
+            @Override
+            public void onLoginFailed(@NonNull StatusCode.ClipError clipError) {
+
+            }
+        });
+
         ClipApi.init(getApplication(), new ClipPlusApi());
-
-
 
         BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(price));
         ClipPayment clipPayment = new ClipPayment.Builder()
@@ -398,14 +407,14 @@ public class PaymentMethods extends AppCompatActivity {
                 .roundTips(true)
                 .build();
 
-        ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT);
+        ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT_RESULT);
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         String content;
-        if (requestCode == REQUEST_CODE_PAYMENT) {
+        if (requestCode == REQUEST_CODE_PAYMENT_RESULT) {
             switch(data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE)) {
                 case StatusCode . SUCCESSFUL :
                     ClipTransaction transactionResult = data . getParcelableExtra (StatusCode.RESULT_PAYMENT_DATA);
