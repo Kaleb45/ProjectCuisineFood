@@ -1,8 +1,4 @@
-buildscript{
-    dependencies{
-        classpath("com.huawei.agconnect:agcp:1.6.0.300")
-    }
-}
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
@@ -54,7 +50,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.libraries.places:places:3.4.0")
     implementation ("com.airbnb.android:lottie:6.4.0")
-    implementation("com.payclip.sdk:payment-ui:2.3.0")
 
-    implementation("com.payclip.sdk:plus-reader:1.3.0")
+
+    implementation("com.payclip.sdk:payment-ui:2.4.0-beta02")
+    implementation("com.payclip.sdk:plus-reader:1.4.0-beta02")
 }

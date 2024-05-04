@@ -79,7 +79,6 @@ public class RestaurantProfile extends AppCompatActivity {
         String restaurantId = getIntent().getStringExtra("restaurantId");
 
         if(restaurantId != null || !restaurantId.isEmpty()){
-            photoRestaurantAdapter.setNewRestaurant("Modificación");
             getRestaurant(restaurantId);
             Query query = db.collection("restaurant").whereEqualTo(FieldPath.documentId(), restaurantId);
 
@@ -89,6 +88,8 @@ public class RestaurantProfile extends AppCompatActivity {
             photoRestaurantAdapter = new PhotoRestaurantAdapter(firestoreRecyclerOptions, this);
             photoRestaurantAdapter.notifyDataSetChanged();
             recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
+            photoRestaurantAdapter.setNewRestaurant("Modificación");
+            photoRestaurantAdapter.setRestaurantId(restaurantId);
         }
 
         logoRestaurant.setOnClickListener(new View.OnClickListener() {

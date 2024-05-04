@@ -221,6 +221,7 @@ public class CreateRestaurant extends AppCompatActivity {
             });
         } else {
             photoRestaurantAdapter.setNewRestaurant("Modificación");
+            photoRestaurantAdapter.setRestaurantId(restaurantId);
             continueCreate.setText("Actualizar el Restaurante");
             getRestaurant(restaurantId);
             continueCreate.setOnClickListener(new View.OnClickListener() {
@@ -617,12 +618,12 @@ public class CreateRestaurant extends AppCompatActivity {
 
 
     private void sendPhoto(Uri imageUrl) {
+        nameRestaurant = restaurantName.getText().toString().trim();
         if(nameRestaurant == null || nameRestaurant.isEmpty()){
             Toast.makeText(this, "Ingrese primero un nombre de restaurante", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        nameRestaurant = restaurantName.getText().toString().trim();
         progressDialog.setMessage("Actualizando foto");
         progressDialog.show();
 

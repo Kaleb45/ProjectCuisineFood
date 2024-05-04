@@ -9,69 +9,70 @@
         android:id="@+id/imb_photo_restaurant_profile_1"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_margin="5dp" />
+        android:layout_margin="5dp"
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_2"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_3"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_4"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_5"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_6"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_7"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_8"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_9"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/imb_photo_restaurant_profile_10"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_margin="5dp"
-        />
+        android:visibility="gone"/>
 
 </LinearLayout>

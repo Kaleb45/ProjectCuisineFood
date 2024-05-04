@@ -8,6 +8,7 @@ pluginManagement {
         maven("https://developer.huawei.com/repo/")
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
