@@ -1,20 +1,13 @@
 package com.example.proyectocuisinefood;
 
-import static com.google.gson.internal.$Gson$Types.arrayOf;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.icu.math.BigDecimal;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -35,21 +28,16 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.payclip.authentication.client.LogoutListener;
 import com.payclip.common.StatusCode;
-import com.payclip.core_ui.ClipLoginActivity;
-import com.payclip.dspread.ClipPlusApi;
 import com.payclip.payments.models.transaction.ClipTransaction;
 import com.payclip.payments.services.responses.RemotePaymentInfo;
-import com.payclip.paymentui.Clip;
 import com.payclip.paymentui.client.ClipApi;
 import com.payclip.paymentui.client.LoginListener;
 import com.payclip.paymentui.models.ClipPayment;
@@ -133,7 +121,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                     onClickAssignedPaymentMethods();
                 }
             });
-        } else if(restaurantId != null && !restaurantId.isEmpty() && price == null && price.isEmpty()){
+        } else if(restaurantId != null && price == null){
             getPaymentMethodsAdmin(restaurantId);
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -410,46 +398,57 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         // Crear un cuadro de diálogo con tres opciones
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setView(R.layout.dialog_select_pay_with_car);
-        builder.setTitle("Selecciona un método de Pago con Tarjeta");
+        builder.setView(R.layout.dialog_configure_pay_with_car);
 
         // Mostrar el cuadro de diálogo
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Inicializar vistas del layout personalizado
         RadioGroup radioGroup = dialog.findViewById(R.id.radio_group);
-        RadioButton option1 = dialog.findViewById(R.id.r_option_1);
-        RadioButton option2 = dialog.findViewById(R.id.r_option_2);
-        RadioButton option3 = dialog.findViewById(R.id.r_option_3);
-        option3.setVisibility(View.GONE);
-        Button accept = dialog.findViewById(R.id.b_accept);
+        LinearLayout clipLogIn = dialog.findViewById(R.id.l_log_in_clip);
 
-        // Manejar la selección de opciones
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // Reiniciar la selección de botones de opción
-                option1.setChecked(false);
-                option2.setChecked(false);
-                option3.setChecked(false);
+        if(userType.equals("Administrador")){
+            radioGroup.setVisibility(View.GONE);
+            clipLogIn.setVisibility(View.VISIBLE);
 
-                // Marcar el botón de opción seleccionado
-                RadioButton selectedRadioButton = group.findViewById(checkedId);
-                selectedRadioButton.setChecked(true);
-                String selectedType = selectedRadioButton.getText().toString();
-                //Toast.makeText(PaymentMethods.this, selectedText, Toast.LENGTH_SHORT).show();
+        } else {
+            radioGroup.setVisibility(View.VISIBLE);
+            clipLogIn.setVisibility(View.GONE);
 
-                accept.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+            builder.setTitle("Selecciona un método de Pago con Tarjeta");
 
-                        initClipPaymentMethods(id, selectedType);
-                        dialog.dismiss();
-                    }
-                });
-            }
-        });
+            // Inicializar vistas del layout personalizado
+
+            RadioButton option1 = dialog.findViewById(R.id.r_option_1);
+            RadioButton option2 = dialog.findViewById(R.id.r_option_2);
+            Button accept = dialog.findViewById(R.id.b_accept);
+
+            // Manejar la selección de opciones
+            radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    // Reiniciar la selección de botones de opción
+                    option1.setChecked(false);
+                    option2.setChecked(false);
+
+                    // Marcar el botón de opción seleccionado
+                    RadioButton selectedRadioButton = group.findViewById(checkedId);
+                    selectedRadioButton.setChecked(true);
+                    String selectedType = selectedRadioButton.getText().toString();
+                    //Toast.makeText(PaymentMethods.this, selectedText, Toast.LENGTH_SHORT).show();
+
+                    accept.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            initClipPaymentMethods(id, selectedType);
+                            dialog.dismiss();
+                        }
+                    });
+                }
+            });
+        }
+
     }
 
     private void initClipPaymentMethods(String id, String selectedType) {
@@ -476,9 +475,6 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                 ClipApi.launchRemotePaymentActivity(PaymentMethods.this, amount.toBigDecimal(), REQUEST_CODE_REMOTE_PAYMENT_RESULT);
 
                 break;
-            case "Opción 3":
-                Toast.makeText(PaymentMethods.this, "Opción 3", Toast.LENGTH_SHORT).show();
-                break;
         }
 
         //ClipApi.showSettingsActivity(this, true, true, REQUEST_CODE_SETTINGS_RESULT);
@@ -500,6 +496,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                         //content = "" + transactionResult;
                         content = "Su compra de ordenes fue exitosa: \nTotal comprado: "+price+"$"+"\nA nombre de: "+nameCustomer;
                         showStatusDialog("La transacción fue exitoso: ", content);
+                        updateOrdersWithPaymentMethod(paymentMethodId);
                         break;
                     case StatusCode.FAILURE:
                         int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
@@ -644,9 +641,10 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(PaymentMethods.this, "Asignación Exitosa", Toast.LENGTH_SHORT).show();
-                                                Intent intent = new Intent(PaymentMethods.this, Admin.class);
+                                                selectPayWithCard(paymentMethodId);
+                                                /*Intent intent = new Intent(PaymentMethods.this, Admin.class);
                                                 startActivity(intent);
-                                                finish();
+                                                finish();*/
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {

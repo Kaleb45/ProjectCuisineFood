@@ -180,7 +180,7 @@ public class LogIn extends AppCompatActivity {
                                 // Documento encontrado con el nombre de usuario proporcionado
                                 // Obtener el correo electrónico asociado al nombre de usuario
                                 String email = document.getString("email");
-                                Toast.makeText(LogIn.this, email, Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(LogIn.this, email, Toast.LENGTH_SHORT).show();
                                 if (email != null) {
                                     // Realizar inicio de sesión con el correo electrónico y la contraseña proporcionados
                                     mAuth.signInWithEmailAndPassword(email, passwordUser).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -220,9 +220,10 @@ public class LogIn extends AppCompatActivity {
                                                                 Toast.makeText(LogIn.this, "Tipo de usuario no especificado", Toast.LENGTH_SHORT).show();
                                                             }
                                                         }
+                                                        Toast.makeText(LogIn.this, "Bienvenido", Toast.LENGTH_SHORT).show();
                                                     } else {
                                                         // Error al iniciar sesión
-                                                        Toast.makeText(LogIn.this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(LogIn.this, "Contraseña y/o Nombre de Usuario Incorrecto", Toast.LENGTH_SHORT).show();
                                                     }
                                                 }
                                             });
@@ -231,8 +232,6 @@ public class LogIn extends AppCompatActivity {
                                     Toast.makeText(LogIn.this, "Correo electrónico no encontrado en la base de datos", Toast.LENGTH_SHORT).show();
                                 }
                             }
-
-                            Toast.makeText(LogIn.this, "Bienvenido", Toast.LENGTH_SHORT).show();
                         } else {
                             // Error al realizar la consulta
                             Toast.makeText(LogIn.this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show();

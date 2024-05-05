@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="15dp">
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <RadioButton
+            android:id="@+id/r_option_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pago con Clip" />
+
+        <RadioButton
+            android:id="@+id/r_option_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pago a distancia con Clip" />
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/l_log_in_clip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/logo_de_clip"
+            android:layout_gravity="center"/>
+
+        <EditText
+            android:id="@+id/e_clip_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Correo Electrónico"
+            android:textSize="18sp"
+            android:layout_marginTop="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/e_clip_password"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Contraseña"
+                android:textSize="18sp"
+                android:inputType="textPassword"
+                android:layout_marginTop="10dp"/>
+
+            <ToggleButton
+                android:id="@+id/tb_clip_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Show Password"
+                android:drawableStart="@drawable/ic_eye"
+                android:button="@null"
+                android:drawablePadding="58dp"
+                android:textOn=""
+                android:textOff=""
+                android:backgroundTint="@android:color/transparent"
+                android:background="@android:color/transparent"
+                android:layout_marginTop="10dp"/>
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/b_accept"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aceptar"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:backgroundTint="@color/anaranjado"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center"/>
+
+</LinearLayout>
