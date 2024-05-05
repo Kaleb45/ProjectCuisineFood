@@ -1,12 +1,20 @@
 package com.example.proyectocuisinefood;
 
+import static com.google.gson.internal.$Gson$Types.arrayOf;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.icu.math.BigDecimal;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -19,12 +27,15 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -32,6 +43,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.payclip.authentication.client.LogoutListener;
 import com.payclip.common.StatusCode;
 import com.payclip.core_ui.ClipLoginActivity;
 import com.payclip.dspread.ClipPlusApi;
@@ -42,10 +54,12 @@ import com.payclip.paymentui.client.LoginListener;
 import com.payclip.paymentui.models.ClipPayment;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class PaymentMethods extends AppCompatActivity {
+public class PaymentMethods extends AppCompatActivity implements LoginListener, LogoutListener {
 
     ImageButton paypalDrop, vmDrop, payDrop;
 
@@ -59,7 +73,8 @@ public class PaymentMethods extends AppCompatActivity {
     FirebaseFirestore db;
     String restaurantId, typePaymentMethods, userType, price, paymentMethodId;
 
-    public static final Integer REQUEST_CODE_PAYMENT_RESULT = 1234;
+    public static final int REQUEST_CODE_PAYMENT_RESULT = 1234;
+    private static final int REQUEST_CODE_SETTINGS_RESULT = 3245;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -372,8 +387,8 @@ public class PaymentMethods extends AppCompatActivity {
 
                 // Actualizar las órdenes del usuario con el ID del método de pago
                 //updateOrdersWithPaymentMethod(paymentMethodId);
-
-                initClipPaymentMethods(paymentMethodId);
+                selectPayWithCard(paymentMethodId);
+                //initClipPaymentMethods(paymentMethodId);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -383,28 +398,76 @@ public class PaymentMethods extends AppCompatActivity {
         });
     }
 
-    private void initClipPaymentMethods(String id) {
+    private void selectPayWithCard (String id){
+        // Crear un cuadro de diálogo con tres opciones
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        ClipApi.login("a20300663@ceti.mx", "OyasumiReal203001145K", new LoginListener() {
+        builder.setView(R.layout.dialog_select_pay_with_car);
+        builder.setTitle("Selecciona un método de Pago con Tarjeta");
+
+        // Mostrar el cuadro de diálogo
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Inicializar vistas del layout personalizado
+        RadioGroup radioGroup = dialog.findViewById(R.id.radio_group);
+        RadioButton option1 = dialog.findViewById(R.id.r_option_1);
+        RadioButton option2 = dialog.findViewById(R.id.r_option_2);
+        RadioButton option3 = dialog.findViewById(R.id.r_option_3);
+        Button accept = dialog.findViewById(R.id.b_accept);
+
+        // Manejar la selección de opciones
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onLoginSuccess() {
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // Reiniciar la selección de botones de opción
+                option1.setChecked(false);
+                option2.setChecked(false);
+                option3.setChecked(false);
 
-            }
+                // Marcar el botón de opción seleccionado
+                RadioButton selectedRadioButton = group.findViewById(checkedId);
+                selectedRadioButton.setChecked(true);
+                String selectedText = selectedRadioButton.getText().toString();
+                //Toast.makeText(PaymentMethods.this, selectedText, Toast.LENGTH_SHORT).show();
 
-            @Override
-            public void onLoginFailed(@NonNull StatusCode.ClipError clipError) {
+                accept.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
+                        // Ejecutar función correspondiente a la opción seleccionada
+                        switch (selectedText) {
+                            case "Pago con Clip":
+                                Toast.makeText(PaymentMethods.this, "Pago con Clip", Toast.LENGTH_SHORT).show();
+                                initClipPaymentMethods(id);
+                                dialog.dismiss();
+                                break;
+                            case "Pago a distancia con Clip":
+                                Toast.makeText(PaymentMethods.this, "Pago a distancia con Clip", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "Opción 3":
+                                Toast.makeText(PaymentMethods.this, "Opción 3", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                });
             }
         });
+    }
 
-        ClipApi.init(getApplication(), new ClipPlusApi());
+    private void initClipPaymentMethods(String id) {
+
+        ClipApi.login("a20300663@ceti.mx","OyasumiReal203001145K", this);
+
+        //ClipApi.showSettingsActivity(this, true, true, REQUEST_CODE_SETTINGS_RESULT);
 
         BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(price));
-        ClipPayment clipPayment = new ClipPayment.Builder()
-                .amount(amount.toBigDecimal())
-                .customTransactionId(id)
-                .enableTips(true)
-                .roundTips(true)
+        ClipPayment clipPayment = new ClipPayment.Builder() // Construir el método de pago
+                .amount(amount.toBigDecimal()) // Cantidad de la transacción
+                .enableContactless(true) // Tecnología sin contacto
+                .customTransactionId(id) // Añadirle un identificador a la transacción
+                .enableTips(true) // Permite mostrar la pantalla de selección de propina en el flujo de pago
+                .roundTips(true) // Permite redondear los decimales de la cantidad de la propina
                 .build();
 
         ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT_RESULT);
@@ -414,22 +477,45 @@ public class PaymentMethods extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         String content;
-        if (requestCode == REQUEST_CODE_PAYMENT_RESULT) {
-            switch(data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE)) {
-                case StatusCode . SUCCESSFUL :
-                    ClipTransaction transactionResult = data . getParcelableExtra (StatusCode.RESULT_PAYMENT_DATA);
-                    // Transaction succeeded
-                    break;
-                case StatusCode . FAILURE :
-                    int errorCode = data . getIntExtra (StatusCode.RESULT_ERROR, -1);
-                    String errorCodeDesc = data . getStringExtra (StatusCode.RESULT_ERROR_DESC);
-                    String messageError = data . getStringExtra (StatusCode.RESULT_ERROR_MESSAGE);
-                    // Transaction failed
-                    break;
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_PAYMENT_RESULT) {
+                //assert data != null;
+                if(data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE) == StatusCode.SUCCESSFUL){
+                    ClipTransaction transactionResult = data.getParcelableExtra(StatusCode.RESULT_PAYMENT_DATA);
+
+                    content = "" + transactionResult;
+                    showStatusDialog("La transacción fue exitoso: ", content);
+                }
+                if(data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE) == StatusCode.FAILURE){
+                    int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
+                    String errorCodeDesc = data.getStringExtra(StatusCode.RESULT_ERROR_DESC);
+                    String messageError = data.getStringExtra(StatusCode.RESULT_ERROR_MESSAGE);
+
+                    String _messageError = "";
+                    if (messageError != null && !messageError.equals("")) {
+                        _messageError = messageError;
+                    }
+
+                    content = "No fue posible realizar la transacción";//"Error code: " + errorCode + "\nError description: " + errorCodeDesc + _messageError;
+
+                    showStatusDialog("A ocurrido un error ", content);
+                }
+
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
+            if (requestCode == REQUEST_CODE_SETTINGS_RESULT){
+                Toast.makeText(this, "Configuración terminada", Toast.LENGTH_SHORT).show();
+            }
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void showStatusDialog(String title, String content) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(content)
+                .setPositiveButton("OK", (dialogInterface, i) -> { })
+                .show();
     }
 
     private void updateOrdersWithPaymentMethod(String id) {
@@ -644,6 +730,30 @@ public class PaymentMethods extends AppCompatActivity {
         } else {
             layoutPay.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onLoginSuccess() {
+        Toast.makeText(this, "Inicio de Sesión exitoso", Toast.LENGTH_SHORT).show();
+        //Snackbar.make(btnPayment, "You have successfully logged in", Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLoginFailed(@NotNull StatusCode.ClipError statusCode) {
+        Toast.makeText(this, "Inicio de Sesión fallido", Toast.LENGTH_SHORT).show();
+        //Snackbar.make(btnPayment, "There was an error logging in: " + statusCode + " -- " + statusCode.getFullName(), Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLogoutSuccess() {
+        Toast.makeText(this, "Cerrar sesión exitoso", Toast.LENGTH_SHORT).show();
+        //Snackbar.make(btnPayment, "You have successfully logged out", Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLogoutError(@NotNull StatusCode.ClipError errorCode) {
+        Toast.makeText(this, "Cerrar sesión fallido", Toast.LENGTH_SHORT).show();
+        //Snackbar.make(btnPayment, "There was an error logging in: " + errorCode + " -- " + errorCode.getFullName(), Snackbar.LENGTH_LONG).show();
     }
 
     @Override

@@ -179,8 +179,8 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         userOrderAdapter.stopListening();
     }
 }
