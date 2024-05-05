@@ -48,6 +48,7 @@ import com.payclip.common.StatusCode;
 import com.payclip.core_ui.ClipLoginActivity;
 import com.payclip.dspread.ClipPlusApi;
 import com.payclip.payments.models.transaction.ClipTransaction;
+import com.payclip.payments.services.responses.RemotePaymentInfo;
 import com.payclip.paymentui.Clip;
 import com.payclip.paymentui.client.ClipApi;
 import com.payclip.paymentui.client.LoginListener;
@@ -71,9 +72,10 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, typePaymentMethods, userType, price, paymentMethodId;
+    String restaurantId, typePaymentMethods, userType, price, paymentMethodId, nameCustomer;
 
     public static final int REQUEST_CODE_PAYMENT_RESULT = 1234;
+    private static final int REQUEST_CODE_REMOTE_PAYMENT_RESULT = 9876;
     private static final int REQUEST_CODE_SETTINGS_RESULT = 3245;
 
     @Override
@@ -337,10 +339,16 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
             }
         }
 
+
+        //Toast.makeText(PaymentMethods.this, ""+paymentMethodId, Toast.LENGTH_SHORT).show();
         if(userType.equals("Administrador")){
             assignedPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
         } else {
-            createPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+            if(paymentMethodId != null){
+                assignedPaymentMethodsCustomer(name, formattedNumberCard, date, cvv);
+            } else {
+                createPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+            }
         }
     }
 
@@ -414,6 +422,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         RadioButton option1 = dialog.findViewById(R.id.r_option_1);
         RadioButton option2 = dialog.findViewById(R.id.r_option_2);
         RadioButton option3 = dialog.findViewById(R.id.r_option_3);
+        option3.setVisibility(View.GONE);
         Button accept = dialog.findViewById(R.id.b_accept);
 
         // Manejar la selección de opciones
@@ -428,83 +437,118 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                 // Marcar el botón de opción seleccionado
                 RadioButton selectedRadioButton = group.findViewById(checkedId);
                 selectedRadioButton.setChecked(true);
-                String selectedText = selectedRadioButton.getText().toString();
+                String selectedType = selectedRadioButton.getText().toString();
                 //Toast.makeText(PaymentMethods.this, selectedText, Toast.LENGTH_SHORT).show();
 
                 accept.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
-                        // Ejecutar función correspondiente a la opción seleccionada
-                        switch (selectedText) {
-                            case "Pago con Clip":
-                                Toast.makeText(PaymentMethods.this, "Pago con Clip", Toast.LENGTH_SHORT).show();
-                                initClipPaymentMethods(id);
-                                dialog.dismiss();
-                                break;
-                            case "Pago a distancia con Clip":
-                                Toast.makeText(PaymentMethods.this, "Pago a distancia con Clip", Toast.LENGTH_SHORT).show();
-                                break;
-                            case "Opción 3":
-                                Toast.makeText(PaymentMethods.this, "Opción 3", Toast.LENGTH_SHORT).show();
-                                break;
-                        }
+                        initClipPaymentMethods(id, selectedType);
+                        dialog.dismiss();
                     }
                 });
             }
         });
     }
 
-    private void initClipPaymentMethods(String id) {
-
+    private void initClipPaymentMethods(String id, String selectedType) {
+        BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(price));
         ClipApi.login("a20300663@ceti.mx","OyasumiReal203001145K", this);
+
+        switch (selectedType) {
+            case "Pago con Clip":
+                Toast.makeText(PaymentMethods.this, "Pago con Clip", Toast.LENGTH_SHORT).show();
+
+                ClipPayment clipPayment = new ClipPayment.Builder() // Construir el método de pago
+                        .amount(amount.toBigDecimal()) // Cantidad de la transacción
+                        .enableContactless(true) // Tecnología sin contacto
+                        .customTransactionId(id) // Añadirle un identificador a la transacción
+                        .enableTips(true) // Permite mostrar la pantalla de selección de propina en el flujo de pago
+                        .roundTips(true) // Permite redondear los decimales de la cantidad de la propina
+                        .build();
+
+                ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT_RESULT);
+                break;
+            case "Pago a distancia con Clip":
+                Toast.makeText(PaymentMethods.this, "Pago a distancia con Clip", Toast.LENGTH_SHORT).show();
+
+                ClipApi.launchRemotePaymentActivity(PaymentMethods.this, amount.toBigDecimal(), REQUEST_CODE_REMOTE_PAYMENT_RESULT);
+
+                break;
+            case "Opción 3":
+                Toast.makeText(PaymentMethods.this, "Opción 3", Toast.LENGTH_SHORT).show();
+                break;
+        }
 
         //ClipApi.showSettingsActivity(this, true, true, REQUEST_CODE_SETTINGS_RESULT);
 
-        BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(price));
-        ClipPayment clipPayment = new ClipPayment.Builder() // Construir el método de pago
-                .amount(amount.toBigDecimal()) // Cantidad de la transacción
-                .enableContactless(true) // Tecnología sin contacto
-                .customTransactionId(id) // Añadirle un identificador a la transacción
-                .enableTips(true) // Permite mostrar la pantalla de selección de propina en el flujo de pago
-                .roundTips(true) // Permite redondear los decimales de la cantidad de la propina
-                .build();
 
-        ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT_RESULT);
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         String content;
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE_PAYMENT_RESULT) {
-                //assert data != null;
-                if(data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE) == StatusCode.SUCCESSFUL){
-                    ClipTransaction transactionResult = data.getParcelableExtra(StatusCode.RESULT_PAYMENT_DATA);
+        switch (requestCode) {
+            case REQUEST_CODE_PAYMENT_RESULT:
+                assert data != null;
+                switch (data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE)) {
+                    case StatusCode.SUCCESSFUL:
+                        ClipTransaction transactionResult = data.getParcelableExtra(StatusCode.RESULT_PAYMENT_DATA);
 
-                    content = "" + transactionResult;
-                    showStatusDialog("La transacción fue exitoso: ", content);
+                        //content = "" + transactionResult;
+                        content = "Su compra de ordenes fue exitosa: \nTotal comprado: "+price+"$"+"\nA nombre de: "+nameCustomer;
+                        showStatusDialog("La transacción fue exitoso: ", content);
+                        break;
+                    case StatusCode.FAILURE:
+                        int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
+                        String errorCodeDesc = data.getStringExtra(StatusCode.RESULT_ERROR_DESC);
+                        String messageError = data.getStringExtra(StatusCode.RESULT_ERROR_MESSAGE);
+
+                        String _messageError = "";
+                        if (messageError != null && !messageError.equals("")) {
+                            _messageError = messageError;
+                        }
+
+                        //content = "Error code: " + errorCode + "\nError description: " + errorCodeDesc + _messageError;
+                        content = "No fue posible realizar la transacción";
+
+                        showStatusDialog("A ocurrido un error ", content);
+                        break;
                 }
-                if(data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE) == StatusCode.FAILURE){
-                    int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
-                    String errorCodeDesc = data.getStringExtra(StatusCode.RESULT_ERROR_DESC);
-                    String messageError = data.getStringExtra(StatusCode.RESULT_ERROR_MESSAGE);
+                break;
+            case REQUEST_CODE_REMOTE_PAYMENT_RESULT:
+                assert data != null;
+                switch (data.getIntExtra(StatusCode.RESULT_CODE, StatusCode.FAILURE)) {
+                    case StatusCode.SUCCESSFUL:
+                        RemotePaymentInfo remotePaymentResult = data.getParcelableExtra(StatusCode.RESULT_REMOTE_PAYMENT_DATA);
 
-                    String _messageError = "";
-                    if (messageError != null && !messageError.equals("")) {
-                        _messageError = messageError;
-                    }
+                        //content = "" + remotePaymentResult;
+                        content = "Su compra de ordenes fue exitosa: \nTotal comprado: "+price+"$"+"\nA nombre de: "+nameCustomer;
+                        showStatusDialog("The remote payment was successful:", content);
+                        break;
+                    case StatusCode.FAILURE:
+                        int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
+                        String errorCodeDesc = data.getStringExtra(StatusCode.RESULT_ERROR_DESC);
+                        String messageError = data.getStringExtra(StatusCode.RESULT_ERROR_MESSAGE);
 
-                    content = "No fue posible realizar la transacción";//"Error code: " + errorCode + "\nError description: " + errorCodeDesc + _messageError;
+                        String _messageError = "";
+                        if (messageError != null && !messageError.equals("")) {
+                            _messageError = messageError;
+                        }
 
-                    showStatusDialog("A ocurrido un error ", content);
+                        //content = "Error code: " + errorCode + "\nError description: " + errorCodeDesc + _messageError;
+                        content = "No fue posible realizar la el pago a distancia";
+
+                        showStatusDialog("A ocurrido un error ", content);
+                        break;
                 }
-
-            }
-            if (requestCode == REQUEST_CODE_SETTINGS_RESULT){
+                break;
+            case REQUEST_CODE_SETTINGS_RESULT:
                 Toast.makeText(this, "Configuración terminada", Toast.LENGTH_SHORT).show();
-            }
+                break;
+
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -550,6 +594,26 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(PaymentMethods.this, "Error al obtener las órdenes del usuario", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void assignedPaymentMethodsCustomer(String name, String numberCard, String date, String cvv){
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("cardNumber", numberCard);
+        map.put("date", date);
+        map.put("cvv", cvv);
+        map.put("type", typePaymentMethods);
+        db.collection("paymentMethods").document(paymentMethodId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                selectPayWithCard(paymentMethodId);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al asignar las credenciales", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -612,9 +676,11 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots){
-                    paymentMethodId = documentSnapshot.getString("paymentMethodId");
+                    String paymentMethodIds = documentSnapshot.getString("paymentMethodId");
+                    //Toast.makeText(PaymentMethods.this, ""+paymentMethodId, Toast.LENGTH_SHORT).show();
 
-                    if (paymentMethodId != null) {
+                    if (paymentMethodIds != null) {
+                        paymentMethodId = paymentMethodIds;
                         // Consultar el documento correspondiente en la colección "paymentMethods"
                         db.collection("paymentMethods")
                                 .document(paymentMethodId)
@@ -623,13 +689,13 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         if (documentSnapshot.exists()) {
-                                            String name = documentSnapshot.getString("name");
+                                            nameCustomer = documentSnapshot.getString("name");
                                             String numberCard = documentSnapshot.getString("cardNumber");
                                             String date = documentSnapshot.getString("date");
                                             String cvv = documentSnapshot.getString("cvv");
                                             typePaymentMethods = documentSnapshot.getString("type");
 
-                                            nameVM.setText(name);
+                                            nameVM.setText(nameCustomer);
                                             numberCardVM.setText(numberCard);
                                             dateVM.setText(date);
                                             cvvVM.setText(cvv);
