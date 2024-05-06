@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,7 +43,7 @@ import java.util.ArrayList;
 public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant, PhotoRestaurantAdapter.ViewHolder> {
 
     private Context context;
-    private String userType, newRestaurant = "Modificación", restaurantId;
+    private String newRestaurant = "Modificación", restaurantId;
     private ArrayList<String> photoUrls;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
@@ -50,106 +51,131 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
     public PhotoRestaurantAdapter(@NonNull FirestoreRecyclerOptions<Restaurant> options, Context context) {
         super(options);
         this.context = context;
-
-        getCurrentUserType();
     }
 
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Restaurant model) {
         final int pos = position;
 
-        for (int i = 0; i < 10; i++) {
-            holder.photo[i].setImageResource(R.drawable.ic_upload);
-            holder.photo[i].setVisibility(View.VISIBLE);
-        }
+        //Toast.makeText(context, ""+userType, Toast.LENGTH_SHORT).show();
+        FirebaseUser currentUser = holder.mAuth.getCurrentUser();
 
-        if (restaurantId != null && restaurantId.equals(getSnapshots().getSnapshot(position).getId())) {
-             if(newRestaurant.equals("Modificación")){
-                photoUrls = model.getPhoto();
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
 
-                // Asegurarse de que la lista de URLs no sea nula y contenga al menos una URL
-                if (photoUrls != null && !photoUrls.isEmpty()) {
-                    for (int i = 0; i < photoUrls.size(); i++) {
-                        if (photoUrls.get(i) != null && !photoUrls.get(i).isEmpty()) {
-                            Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
-                            holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
-                            holder.photo[i].setVisibility(View.VISIBLE);
-                        } else{
-                            if (userType.equals("Cliente")) {
-                                holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
-                                holder.photo[i].setVisibility(View.GONE);
-                            } else {
+            holder.db.collection("user").document(currentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        holder.userType = documentSnapshot.getString("usertype");
+
+                        for (int i = 0; i < 10; i++) {
+                            if(holder.userType.equals("Administrador")){
                                 holder.photo[i].setImageResource(R.drawable.ic_upload);
                                 holder.photo[i].setVisibility(View.VISIBLE);
+                            } else {
+                                holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+                                holder.photo[i].setVisibility(View.GONE);
                             }
                         }
-                    }
-                }
 
-            }
-        } else {
-            if(newRestaurant.equals("Nuevo")){
-                if (photoUrls != null && !photoUrls.isEmpty()) {
-                    for (int i = 0; i < photoUrls.size(); i++) {
-                        if (photoUrls.get(i) != null && !photoUrls.get(i).isEmpty()) {
-                            Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
-                            holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+                        if (restaurantId != null && restaurantId.equals(getSnapshots().getSnapshot(position).getId())) {
+                            if(newRestaurant.equals("Modificación")){
+                                photoUrls = model.getPhoto();
+
+                                // Asegurarse de que la lista de URLs no sea nula y contenga al menos una URL
+                                if (photoUrls != null && !photoUrls.isEmpty()) {
+                                    for (int i = 0; i < photoUrls.size(); i++) {
+                                        if (photoUrls.get(i) != null && !photoUrls.get(i).isEmpty()) {
+                                            Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
+                                            holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+                                            holder.photo[i].setVisibility(View.VISIBLE);
+                                        } else{
+                                            if (holder.userType.equals("Cliente")) {
+                                                holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+                                                holder.photo[i].setVisibility(View.GONE);
+                                            } else {
+                                                holder.photo[i].setImageResource(R.drawable.ic_upload);
+                                                holder.photo[i].setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        } else {
+                            if(newRestaurant.equals("Nuevo")){
+                                if (photoUrls != null && !photoUrls.isEmpty()) {
+                                    for (int i = 0; i < photoUrls.size(); i++) {
+                                        if (photoUrls.get(i) != null && !photoUrls.get(i).isEmpty()) {
+                                            Picasso.get().load(photoUrls.get(i)).resize(400, 400).centerCrop().into(holder.photo[i]);
+                                            holder.photo[i].setBackground(new ColorDrawable(Color.TRANSPARENT));
+                                        }
+                                    }
+                                } else {
+                                    for (int i = 0; i < 10; i++) {
+                                        holder.photo[i].setImageResource(R.drawable.ic_upload);
+                                        holder.photo[i].setVisibility(View.VISIBLE);
+                                    }
+                                }
+                            } else {
+                                // Aquí puedes ocultar o deshabilitar el itemView del restaurante que no se está modificando
+                                holder.itemView.setVisibility(View.GONE);
+                                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
+                                params.height = 0;
+                                params.width = 0;
+                                holder.itemView.setLayoutParams(params);
+                            }
+                        }
+
+                        for(int i = 0; i < 10; i++){
+                            int finalI = i;
+                            holder.photo[i].setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    if (holder.userType.equals("Cliente")) {
+                                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
+                                            showImageDialog(photoUrls.get(finalI));
+                                        }
+                                    } else if(holder.userType.equals("Administrador")) {
+                                        ((CreateRestaurant) context).setImageType("photo");
+                                        ((CreateRestaurant) context).setPositionPhoto(finalI);
+                                        uploadImage();
+                                    }
+                                }
+                            });
+                        }
+
+                        // Agregar OnLongClickListener a cada ImageButton
+                        for (int i = 0; i < 10; i++) {
+                            int finalI = i;
+                            holder.photo[i].setOnLongClickListener(new View.OnLongClickListener() {
+                                @Override
+                                public boolean onLongClick(View v) {
+                                    if(holder.userType.equals("Administrador")) {
+                                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
+                                            // Eliminar la imagen seleccionada y su URL correspondiente
+                                            removePhotoUrl(finalI, pos);
+                                        }
+
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                            });
                         }
                     }
-                } else {
-                    for (int i = 0; i < 10; i++) {
-                        holder.photo[i].setImageResource(R.drawable.ic_upload);
-                        holder.photo[i].setVisibility(View.VISIBLE);
-                    }
                 }
-            } else {
-                // Aquí puedes ocultar o deshabilitar el itemView del restaurante que no se está modificando
-                holder.itemView.setVisibility(View.GONE);
-                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
-                params.height = 0;
-                params.width = 0;
-                holder.itemView.setLayoutParams(params);
-            }
-        }
+            }).addOnFailureListener(new OnFailureListener() {
 
-
-
-        for(int i = 0; i < 10; i++){
-            int finalI = i;
-            holder.photo[i].setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    if (userType.equals("Cliente")) {
-                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
-                            showImageDialog(photoUrls.get(finalI));
-                        }
-                    } else if(userType.equals("Administrador")) {
-                        ((CreateRestaurant) context).setImageType("photo");
-                        ((CreateRestaurant) context).setPositionPhoto(finalI);
-                        uploadImage();
-                    }
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
-        // Agregar OnLongClickListener a cada ImageButton
-        for (int i = 0; i < 10; i++) {
-            int finalI = i;
-            holder.photo[i].setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if(userType.equals("Administrador")) {
-                        if (photoUrls != null && !photoUrls.isEmpty() && finalI < photoUrls.size()) {
-                            // Eliminar la imagen seleccionada y su URL correspondiente
-                            removePhotoUrl(finalI, pos);
-                        }
 
-                        return true;
-                    }
-                    return false;
-                }
-            });
-        }
     }
 
     public void setNewRestaurant(String newRestaurant) {
@@ -262,25 +288,6 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
         builder.setView(dialogView).show();
     }
 
-    private void getCurrentUserType() {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore.getInstance().collection("user").document(currentUserId)
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            userType = documentSnapshot.getString("usertype");
-                            notifyDataSetChanged();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context, "Error al obtener los datos del usuario", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
     private ArrayList<String> getPhotoUrlsDB(){
         if(restaurantId != null){
             FirebaseFirestore.getInstance().collection("restaurant").document(restaurantId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -308,8 +315,13 @@ public class PhotoRestaurantAdapter extends FirestoreRecyclerAdapter<Restaurant,
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageButton[] photo = new ImageButton[10];
+        FirebaseFirestore db;
+        FirebaseAuth mAuth;
+        String userType;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            db = FirebaseFirestore.getInstance();
+            mAuth = FirebaseAuth.getInstance();
 
             photo[0] = itemView.findViewById(R.id.imb_photo_restaurant_profile_1);
             photo[1] = itemView.findViewById(R.id.imb_photo_restaurant_profile_2);

@@ -30,6 +30,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -49,7 +50,7 @@ public class RestaurantProfile extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String logo, tableDistribution, dishPhoto;
+    String logo, tableDistribution, dishPhoto, userType;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,10 +87,11 @@ public class RestaurantProfile extends AppCompatActivity {
                     .setQuery(query, Restaurant.class).build();
 
             photoRestaurantAdapter = new PhotoRestaurantAdapter(firestoreRecyclerOptions, this);
-            photoRestaurantAdapter.notifyDataSetChanged();
-            recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
             photoRestaurantAdapter.setNewRestaurant("Modificación");
             photoRestaurantAdapter.setRestaurantId(restaurantId);
+            photoRestaurantAdapter.notifyDataSetChanged();
+            recyclerViewPhotoRestaurant.setAdapter(photoRestaurantAdapter);
+
         }
 
         logoRestaurant.setOnClickListener(new View.OnClickListener() {
@@ -192,11 +194,11 @@ public class RestaurantProfile extends AppCompatActivity {
                 tableDistribution = documentSnapshot.getString("tableDistribution");
                 String tableIndication = documentSnapshot.getString("tableIndication");
 
-                if(!logo.isEmpty() || logo != null){
+                if(logo != null || !logo.isEmpty()){
                     Picasso.get().load(logo).resize(150,150).into(logoRestaurant);
                 }
 
-                if(!tableDistribution.isEmpty() || tableDistribution != null){
+                if(tableDistribution != null){
                     mapDistributionRestaurant.setVisibility(View.VISIBLE);
                     Picasso.get().load(tableDistribution).resize(150,150).into(mapDistributionRestaurant);
                 } else {
