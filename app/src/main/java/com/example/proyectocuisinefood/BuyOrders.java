@@ -132,11 +132,16 @@ public class BuyOrders extends AppCompatActivity implements UserOrderAdapter.OnO
     }
 
     private void onClickContinueShopping() {
-        Intent intent = new Intent(BuyOrders.this, PaymentMethods.class);
-        intent.putExtra("totalPrice",price);
-        intent.putExtra("restaurantId",restaurantId);
-        startActivity(intent);
-        finish();
+        if(!totalPrice.getText().equals("0.00$")){
+            Intent intent = new Intent(BuyOrders.this, PaymentMethods.class);
+            intent.putExtra("totalPrice",price);
+            intent.putExtra("restaurantId",restaurantId);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, "El carro esta vacío", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     private void calculateTotalPrice() {

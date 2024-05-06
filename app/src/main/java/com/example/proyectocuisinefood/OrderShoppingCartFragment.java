@@ -103,10 +103,15 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
     }
 
     private void onClickContinueShopping() {
-        Intent intent = new Intent(getContext(), PaymentMethods.class);
-        intent.putExtra("totalPrice",price);
-        intent.putExtra("restaurantId",restaurantId);
-        startActivity(intent);
+        if(!totalPrice.getText().equals("0.00$")){
+            Intent intent = new Intent(getContext(), PaymentMethods.class);
+            intent.putExtra("totalPrice",price);
+            intent.putExtra("restaurantId",restaurantId);
+            startActivity(intent);
+        } else {
+            Toast.makeText(getContext(), "El carro esta vacío", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     private void getRestaurantIdOrders() {
