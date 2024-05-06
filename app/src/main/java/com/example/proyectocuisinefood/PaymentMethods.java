@@ -671,8 +671,6 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                 break;
         }
 
-
-
     }
 
     @Override
@@ -689,6 +687,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                         content = "Su compra de ordenes fue exitosa: \nTotal comprado: "+price+"$"+"\nA nombre de: "+nameCustomer;
                         showStatusDialog("La transacción fue exitoso: ", content);
                         updateOrdersWithPaymentMethod(paymentMethodId);
+                        ClipApi.logout(this);
                         break;
                     case StatusCode.FAILURE:
                         int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
@@ -704,6 +703,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                         content = "No fue posible realizar la transacción";
 
                         showStatusDialog("A ocurrido un error ", content);
+                        ClipApi.logout(this);
                         break;
                 }
                 break;
@@ -717,6 +717,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                         content = "Su compra de ordenes fue exitosa: \nTotal comprado: "+price+"$"+"\nA nombre de: "+nameCustomer;
                         showStatusDialog("El pago a distancia fue exitoso:", content);
                         updateOrdersWithPaymentMethod(paymentMethodId);
+                        ClipApi.logout(this);
                         break;
                     case StatusCode.FAILURE:
                         int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
@@ -732,6 +733,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                         content = "No fue posible realizar la el pago a distancia";
 
                         showStatusDialog("A ocurrido un error ", content);
+                        ClipApi.logout(this);
                         break;
                 }
                 break;
