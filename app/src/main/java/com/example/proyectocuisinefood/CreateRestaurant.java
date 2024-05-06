@@ -114,7 +114,7 @@ public class CreateRestaurant extends AppCompatActivity {
     private static final int PLACE_PICKER_REQUEST = 2;
     private Uri imageUrl;
     ProgressDialog progressDialog;
-    String imageType, logoRestaurant, tableIndication, tableDistribution, idd, restaurantId, nameRestaurant, related;
+    String imageType, logoRestaurant, tableIndication, tableDistribution, paymentMethodId, restaurantId, nameRestaurant, related;
     RecyclerView recyclerViewPhotoRestaurant, recyclerViewShowRestaurant;
     PhotoRestaurantAdapter photoRestaurantAdapter;
     SearchView relatedRestaurant;
@@ -292,6 +292,7 @@ public class CreateRestaurant extends AppCompatActivity {
                     // Si restaurantVMPay no está activado, mostrar un mensaje o realizar alguna acción
                     // para indicar que este botón es obligatorio.
                     Toast.makeText(getApplicationContext(), "Por favor, active restaurantVMPay", Toast.LENGTH_SHORT).show();
+                    restaurantVMPay.setChecked(true);
                 }
             }
         });
@@ -960,15 +961,17 @@ public class CreateRestaurant extends AppCompatActivity {
             paymentData.put("date", "");
             paymentData.put("name", "");
             paymentData.put("type", "Visa/Mastercard");
+            paymentData.put("emailClip", null);
+            paymentData.put("passwordClip", null);
+            paymentData.put("clipPlus", "No");
 
             // Añadimos el nuevo documento a la colección paymentMethods
             db.collection("paymentMethods").add(paymentData)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            idd = documentReference.getId();
-                            map.put("paymentMethodId",idd);
-                            // Si se añade correctamente, puedes realizar alguna acción adicional si es necesario
+                            paymentMethodId = documentReference.getId();
+
                             Log.d(TAG, "Documento de métodos de pago creado con ID: " + documentReference.getId());
                         }
                     })
@@ -985,6 +988,7 @@ public class CreateRestaurant extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 String restaurantId = documentReference.getId(); // Aquí obtienes el ID del restaurante
+                updatePaymentMethod(restaurantId);
                 Toast.makeText(CreateRestaurant.this, "Creado Exitosamente", Toast.LENGTH_SHORT).show();
                 saveSchedulesForRestaurant(restaurantId); // Llamada al método para guardar los horarios asociados al restaurante
                 finish();
@@ -993,6 +997,23 @@ public class CreateRestaurant extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(CreateRestaurant.this, "Error al crear el restaurante", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updatePaymentMethod(String id) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("paymentMethodId", paymentMethodId);
+
+        db.collection("restaurant").document(restaurantId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(CreateRestaurant.this, "Métodos de pago actualizados", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(CreateRestaurant.this, "Error al obtener los datos", Toast.LENGTH_SHORT).show();
             }
         });
     }

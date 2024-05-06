@@ -24,7 +24,36 @@
             android:layout_height="wrap_content"
             android:text="Pago a distancia con Clip" />
 
+        <RadioButton
+            android:id="@+id/r_option_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Configurar Clip Plus" />
+
     </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="15dp">
+
+        <TextView
+            android:id="@+id/t_clip_plus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cuento con Clip Plus"
+            android:textSize="18dp"/>
+
+        <Switch
+            android:id="@+id/bs_clip_plus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/voleta_oscuro"
+            android:layout_marginLeft="60dp"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/l_log_in_clip"
@@ -55,7 +84,7 @@
 
             <EditText
                 android:id="@+id/e_clip_password"
-                android:layout_width="300dp"
+                android:layout_width="220dp"
                 android:layout_height="wrap_content"
                 android:hint="Contraseña"
                 android:textSize="18sp"
@@ -64,7 +93,7 @@
 
             <ToggleButton
                 android:id="@+id/tb_clip_password"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Show Password"
                 android:drawableStart="@drawable/ic_eye"
@@ -74,7 +103,8 @@
                 android:textOff=""
                 android:backgroundTint="@android:color/transparent"
                 android:background="@android:color/transparent"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"/>
 
         </LinearLayout>
 

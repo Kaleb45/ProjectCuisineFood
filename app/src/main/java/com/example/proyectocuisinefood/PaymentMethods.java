@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -60,7 +61,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, typePaymentMethods, userType, price, paymentMethodId, nameCustomer;
+    String restaurantId, typePaymentMethods, userType, price, paymentMethodId, nameCustomer, clipEmail, clipPassword, clipPlus;
 
     public static final int REQUEST_CODE_PAYMENT_RESULT = 1234;
     private static final int REQUEST_CODE_REMOTE_PAYMENT_RESULT = 9876;
@@ -100,6 +101,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
 
         if(restaurantId != null && !restaurantId.isEmpty() && price != null && !price.isEmpty()){
             getPaymentMethodsCustomer();
+            getClip();
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -108,6 +110,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
             });
         } else if(restaurantId == null && restaurantId.isEmpty() && price != null && !price.isEmpty()){
             getPaymentMethodsCustomer();
+            getClip();
             continuePaymentMethods.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -375,6 +378,9 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         map.put("date", date);
         map.put("cvv", cvv);
         map.put("type", typePaymentMethods);
+        map.put("emailClip", null);
+        map.put("passwordClip", null);
+        map.put("clipPlus", null);
 
         db.collection("paymentMethods").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -382,9 +388,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                 paymentMethodId = documentReference.getId();
 
                 // Actualizar las órdenes del usuario con el ID del método de pago
-                //updateOrdersWithPaymentMethod(paymentMethodId);
-                selectPayWithCard(paymentMethodId);
-                //initClipPaymentMethods(paymentMethodId);
+                configPayWithCard(paymentMethodId);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -394,34 +398,127 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         });
     }
 
-    private void selectPayWithCard (String id){
+    private void configPayWithCard (String id){
         // Crear un cuadro de diálogo con tres opciones
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setView(R.layout.dialog_configure_pay_with_car);
+        builder.setTitle("Pago con Tarjeta");
 
         // Mostrar el cuadro de diálogo
         AlertDialog dialog = builder.create();
         dialog.show();
 
+        // Inicializar vistas del layout personalizado
         RadioGroup radioGroup = dialog.findViewById(R.id.radio_group);
         LinearLayout clipLogIn = dialog.findViewById(R.id.l_log_in_clip);
 
+        TextView clipPlusText = dialog.findViewById(R.id.t_clip_plus);
+        EditText emailClip = dialog.findViewById(R.id.e_clip_email);
+        EditText passwordClip = dialog.findViewById(R.id.e_clip_password);
+        ToggleButton passwordClipShow = dialog.findViewById(R.id.tb_clip_password);
+        RadioButton option1 = dialog.findViewById(R.id.r_option_1);
+        RadioButton option2 = dialog.findViewById(R.id.r_option_2);
+        RadioButton option3 = dialog.findViewById(R.id.r_option_3);
+        Switch clipPlusSwitch = dialog.findViewById(R.id.bs_clip_plus);
+        Button accept = dialog.findViewById(R.id.b_accept);
+
         if(userType.equals("Administrador")){
-            radioGroup.setVisibility(View.GONE);
-            clipLogIn.setVisibility(View.VISIBLE);
+
+            if(clipEmail != null || clipPassword != null){
+                radioGroup.setVisibility(View.VISIBLE);
+                clipPlusSwitch.setVisibility(View.VISIBLE);
+                clipPlusText.setVisibility(View.VISIBLE);
+                clipLogIn.setVisibility(View.GONE);
+                option1.setVisibility(View.GONE);
+                option2.setVisibility(View.GONE);
+
+                
+
+                if(clipPlus.equals("Si")){
+                    clipPlusSwitch.setChecked(true);
+                } else {
+                    clipPlusSwitch.setChecked(false);
+                }
+
+                clipPlusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                        if(isChecked){
+                            clipPlus = "Si";
+                            setClipPlus();
+                        } else {
+                            clipPlus = "No";
+                            setClipPlus();
+                        }
+                    }
+                });
+
+                // Manejar la selección de opciones
+                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        // Reiniciar la selección de botones de opción
+                        option3.setChecked(false);
+
+                        // Marcar el botón de opción seleccionado
+                        RadioButton selectedRadioButton = group.findViewById(checkedId);
+                        selectedRadioButton.setChecked(true);
+                        String selectedType = selectedRadioButton.getText().toString();
+                        //Toast.makeText(PaymentMethods.this, selectedText, Toast.LENGTH_SHORT).show();
+
+                        accept.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                initClipPaymentMethods(id, selectedType);
+                                dialog.dismiss();
+                            }
+                        });
+                    }
+                });
+
+            } else {
+                radioGroup.setVisibility(View.GONE);
+                clipLogIn.setVisibility(View.VISIBLE);
+                clipPlusSwitch.setVisibility(View.GONE);
+                clipPlusText.setVisibility(View.GONE);
+                passwordClipShow.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            // Mostrar contraseña
+                            passwordClip.setInputType(InputType.TYPE_CLASS_TEXT);
+                        } else {
+                            // Ocultar contraseña
+                            passwordClip.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        }
+                        // Mover el cursor al final del texto
+                        passwordClip.setSelection(passwordClip.getText().length());
+                    }
+                });
+
+                accept.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onClickLogInClip(emailClip, passwordClip);
+                        dialog.dismiss();
+                    }
+                });
+            }
 
         } else {
             radioGroup.setVisibility(View.VISIBLE);
             clipLogIn.setVisibility(View.GONE);
+            option3.setVisibility(View.GONE);
+            clipPlusSwitch.setVisibility(View.GONE);
+            clipPlusText.setVisibility(View.GONE);
 
-            builder.setTitle("Selecciona un método de Pago con Tarjeta");
-
-            // Inicializar vistas del layout personalizado
-
-            RadioButton option1 = dialog.findViewById(R.id.r_option_1);
-            RadioButton option2 = dialog.findViewById(R.id.r_option_2);
-            Button accept = dialog.findViewById(R.id.b_accept);
+            if(clipPlus.equals("Si")){
+                option1.setVisibility(View.VISIBLE);
+            } else {
+                option1.setVisibility(View.GONE);
+            }
 
             // Manejar la selección de opciones
             radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -451,9 +548,102 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
 
     }
 
+    private void onClickLogInClip(EditText emailClip, EditText passwordClip) {
+        String email = emailClip.getText().toString().trim();
+        String password = passwordClip.getText().toString().trim();
+
+        if(email.isEmpty() || password.isEmpty()){
+            Toast.makeText(this, "No puede haber espacios vacios", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ClipApi.login(email, password, new LoginListener() {
+            @Override
+            public void onLoginSuccess() {
+                Toast.makeText(PaymentMethods.this, "Inicio de Sesión exitoso", Toast.LENGTH_SHORT).show();
+                logInClip(email, password);
+            }
+
+            @Override
+            public void onLoginFailed(@NonNull StatusCode.ClipError clipError) {
+                Toast.makeText(PaymentMethods.this, "Inicio de Sesión fallido", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void logInClip(String email, String password) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("emailClip", email);
+        map.put("passwordClip", password);
+        db.collection("paymentMethods").document(paymentMethodId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                String content = "Ahora cuando seleccione en continuar puede configurar su Clip Plus";
+                showStatusDialog("Aviso", content);
+                clipEmail = email;
+                clipPassword = password;
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al asignar las credenciales", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getClip() {
+
+        db.collection("restaurant").document(restaurantId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String paymentMethodIdRestaurant = documentSnapshot.getString("paymentMethodId");
+
+                db.collection("paymentMethods").document(paymentMethodIdRestaurant).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        clipPlus = documentSnapshot.getString("clipPlus");
+                        clipEmail = documentSnapshot.getString("emailClip");
+                        clipPassword = documentSnapshot.getString("passwordClip");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(PaymentMethods.this, "Error al obtener la información", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al obtener la información", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setClipPlus(){
+        Map<String, Object> map = new HashMap<>();
+        map.put("clipPlus", clipPlus);
+        db.collection("paymentMethods").document(paymentMethodId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                String content = "Ahora los usuarios podrán pagar por medio del Clip Plus";
+                showStatusDialog("Aviso", content);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PaymentMethods.this, "Error al asignar las credenciales", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void initClipPaymentMethods(String id, String selectedType) {
-        BigDecimal amount = BigDecimal.valueOf(Double.parseDouble(price));
-        ClipApi.login("a20300663@ceti.mx","OyasumiReal203001145K", this);
+        BigDecimal amount = null;
+        if(price != null){
+            amount = BigDecimal.valueOf(Double.parseDouble(price));
+        }
+        
+        ClipApi.login(clipEmail, clipPassword, this);
 
         switch (selectedType) {
             case "Pago con Clip":
@@ -475,9 +665,11 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                 ClipApi.launchRemotePaymentActivity(PaymentMethods.this, amount.toBigDecimal(), REQUEST_CODE_REMOTE_PAYMENT_RESULT);
 
                 break;
+            case "Configurar Clip Plus":
+                Toast.makeText(PaymentMethods.this, "Configurar Clip Plus", Toast.LENGTH_SHORT).show();
+                ClipApi.showSettingsActivity(this, true, true, REQUEST_CODE_SETTINGS_RESULT);
+                break;
         }
-
-        //ClipApi.showSettingsActivity(this, true, true, REQUEST_CODE_SETTINGS_RESULT);
 
 
 
@@ -523,7 +715,8 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
 
                         //content = "" + remotePaymentResult;
                         content = "Su compra de ordenes fue exitosa: \nTotal comprado: "+price+"$"+"\nA nombre de: "+nameCustomer;
-                        showStatusDialog("The remote payment was successful:", content);
+                        showStatusDialog("El pago a distancia fue exitoso:", content);
+                        updateOrdersWithPaymentMethod(paymentMethodId);
                         break;
                     case StatusCode.FAILURE:
                         int errorCode = data.getIntExtra(StatusCode.RESULT_ERROR, -1);
@@ -545,7 +738,6 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
             case REQUEST_CODE_SETTINGS_RESULT:
                 Toast.makeText(this, "Configuración terminada", Toast.LENGTH_SHORT).show();
                 break;
-
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -605,7 +797,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         db.collection("paymentMethods").document(paymentMethodId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                selectPayWithCard(paymentMethodId);
+                configPayWithCard(paymentMethodId);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -628,6 +820,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
 
                             // Actualizar el documento correspondiente en la colección "paymentMethods"
                             if (paymentMethodsId != null) {
+                                paymentMethodId = paymentMethodsId;
                                 Map<String, Object> map = new HashMap<>();
                                 map.put("name", name);
                                 map.put("cardNumber", numberCard);
@@ -641,7 +834,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(PaymentMethods.this, "Asignación Exitosa", Toast.LENGTH_SHORT).show();
-                                                selectPayWithCard(paymentMethodId);
+                                                configPayWithCard(paymentMethodId);
                                                 /*Intent intent = new Intent(PaymentMethods.this, Admin.class);
                                                 startActivity(intent);
                                                 finish();*/
@@ -679,6 +872,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
 
                     if (paymentMethodIds != null) {
                         paymentMethodId = paymentMethodIds;
+                        restaurantId = documentSnapshot.getString("restaurantId");
                         // Consultar el documento correspondiente en la colección "paymentMethods"
                         db.collection("paymentMethods")
                                 .document(paymentMethodId)
@@ -744,6 +938,9 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                                     String date = documentSnapshot.getString("date");
                                                     String cvv = documentSnapshot.getString("cvv");
                                                     typePaymentMethods = documentSnapshot.getString("type");
+                                                    clipEmail = documentSnapshot.getString("emailClip");
+                                                    clipPassword = documentSnapshot.getString("passwordClip");
+                                                    clipPlus = documentSnapshot.getString("clipPlus");
 
                                                     nameVM.setText(name);
                                                     numberCardVM.setText(numberCard);
