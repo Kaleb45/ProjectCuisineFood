@@ -1,8 +1,13 @@
 package com.example.proyectocuisinefood.application;
 
+import static android.content.ContentValues.TAG;
+
+import static com.example.proyectocuisinefood.notification.MyFirebaseMessagingService.TAG_NOTIFICATION;
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,8 +31,10 @@ import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.example.proyectocuisinefood.model.Orders;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -35,6 +42,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -365,12 +373,36 @@ public class PlaceOrders extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(PlaceOrders.this, "Orden realizada", Toast.LENGTH_SHORT).show();
+                        notification();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(PlaceOrders.this, "Error al actualizar el ScheduleId", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void notification() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG_NOTIFICATION, "Error al obtener el token de registro de FCM", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // dzy1hgVSThGaf-c-Ncm_1h:APA91bH-3AmMnmyA-DgTF5lkLmOqZe0J7AOZjhXJmj6Gn-0exJTTiKySQ-8EvmVeHXXnO-qM68pHKBgWx6JqWsktCIiw0RW-VpF_o0a1cd4JOSyrMVWMJukpR3Vc6hTWkDnDl98Dd_P6
+
+                        // Log and toast
+                        String msg = token;
+                        Log.d(TAG_NOTIFICATION, msg);
+                        Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
