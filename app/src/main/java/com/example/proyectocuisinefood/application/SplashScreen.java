@@ -26,8 +26,6 @@ public class SplashScreen extends AppCompatActivity {
         askNotificationPermission();
         askBluetoothPermission();
 
-        ClipApi.init(getApplication(), new ClipPlusApi());
-
         lottieAnimationView = findViewById(R.id.lottie);
 
         lottieAnimationView.animate();

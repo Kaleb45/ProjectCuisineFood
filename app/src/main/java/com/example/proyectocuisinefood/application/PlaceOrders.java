@@ -5,7 +5,14 @@ import static android.content.ContentValues.TAG;
 import static com.example.proyectocuisinefood.notification.MyFirebaseMessagingService.TAG_NOTIFICATION;
 
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +30,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +38,7 @@ import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.example.proyectocuisinefood.model.Orders;
+import com.example.proyectocuisinefood.notification.MyFirebaseMessagingService;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -230,6 +239,7 @@ public class PlaceOrders extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(PlaceOrders.this, "Se agrego una orden más a su pedido original", Toast.LENGTH_SHORT).show();
+                        notification();
                         Intent intent = new Intent(PlaceOrders.this, MenuRestaurant.class);
                         intent.putExtra("restaurantId", orders.getRestaurantId());
                         startActivity(intent);
@@ -385,24 +395,31 @@ public class PlaceOrders extends AppCompatActivity {
     }
 
     private void notification() {
+        MyFirebaseMessagingService myFirebaseMessagingService = new MyFirebaseMessagingService();
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
                     public void onComplete(@NonNull Task<String> task) {
                         if (!task.isSuccessful()) {
-                            Log.w(TAG_NOTIFICATION, "Error al obtener el token de registro de FCM", task.getException());
+                            Log.w(MyFirebaseMessagingService.TAG_NOTIFICATION, "Error al obtener el token de registro de FCM", task.getException());
                             return;
                         }
 
                         // Get new FCM registration token
                         String token = task.getResult();
 
+                        // Cliente:
                         // dzy1hgVSThGaf-c-Ncm_1h:APA91bH-3AmMnmyA-DgTF5lkLmOqZe0J7AOZjhXJmj6Gn-0exJTTiKySQ-8EvmVeHXXnO-qM68pHKBgWx6JqWsktCIiw0RW-VpF_o0a1cd4JOSyrMVWMJukpR3Vc6hTWkDnDl98Dd_P6
+
+                        // Cocinero
+                        // dQfPd2eWSI6SEq8JNVcHLM:APA91bFVZngySXLVZgPnTsOkYD5xb0IaL-V8VJ5Qsl03Qt9m8A1WEVDvqMGsBhZoxhvUbTth7-NR-qyOyK8pcUuvgFNbtdMdfD23EHULwgp1zVHRYs10w05Gt6cFLLbQiiA0txx0P7u9
 
                         // Log and toast
                         String msg = token;
-                        Log.d(TAG_NOTIFICATION, msg);
+                        Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, msg);
                         Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
+                        myFirebaseMessagingService.sendNotification("Orden realizada", "Ordenes", msg, PlaceOrders.this, Cliente.class);
+                        myFirebaseMessagingService.sendNotificationDevice("Orden realizada", "Ordenes", msg, PlaceOrders.this, Cocinero.class);
                     }
                 });
     }
