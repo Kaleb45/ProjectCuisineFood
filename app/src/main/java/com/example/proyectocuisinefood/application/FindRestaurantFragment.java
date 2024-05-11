@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood;
+package com.example.proyectocuisinefood.application;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.adapter.RestaurantAdapter;
 import com.example.proyectocuisinefood.adapter.RestaurantSelectedAdapter;

@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood;
+package com.example.proyectocuisinefood.application;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -21,6 +21,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.example.proyectocuisinefood.model.Orders;

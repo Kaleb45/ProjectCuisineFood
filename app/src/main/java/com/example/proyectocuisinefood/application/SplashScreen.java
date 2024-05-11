@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood;
+package com.example.proyectocuisinefood.application;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.proyectocuisinefood.R;
 import com.payclip.dspread.ClipPlusApi;
 import com.payclip.paymentui.client.ClipApi;
 

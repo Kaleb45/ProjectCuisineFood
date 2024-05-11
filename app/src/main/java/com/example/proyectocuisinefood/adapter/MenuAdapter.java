@@ -17,14 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.proyectocuisinefood.CreateMenu;
-import com.example.proyectocuisinefood.CreateRestaurant;
-import com.example.proyectocuisinefood.Menu;
-import com.example.proyectocuisinefood.PlaceOrders;
+import com.example.proyectocuisinefood.application.CreateMenu;
+import com.example.proyectocuisinefood.application.PlaceOrders;
 import com.example.proyectocuisinefood.R;
-import com.example.proyectocuisinefood.RestaurantProfile;
 import com.example.proyectocuisinefood.model.Dish;
-import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;

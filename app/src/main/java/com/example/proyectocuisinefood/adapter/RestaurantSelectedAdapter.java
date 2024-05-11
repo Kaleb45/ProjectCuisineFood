@@ -7,14 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.proyectocuisinefood.CreateRestaurant;
+import com.example.proyectocuisinefood.application.CreateRestaurant;
 import com.example.proyectocuisinefood.R;
-import com.example.proyectocuisinefood.SignIn;
+import com.example.proyectocuisinefood.application.SignIn;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;

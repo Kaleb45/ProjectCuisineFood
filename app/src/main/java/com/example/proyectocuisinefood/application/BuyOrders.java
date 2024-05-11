@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood;
+package com.example.proyectocuisinefood.application;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,9 +15,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.proyectocuisinefood.adapter.MenuAdapter;
+import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.UserOrderAdapter;
-import com.example.proyectocuisinefood.model.Dish;
 import com.example.proyectocuisinefood.model.Orders;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;

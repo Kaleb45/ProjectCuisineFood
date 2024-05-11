@@ -1,10 +1,4 @@
-package com.example.proyectocuisinefood;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+package com.example.proyectocuisinefood.application;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,61 +6,49 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.MenuAdapter;
-import com.example.proyectocuisinefood.adapter.RestaurantAdapter;
 import com.example.proyectocuisinefood.model.Dish;
-import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
-public class Menu extends AppCompatActivity {
+public class MenuRestaurant extends AppCompatActivity {
 
-    Button createMenu;
+    Button shoppingCart;
     RecyclerView menuRecyclerView;
     MenuAdapter menuAdapter;
     Toolbar toolbar;
-    AppBarLayout appBarLayout;
-    FloatingActionButton fabMenu;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     String restaurantId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
+        setContentView(R.layout.activity_menu_restaurant);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        appBarLayout = findViewById(R.id.appBarLayout);
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fabMenu = findViewById(R.id.fb_create_menu);
+        shoppingCart = findViewById(R.id.b_shopping_cart);
 
-        createMenu = findViewById(R.id.b_create_menu);
-
-        menuRecyclerView = findViewById(R.id.r_menu);
+        menuRecyclerView = findViewById(R.id.r_menu_restaurant);
         menuRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        createMenu.setOnClickListener(new View.OnClickListener() {
+        shoppingCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickCreateMenu();
-            }
-        });
-
-        fabMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickCreateMenu();
+                onClickShoppingCart();
             }
         });
 
@@ -93,7 +75,8 @@ public class Menu extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Menu.this, Admin.class);
+                Intent intent = new Intent(MenuRestaurant.this, RestaurantProfile.class);
+                intent.putExtra("restaurantId",restaurantId);
                 startActivity(intent);
                 finish();
             }
@@ -103,16 +86,17 @@ public class Menu extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(Menu.this, Admin.class);
+        Intent intent = new Intent(MenuRestaurant.this, RestaurantProfile.class);
+        intent.putExtra("restaurantId",restaurantId);
         startActivity(intent);
         finish();
     }
 
-    private void onClickCreateMenu() {
-        Intent intent = new Intent(Menu.this, CreateMenu.class);
-        intent.putExtra("restaurantId", restaurantId); // "restaurantId" es una clave y restaurantId es el valor que quieres pasar.
+    private void onClickShoppingCart() {
+        Intent intent = new Intent(MenuRestaurant.this, BuyOrders.class);
+        intent.putExtra("restaurantId",restaurantId);
         startActivity(intent);
-
+        finish();
     }
 
     @Override
@@ -122,8 +106,8 @@ public class Menu extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         menuAdapter.stopListening();
     }
 
@@ -140,7 +124,7 @@ public class Menu extends AppCompatActivity {
         if(id == R.id.i_signout){
             mAuth.signOut();
             finish();
-            startActivity(new Intent(Menu.this, MainActivity.class));
+            startActivity(new Intent(MenuRestaurant.this, MainActivity.class));
             return true;
         }
         if(id== R.id.i_profile){

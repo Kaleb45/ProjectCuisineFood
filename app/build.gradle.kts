@@ -50,7 +50,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.libraries.places:places:3.4.0")
     implementation ("com.airbnb.android:lottie:6.4.0")
-
+    implementation("com.google.firebase:firebase-messaging:24.0.0")
 
     implementation("com.payclip.sdk:payment-ui:2.4.0-beta02")
     implementation("com.payclip.sdk:plus-reader:1.4.0-beta02")

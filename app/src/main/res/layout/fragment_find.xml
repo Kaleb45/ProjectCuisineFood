@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".FindRestaurantFragment"
+    tools:context=".application.FindRestaurantFragment"
     android:id="@+id/fragment_find_restaurant">
 
     <LinearLayout

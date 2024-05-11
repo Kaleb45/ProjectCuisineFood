@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood;
+package com.example.proyectocuisinefood.application;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,17 +12,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
+import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.OrderAdapter;
-import com.example.proyectocuisinefood.adapter.RestaurantAdapter;
 import com.example.proyectocuisinefood.model.Orders;
-import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -32,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class Cocinero extends AppCompatActivity {
+public class Mesero extends AppCompatActivity {
 
     RecyclerView orderRecyclerView;
     OrderAdapter orderAdapter;
@@ -40,26 +37,27 @@ public class Cocinero extends AppCompatActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
+    String restaurantId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cocinero);
+        setContentView(R.layout.activity_mesero);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout_cook);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout_waiter);
 
-        orderRecyclerView = findViewById(R.id.r_order_cook);
+        orderRecyclerView = findViewById(R.id.r_order_waiter);
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        String restaurantId = getIntent().getStringExtra("restaurantId");
+        restaurantId = getIntent().getStringExtra("restaurantId");
 
         if (restaurantId != null && !restaurantId.isEmpty()) {
             ArrayList<Orders> ordersList = new ArrayList<>();
-            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId).whereEqualTo("status","En preparación");
+            Query query = db.collection("orders").whereEqualTo("restaurantId", restaurantId).whereEqualTo("status","En camino a la mesa");
 
             query.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
@@ -81,7 +79,7 @@ public class Cocinero extends AppCompatActivity {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.e("Cocinero", "Error al obtener las órdenes: " + e.getMessage());
+                    Log.e("Mesero", "Error al obtener las órdenes: " + e.getMessage());
                 }
             });
 
@@ -89,7 +87,7 @@ public class Cocinero extends AppCompatActivity {
                     .setQuery(query, Orders.class).build();
 
             // Crear el adaptador y pasar la lista de órdenes ordenadas
-            orderAdapter = new OrderAdapter(firestoreRecyclerOptions, ordersList, Cocinero.this);
+            orderAdapter = new OrderAdapter(firestoreRecyclerOptions, ordersList, Mesero.this);
             orderAdapter.notifyDataSetChanged();
             orderRecyclerView.setAdapter(orderAdapter);
         }
@@ -100,6 +98,7 @@ public class Cocinero extends AppCompatActivity {
             public void onRefresh() {
                 // Realizar la acción de recarga
                 loadData(); // Método que debes implementar para cargar los datos nuevamente
+
             }
         });
     }
@@ -119,13 +118,18 @@ public class Cocinero extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        orderAdapter.startListening();
+        if(orderAdapter != null){
+            orderAdapter.startListening();
+        }
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        orderAdapter.stopListening();
+        if(orderAdapter != null){
+            orderAdapter.stopListening();
+        }
     }
 
     @Override
@@ -141,7 +145,7 @@ public class Cocinero extends AppCompatActivity {
         if(id == R.id.i_signout){
             mAuth.signOut();
             finish();
-            startActivity(new Intent(Cocinero.this, MainActivity.class));
+            startActivity(new Intent(Mesero.this, MainActivity.class));
             return true;
         }
         if(id== R.id.i_profile){

@@ -19,12 +19,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.proyectocuisinefood.CreateMenu;
-import com.example.proyectocuisinefood.CreateRestaurant;
-import com.example.proyectocuisinefood.Menu;
-import com.example.proyectocuisinefood.PaymentMethods;
+import com.example.proyectocuisinefood.application.CreateRestaurant;
+import com.example.proyectocuisinefood.application.Menu;
+import com.example.proyectocuisinefood.application.PaymentMethods;
 import com.example.proyectocuisinefood.R;
-import com.example.proyectocuisinefood.RestaurantProfile;
+import com.example.proyectocuisinefood.application.RestaurantProfile;
 import com.example.proyectocuisinefood.model.Restaurant;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;

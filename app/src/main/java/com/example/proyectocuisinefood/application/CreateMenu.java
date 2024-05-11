@@ -1,4 +1,4 @@
-package com.example.proyectocuisinefood;
+package com.example.proyectocuisinefood.application;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +29,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.proyectocuisinefood.auxiliaryclass.info;
+import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
