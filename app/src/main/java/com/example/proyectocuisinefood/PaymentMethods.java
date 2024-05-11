@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.icu.math.BigDecimal;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -642,34 +643,45 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         if(price != null){
             amount = BigDecimal.valueOf(Double.parseDouble(price));
         }
-        
-        ClipApi.login(clipEmail, clipPassword, this);
 
-        switch (selectedType) {
-            case "Pago con Clip":
-                Toast.makeText(PaymentMethods.this, "Pago con Clip", Toast.LENGTH_SHORT).show();
+        // Crear un CountDownTimer que espere 5 segundos
+        BigDecimal finalAmount = amount;
 
-                ClipPayment clipPayment = new ClipPayment.Builder() // Construir el método de pago
-                        .amount(amount.toBigDecimal()) // Cantidad de la transacción
-                        .enableContactless(true) // Tecnología sin contacto
-                        .customTransactionId(id) // Añadirle un identificador a la transacción
-                        .enableTips(true) // Permite mostrar la pantalla de selección de propina en el flujo de pago
-                        .roundTips(true) // Permite redondear los decimales de la cantidad de la propina
-                        .build();
+        ClipApi.login(clipEmail, clipPassword, PaymentMethods.this);
+        new CountDownTimer(3000, 1000) {
+            public void onTick(long millisUntilFinished) {
 
-                ClipApi.launchPaymentActivity(this, clipPayment,REQUEST_CODE_PAYMENT_RESULT);
-                break;
-            case "Pago a distancia con Clip":
-                Toast.makeText(PaymentMethods.this, "Pago a distancia con Clip", Toast.LENGTH_SHORT).show();
+            }
 
-                ClipApi.launchRemotePaymentActivity(PaymentMethods.this, amount.toBigDecimal(), REQUEST_CODE_REMOTE_PAYMENT_RESULT);
+            public void onFinish() {
 
-                break;
-            case "Configurar Clip Plus":
-                Toast.makeText(PaymentMethods.this, "Configurar Clip Plus", Toast.LENGTH_SHORT).show();
-                ClipApi.showSettingsActivity(this, true, true, REQUEST_CODE_SETTINGS_RESULT);
-                break;
-        }
+                switch (selectedType) {
+                    case "Pago con Clip":
+                        Toast.makeText(PaymentMethods.this, "Pago con Clip", Toast.LENGTH_SHORT).show();
+
+                        ClipPayment clipPayment = new ClipPayment.Builder() // Construir el método de pago
+                                .amount(finalAmount.toBigDecimal()) // Cantidad de la transacción
+                                .enableContactless(true) // Tecnología sin contacto
+                                .customTransactionId(id) // Añadirle un identificador a la transacción
+                                .enableTips(true) // Permite mostrar la pantalla de selección de propina en el flujo de pago
+                                .roundTips(true) // Permite redondear los decimales de la cantidad de la propina
+                                .build();
+
+                        ClipApi.launchPaymentActivity(PaymentMethods.this, clipPayment, REQUEST_CODE_PAYMENT_RESULT);
+                        break;
+                    case "Pago a distancia con Clip":
+                        Toast.makeText(PaymentMethods.this, "Pago a distancia con Clip", Toast.LENGTH_SHORT).show();
+
+                        ClipApi.launchRemotePaymentActivity(PaymentMethods.this, finalAmount.toBigDecimal(), REQUEST_CODE_REMOTE_PAYMENT_RESULT);
+
+                        break;
+                    case "Configurar Clip Plus":
+                        Toast.makeText(PaymentMethods.this, "Configurar Clip Plus", Toast.LENGTH_SHORT).show();
+                        ClipApi.showSettingsActivity(PaymentMethods.this, true, true, REQUEST_CODE_SETTINGS_RESULT);
+                        break;
+                }
+            }
+        }.start();
 
     }
 
