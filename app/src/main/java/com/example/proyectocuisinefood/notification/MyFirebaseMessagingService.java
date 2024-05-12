@@ -16,6 +16,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.application.Admin;
 import com.example.proyectocuisinefood.application.Cliente;
@@ -26,6 +31,7 @@ import com.example.proyectocuisinefood.application.PlaceOrders;
 import com.example.proyectocuisinefood.application.SplashScreen;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -33,17 +39,32 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.JsonIOException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     public static final String TAG_NOTIFICATION = "MyFirebaseMessagingService";
     private Class classApplication;
+    private final String CURRENT_KEY = "AAAA7k4jIWM:APA91bEWA2auKRNqgLwQBXUiIeFDEj5yHuGnBK22C8D5KsPkkUwukfErmjodHt1m2Ojb2Eb0nRQEkJYqVXjgkU5BqntP_S5uGEGOwcMe6CXjE3PSNnlGmUFwV_GWOT7Xx8jCMcAXH7_r";
 
     @Override
-    public void onMessageReceived(@NonNull RemoteMessage message) {
+    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
 
-        if(message.getNotification() != null) {
-            sendNotificationForeground(message.getNotification().getBody());
+        if(remoteMessage.getNotification() != null) {
+            if(remoteMessage.getData().size()>0){
+                String title = remoteMessage.getData().get("title");
+                String message = remoteMessage.getData().get("body");
+                sendNotificationForeground(title, message);
+            } else {
+                sendNotificationForeground(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
+            }
         }
 
         //super.onMessageReceived(message);
@@ -58,7 +79,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         });
     }
 
-    public void sendNotificationForeground (String messageBody) {
+    public void sendNotificationForeground (String title, String messageBody) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         String userId = currentUser.getUid();
@@ -94,7 +115,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         NotificationCompat.Builder notificationBuilder =
                                 new NotificationCompat.Builder(MyFirebaseMessagingService.this, channelId)
                                         .setSmallIcon(R.drawable.logo_blanco)
-                                        .setContentTitle("Cuisine Food")
+                                        .setContentTitle(title)
                                         .setContentText(messageBody)
                                         .setAutoCancel(true)
                                         .setSound(defaultSoundUri)
@@ -155,23 +176,46 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(0 /* ID of notification*/, notificationBuilder.build());
     }
 
-    public void sendNotificationDevice(String messageBody, String title, String token, PlaceOrders context, Class classApp) {
+    public void sendNotificationDevice(String messageBody, String title, String token, Context context) {
         String channelId = "FCM_CHANNEL_ID";
-        // Construye el mensaje de la notificación
 
-        // Envía el mensaje al dispositivo con el token especificado
-        /*
-        FirebaseMessaging.getInstance().send()
-                .addOnCompleteListener(new OnCompleteListener<SendResponse>() {
-                    @Override
-                    public void onComplete(Task<SendResponse> task) {
-                        if (task.isSuccessful()) {
-                            System.out.println("Notificación enviada exitosamente al dispositivo con token: " + token);
-                        } else {
-                            System.out.println("Error al enviar la notificación al dispositivo con token: " + token);
-                        }
-                    }
-                });
-                */
+        RemoteMessage notificationMessage = new RemoteMessage.Builder(token + "@fcm.googleapis.com")
+                .setMessageId(Integer.toString(new Random().nextInt(9999))) // Asigna un ID de mensaje único
+                .addData("title", title)
+                .addData("body", messageBody)
+                .build();
+
+        // Envía la notificación a través de Firebase Messaging
+        FirebaseMessaging.getInstance().send(notificationMessage);
+
+        /*// Construye el mensaje de la notificación
+        RequestQueue myRequest = Volley.newRequestQueue(context);
+        JSONObject json = new JSONObject();
+
+        try{
+            json.put("to",token);
+            JSONObject notification = new JSONObject();
+            notification.put("title",title);
+            notification.put("body",messageBody);
+
+            json.put("data",notification);
+            String url = "https://fcm.googleapis.com/fcm/send";
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,url,json,null,null){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> header = new HashMap<>();
+                    header.put("Content-Type","application/json");
+                    header.put("Authorization","key="+ CURRENT_KEY);
+
+                    return header;
+                }
+            };
+            myRequest.add(request);
+
+        }catch (JsonIOException e){
+            e.printStackTrace();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }*/
     }
 }
