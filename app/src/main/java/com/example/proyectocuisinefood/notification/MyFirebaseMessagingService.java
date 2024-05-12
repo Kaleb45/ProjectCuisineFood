@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,8 @@ import androidx.core.app.NotificationCompat;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.proyectocuisinefood.R;
@@ -58,24 +61,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
 
-        if(remoteMessage.getNotification() != null) {
-            if(remoteMessage.getData().size()>0){
-                String title = remoteMessage.getData().get("title");
-                String message = remoteMessage.getData().get("body");
-                sendNotificationForeground(title, message);
-            } else {
-                sendNotificationForeground(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
-            }
-        }
+        super.onMessageReceived(remoteMessage);
 
-        //super.onMessageReceived(message);
+        // Verifica si el mensaje contiene datos
+        if (remoteMessage.getData().size() > 0) {
+            // Procesa y muestra la notificación utilizando los datos recibidos
+            String title = remoteMessage.getData().get("title");
+            String message = remoteMessage.getData().get("body");
+            // Aquí puedes mostrar la notificación en la barra de notificaciones o hacer lo que desees con el mensaje recibido
+
+            sendNotificationForeground(title, message);
+        }
     }
 
-    private void sendNotificationToast(String from, String body) {
+    private void sendNotificationToast(String title, String body) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(MyFirebaseMessagingService.this, from +": "+body, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyFirebaseMessagingService.this, title +": "+body, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -133,7 +136,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             notificationManager.createNotificationChannel(channel);
                         }
 
-                        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+                        notificationManager.notify(new Random().nextInt(9999), notificationBuilder.build());
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -174,22 +177,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationManager.createNotificationChannel(channel);
         }
 
-        notificationManager.notify(0 /* ID of notification*/, notificationBuilder.build());
+        notificationManager.notify(new Random().nextInt(9999), notificationBuilder.build());
     }
 
     public void sendNotificationDevice(String messageBody, String title, String token, Context context) {
-        String channelId = "FCM_CHANNEL_ID";
 
-        RemoteMessage notificationMessage = new RemoteMessage.Builder(token + "@fcm.googleapis.com")
+        /*RemoteMessage notificationMessage = new RemoteMessage.Builder(token + "@fcm.googleapis.com")
                 .setMessageId(Integer.toString(new Random().nextInt(9999))) // Asigna un ID de mensaje único
                 .addData("title", title)
                 .addData("body", messageBody)
                 .build();
 
         // Envía la notificación a través de Firebase Messaging
-        FirebaseMessaging.getInstance().send(notificationMessage);
+        FirebaseMessaging.getInstance().send(notificationMessage);*/
 
-        /*// Construye el mensaje de la notificación
+        // Construye el mensaje de la notificación
+        /*
         RequestQueue myRequest = Volley.newRequestQueue(context);
         JSONObject json = new JSONObject();
 
@@ -205,7 +208,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String> header = new HashMap<>();
-                    header.put("Content-Type","application/json");
+                    header.put("Content-Type","application/json; UTF-8");
                     header.put("Authorization","key="+ CURRENT_KEY);
 
                     return header;
@@ -217,6 +220,49 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             e.printStackTrace();
         } catch (JSONException e) {
             throw new RuntimeException(e);
-        }*/
+        }
+         */
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+
+        String url = "https://fcm.googleapis.com/fcm/send";
+
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("to", token);
+            JSONObject notification = new JSONObject();
+            notification.put("title", title);
+            notification.put("body", messageBody);
+            jsonBody.put("notification", notification);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Manejar la respuesta del servidor (si es necesario)
+                        Log.d("VolleyTAG", "Notificación enviada correctamente");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Manejar el error de la solicitud (si es necesario)
+                        Log.e("VolleyTAG", "Error al enviar la notificación: " + error.getMessage());
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "key=" + CURRENT_KEY);
+                return headers;
+            }
+        };
+
+        requestQueue.add(jsonObjectRequest);
+        sendNotification(messageBody, title, token, context, Cocinero.class);
     }
 }

@@ -34,6 +34,13 @@ import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.proyectocuisinefood.R;
 import com.example.proyectocuisinefood.adapter.IngredientsAdapter;
 import com.example.proyectocuisinefood.model.Ingredients;
@@ -53,6 +60,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -74,6 +84,8 @@ public class PlaceOrders extends AppCompatActivity {
     ArrayList<String> ingredientIds;
     int numberTable;
     Orders orders;
+    private final String CURRENT_KEY = "AAAA7k4jIWM:APA91bEWA2auKRNqgLwQBXUiIeFDEj5yHuGnBK22C8D5KsPkkUwukfErmjodHt1m2Ojb2Eb0nRQEkJYqVXjgkU5BqntP_S5uGEGOwcMe6CXjE3PSNnlGmUFwV_GWOT7Xx8jCMcAXH7_r";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -418,8 +430,9 @@ public class PlaceOrders extends AppCompatActivity {
                         String msg = token;
                         Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, msg);
                         Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
-                        myFirebaseMessagingService.sendNotification("Orden realizada", "Ordenes", msg, PlaceOrders.this, Cliente.class);
-                        myFirebaseMessagingService.sendNotificationDevice("Ordenes nuevas", "Ordenes", token2, PlaceOrders.this);
+                        myFirebaseMessagingService.sendNotificationDevice("Ordenes nuevas", "Ordenes", token2,PlaceOrders.this);
+                        myFirebaseMessagingService.sendNotification("Orden realizada", "Ordenes", token, PlaceOrders.this, Cliente.class);
+
                     }
                 });
     }
