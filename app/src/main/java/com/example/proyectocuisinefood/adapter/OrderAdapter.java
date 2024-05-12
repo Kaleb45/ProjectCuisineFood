@@ -18,17 +18,25 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.R;
+import com.example.proyectocuisinefood.application.Cocinero;
+import com.example.proyectocuisinefood.application.CreateRestaurant;
+import com.example.proyectocuisinefood.application.Mesero;
+import com.example.proyectocuisinefood.application.SignIn;
 import com.example.proyectocuisinefood.model.Orders;
+import com.example.proyectocuisinefood.notification.MyFirebaseMessagingService;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -37,11 +45,20 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
 
     private Context context;
     private ArrayList<Orders> sortedOrders;
+    private OnOrderAddedListener onOrderAddedListener;
 
     public OrderAdapter(@NonNull FirestoreRecyclerOptions<Orders> options, ArrayList<Orders> sortedOrders, Context context) {
         super(options);
         this.sortedOrders = sortedOrders;
         this.context = context;
+    }
+
+    public void setOnOrderAddedListener(OnOrderAddedListener listener) {
+        this.onOrderAddedListener = listener;
+    }
+
+    public interface OnOrderAddedListener {
+        void onOrderAdded();
     }
 
     @Override
@@ -72,6 +89,12 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                                 // Ocultar la vista del ViewHolder si no coincide con el tipo de usuario
                                 holder.itemView.setVisibility(View.GONE);
                                 holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+                            }
+                        }
+
+                        if(position == getItemCount()-1){
+                            if (onOrderAddedListener != null) {
+                                onOrderAddedListener.onOrderAdded(); // Notificar a la actividad que se ha agregado una nueva orden
                             }
                         }
                     }
@@ -265,6 +288,11 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                 });
     }
 
+    public void addOrder(ArrayList<Orders> order) {
+        sortedOrders.addAll(order);
+        notifyDataSetChanged(); // Notificar al RecyclerView que se ha agregado un nuevo elemento
+    }
+
     @NonNull
     @Override
     public OrderAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -330,6 +358,7 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                         public void onSuccess(Void aVoid) {
                             Toast.makeText(context, "Estado de la orden actualizado correctamente", Toast.LENGTH_SHORT).show();
                             Log.d("OrderAdapter", "Estado de la orden actualizado correctamente");
+                            notifications();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -337,6 +366,34 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                         public void onFailure(@NonNull Exception e) {
                             Toast.makeText(context, "Error al actualizar el estado de la orden", Toast.LENGTH_SHORT).show();
                             Log.e("OrderAdapter", "Error al actualizar el estado de la orden: " + e.getMessage());
+                        }
+                    });
+        }
+
+        private void notifications(){
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(new OnCompleteListener<String>() {
+                        @Override
+                        public void onComplete(@NonNull Task<String> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w(MyFirebaseMessagingService.TAG_NOTIFICATION, "Error al obtener el token de registro de FCM", task.getException());
+                                return;
+                            }
+
+                            // Get new FCM registration token
+                            String token = task.getResult();
+
+                            Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, token);
+                            //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
+                            MyFirebaseMessagingService.sendNotificationDevice("Ordenes completadas", "Ordenes", token, context);
+
+                            if (context instanceof Cocinero) {
+                                MyFirebaseMessagingService.sendNotification("Ordenes completadas", "Ordenes", token, context, Cocinero.class);
+                            }
+                            // Verificar si el contexto es una instancia de CreateRestaurant
+                            else if (context instanceof Mesero) {
+                                MyFirebaseMessagingService.sendNotification("Ordenes completadas", "Ordenes", token, context, Mesero.class);
+                            }
                         }
                     });
         }

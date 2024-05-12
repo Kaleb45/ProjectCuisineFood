@@ -407,7 +407,6 @@ public class PlaceOrders extends AppCompatActivity {
     }
 
     private void notification() {
-        MyFirebaseMessagingService myFirebaseMessagingService = new MyFirebaseMessagingService();
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
@@ -429,9 +428,9 @@ public class PlaceOrders extends AppCompatActivity {
                         // Log and toast
                         String msg = token;
                         Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, msg);
-                        Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
-                        myFirebaseMessagingService.sendNotificationDevice("Ordenes nuevas", "Ordenes", token2,PlaceOrders.this);
-                        myFirebaseMessagingService.sendNotification("Orden realizada", "Ordenes", token, PlaceOrders.this, Cliente.class);
+                        //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
+                        MyFirebaseMessagingService.sendNotificationDevice("Ordenes nuevas", "Ordenes", token2,PlaceOrders.this);
+                        MyFirebaseMessagingService.sendNotification("Orden realizada", "Ordenes", token, PlaceOrders.this, Cliente.class);
 
                     }
                 });

@@ -32,6 +32,7 @@ import com.example.proyectocuisinefood.application.MainActivity;
 import com.example.proyectocuisinefood.application.Mesero;
 import com.example.proyectocuisinefood.application.PlaceOrders;
 import com.example.proyectocuisinefood.application.SplashScreen;
+import com.example.proyectocuisinefood.auxiliaryclass.CuisineFood;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Firebase;
@@ -55,9 +56,6 @@ import java.util.Random;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     public static final String TAG_NOTIFICATION = "MyFirebaseMessagingService";
-    private Class classApplication;
-    private final String CURRENT_KEY = "AAAA7k4jIWM:APA91bEWA2auKRNqgLwQBXUiIeFDEj5yHuGnBK22C8D5KsPkkUwukfErmjodHt1m2Ojb2Eb0nRQEkJYqVXjgkU5BqntP_S5uGEGOwcMe6CXjE3PSNnlGmUFwV_GWOT7Xx8jCMcAXH7_r";
-
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
 
@@ -95,21 +93,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     String userType = documentSnapshot.getString("usertype");
 
                     if(userType != null){
+                        Intent intent = null;
                         switch (userType){
                             case "Administrador":
-                                classApplication = Admin.class;
+                                intent = new Intent(MyFirebaseMessagingService.this, Admin.class);
                                 break;
                             case "Cliente":
-                                classApplication = Cliente.class;
+                                intent = new Intent(MyFirebaseMessagingService.this, Cliente.class);
                                 break;
                             case "Cocinero":
-                                classApplication = Cocinero.class;
-                                break;
                             case "Mesero":
-                                classApplication = Mesero.class;
+                                intent = new Intent();
                                 break;
                         }
-                        Intent intent = new Intent(MyFirebaseMessagingService.this, classApplication);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         PendingIntent pendingIntent = PendingIntent.getActivity(MyFirebaseMessagingService.this, 0 /* Request code */, intent,
                                 PendingIntent.FLAG_IMMUTABLE);
@@ -150,8 +146,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
-    public void sendNotification(String messageBody, String title, String token, Context context, Class classApp) {
+    public static void sendNotification(String messageBody, String title, String token, Context context, Class classApp) {
         Intent intent = new Intent(context, classApp);
+        if( context instanceof Cocinero || context instanceof Mesero){
+            intent = new Intent();
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 , intent,
                 PendingIntent.FLAG_IMMUTABLE);
@@ -180,7 +180,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationManager.notify(new Random().nextInt(9999), notificationBuilder.build());
     }
 
-    public void sendNotificationDevice(String messageBody, String title, String token, Context context) {
+    public static void sendNotificationDevice(String messageBody, String title, String token, Context context) {
 
         /*RemoteMessage notificationMessage = new RemoteMessage.Builder(token + "@fcm.googleapis.com")
                 .setMessageId(Integer.toString(new Random().nextInt(9999))) // Asigna un ID de mensaje único
@@ -257,12 +257,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "key=" + CURRENT_KEY);
+                headers.put("Authorization", "key=" + CuisineFood.SERVER_KEY);
                 return headers;
             }
         };
 
         requestQueue.add(jsonObjectRequest);
-        sendNotification(messageBody, title, token, context, Cocinero.class);
     }
 }
