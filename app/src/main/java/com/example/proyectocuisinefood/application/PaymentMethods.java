@@ -13,6 +13,7 @@ import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,14 +30,19 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.example.proyectocuisinefood.R;
+import com.example.proyectocuisinefood.auxiliaryclass.CuisineFood;
+import com.example.proyectocuisinefood.notification.MyFirebaseMessagingService;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.payclip.authentication.client.LogoutListener;
 import com.payclip.common.StatusCode;
 import com.payclip.payments.models.transaction.ClipTransaction;
@@ -668,6 +674,8 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                 .roundTips(true) // Permite redondear los decimales de la cantidad de la propina
                                 .build();
 
+                        notificationPay("Mesero");
+
                         ClipApi.launchPaymentActivity(PaymentMethods.this, clipPayment, REQUEST_CODE_PAYMENT_RESULT);
                         break;
                     case "Pago a distancia con Clip":
@@ -780,6 +788,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Toast.makeText(PaymentMethods.this, "Ordenes pagadas", Toast.LENGTH_SHORT).show();
+                                    notificationPay("Pagado");
                                     Intent intent = new Intent(PaymentMethods.this, MenuRestaurant.class);
                                     intent.putExtra("restaurantId",restaurantId);
                                     startActivity(intent);
@@ -800,6 +809,34 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                 Toast.makeText(PaymentMethods.this, "Error al obtener las órdenes del usuario", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void notificationPay(String condition) {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(MyFirebaseMessagingService.TAG_NOTIFICATION, "Error al obtener el token de registro de FCM", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, token);
+                        //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
+
+                        if(condition.equals("Pagado")){
+                            MyFirebaseMessagingService.sendNotificationDeviceTopic("Se ha realizado el cobro por medio de Clip", "Ordenes", CuisineFood.token2, PaymentMethods.this,"Administradores");
+                            MyFirebaseMessagingService.sendNotification("Se ha realizado el cobro por medio de Clip", "Ordenes", token, PaymentMethods.this, Cliente.class);
+                        } else {
+                            MyFirebaseMessagingService.sendNotificationDeviceTopic("El usuario "+nameCustomer+" solicita un pago mediante Clip", "Ordenes", CuisineFood.token2, PaymentMethods.this,"Mesero");
+                            MyFirebaseMessagingService.sendNotification("Espere a que un mesero llegue a su mesa", "Ordenes", token, PaymentMethods.this, Mesero.class);
+                        }
+
+                    }
+                });
     }
 
     private void assignedPaymentMethodsCustomer(String name, String numberCard, String date, String cvv){

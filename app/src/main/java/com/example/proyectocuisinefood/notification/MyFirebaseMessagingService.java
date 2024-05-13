@@ -33,8 +33,10 @@ import com.example.proyectocuisinefood.application.Mesero;
 import com.example.proyectocuisinefood.application.PlaceOrders;
 import com.example.proyectocuisinefood.application.SplashScreen;
 import com.example.proyectocuisinefood.auxiliaryclass.CuisineFood;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -182,47 +184,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     public static void sendNotificationDevice(String messageBody, String title, String token, Context context) {
 
-        /*RemoteMessage notificationMessage = new RemoteMessage.Builder(token + "@fcm.googleapis.com")
-                .setMessageId(Integer.toString(new Random().nextInt(9999))) // Asigna un ID de mensaje único
-                .addData("title", title)
-                .addData("body", messageBody)
-                .build();
-
-        // Envía la notificación a través de Firebase Messaging
-        FirebaseMessaging.getInstance().send(notificationMessage);*/
-
-        // Construye el mensaje de la notificación
-        /*
-        RequestQueue myRequest = Volley.newRequestQueue(context);
-        JSONObject json = new JSONObject();
-
-        try{
-            json.put("to",token);
-            JSONObject notification = new JSONObject();
-            notification.put("title",title);
-            notification.put("body",messageBody);
-
-            json.put("data",notification);
-            String url = "https://fcm.googleapis.com/fcm/send";
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,url,json,null,null){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> header = new HashMap<>();
-                    header.put("Content-Type","application/json; UTF-8");
-                    header.put("Authorization","key="+ CURRENT_KEY);
-
-                    return header;
-                }
-            };
-            myRequest.add(request);
-
-        }catch (JsonIOException e){
-            e.printStackTrace();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-         */
-
         RequestQueue requestQueue = Volley.newRequestQueue(context);
 
         String url = "https://fcm.googleapis.com/fcm/send";
@@ -230,6 +191,61 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("to", token);
+            JSONObject notification = new JSONObject();
+            notification.put("title", title);
+            notification.put("body", messageBody);
+            jsonBody.put("notification", notification);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Manejar la respuesta del servidor (si es necesario)
+                        Log.d("VolleyTAG", "Notificación enviada correctamente");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Manejar el error de la solicitud (si es necesario)
+                        Log.e("VolleyTAG", "Error al enviar la notificación: " + error.getMessage());
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "key=" + CuisineFood.SERVER_KEY);
+                return headers;
+            }
+        };
+
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    public static void sendNotificationDeviceTopic(String messageBody, String title, String token, Context context, String topic) {
+
+        FirebaseMessaging.getInstance().subscribeToTopic(topic).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Log.d("TopicTAG","Topic añadido");
+                } else {
+                    Log.d("TopicTAG","Error al realizar el Topic");
+                }
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+
+        String url = "https://fcm.googleapis.com/fcm/send";
+
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("to", token+"/topics/"+topic);
             JSONObject notification = new JSONObject();
             notification.put("title", title);
             notification.put("body", messageBody);

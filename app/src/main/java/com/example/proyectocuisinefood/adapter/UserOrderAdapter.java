@@ -17,16 +17,23 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.proyectocuisinefood.R;
+import com.example.proyectocuisinefood.application.Cliente;
+import com.example.proyectocuisinefood.application.Cocinero;
+import com.example.proyectocuisinefood.auxiliaryclass.CuisineFood;
 import com.example.proyectocuisinefood.model.Orders;
+import com.example.proyectocuisinefood.notification.MyFirebaseMessagingService;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -190,6 +197,7 @@ public class UserOrderAdapter extends FirestoreRecyclerAdapter<Orders, UserOrder
                 Toast.makeText(context, "Recargue en caso de que el precio no se actualice", Toast.LENGTH_SHORT).show();
                 if (onOrderCanceledListener != null) {
                     onOrderCanceledListener.onOrderCanceled(); // Notificar a la actividad
+                    notifyOrderCancelled();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -198,6 +206,28 @@ public class UserOrderAdapter extends FirestoreRecyclerAdapter<Orders, UserOrder
                 Toast.makeText(context, "Error al cancelar la orden", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void notifyOrderCancelled() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(MyFirebaseMessagingService.TAG_NOTIFICATION, "Error al obtener el token de registro de FCM", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, token);
+                        //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
+                        MyFirebaseMessagingService.sendNotificationDevice("Orden cancelada", "Ordenes", CuisineFood.token2, context);
+                        MyFirebaseMessagingService.sendNotification("Orden cancelada", "Ordenes", token, context, Cliente.class);
+
+                    }
+                });
     }
 
     @NonNull

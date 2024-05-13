@@ -22,6 +22,7 @@ import com.example.proyectocuisinefood.application.Cocinero;
 import com.example.proyectocuisinefood.application.CreateRestaurant;
 import com.example.proyectocuisinefood.application.Mesero;
 import com.example.proyectocuisinefood.application.SignIn;
+import com.example.proyectocuisinefood.auxiliaryclass.CuisineFood;
 import com.example.proyectocuisinefood.model.Orders;
 import com.example.proyectocuisinefood.notification.MyFirebaseMessagingService;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -65,6 +66,10 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
     protected void onBindViewHolder(@NonNull OrderAdapter.ViewHolder holder, int position, @NonNull Orders model) {
         final int pos = position;
 
+        if (model.getStatus().equals("Cancelada")) {
+            notifyOrderCancelled();
+        }
+
         // Obtener el tipo de usuario actual
         FirebaseUser currentUser = holder.mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -86,7 +91,6 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
                                 // Mostrar solo las órdenes con estado "En camino a la mesa" para los meseros
                                 bindOrder(holder, sortedOrders.get(pos), position);
                             } else {
-                                // Ocultar la vista del ViewHolder si no coincide con el tipo de usuario
                                 holder.itemView.setVisibility(View.GONE);
                                 holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
                             }
@@ -293,6 +297,31 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
         notifyDataSetChanged(); // Notificar al RecyclerView que se ha agregado un nuevo elemento
     }
 
+    public void notifyOrderCancelled() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(MyFirebaseMessagingService.TAG_NOTIFICATION, "Error al obtener el token de registro de FCM", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, token);
+                        //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
+                        MyFirebaseMessagingService.sendNotificationDevice("Orden cancelada", "Ordenes", token, context);
+
+                        if (context instanceof Cocinero) {
+                            MyFirebaseMessagingService.sendNotification("Orden cancelada", "Ordenes", token, context, Cocinero.class);
+                        }
+
+                    }
+                });
+    }
+
     @NonNull
     @Override
     public OrderAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -385,14 +414,17 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
 
                             Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, token);
                             //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
-                            MyFirebaseMessagingService.sendNotificationDevice("Ordenes completadas", "Ordenes", token, context);
+                            MyFirebaseMessagingService.sendNotificationDevice("Orden completada", "Ordenes", token, context);
 
                             if (context instanceof Cocinero) {
-                                MyFirebaseMessagingService.sendNotification("Ordenes completadas", "Ordenes", token, context, Cocinero.class);
+                                MyFirebaseMessagingService.sendNotification("Orden completada", "Ordenes", token, context, Cocinero.class);
+                                ((Cocinero) context).loadData();
                             }
                             // Verificar si el contexto es una instancia de CreateRestaurant
                             else if (context instanceof Mesero) {
-                                MyFirebaseMessagingService.sendNotification("Ordenes completadas", "Ordenes", token, context, Mesero.class);
+                                MyFirebaseMessagingService.sendNotificationDevice("Orden completada", "Ordenes", CuisineFood.token1, context);
+                                MyFirebaseMessagingService.sendNotification("Orden completada", "Ordenes", token, context, Mesero.class);
+                                ((Mesero) context).loadData();
                             }
                         }
                     });

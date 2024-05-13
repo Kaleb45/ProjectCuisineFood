@@ -159,10 +159,8 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
                         for (DocumentSnapshot document : queryDocumentSnapshots) {
                             Orders order = document.toObject(Orders.class);
                             if (order != null && !"Cancelada".equals(order.getStatus())) {
-                                total += Double.parseDouble(order.getTotalPrice());
-                            } else {
-                                Toast.makeText(getContext(), "Actualmente no tiene ordenes", Toast.LENGTH_SHORT).show();
-                            }
+                                total += Double.parseDouble(order.getTotalPrice())*Double.parseDouble(order.getQuantity());
+                            } 
                         }
                         totalPrice.setText(String.format("%.2f", total)+"$");  // Formatear el total a dos decimales
                         price = String.format("%.2f", total);

@@ -84,7 +84,7 @@ public class Mesero extends AppCompatActivity implements OrderAdapter.OnOrderAdd
         finishAffinity();
     }
 
-    private void loadData() {
+    public void loadData() {
         Intent intent = getIntent(); // Obtener el intent actual
         finish(); // Finalizar la actividad actual
         startActivity(intent); // Iniciar la actividad de nuevo
@@ -156,8 +156,8 @@ public class Mesero extends AppCompatActivity implements OrderAdapter.OnOrderAdd
         if(orderAdapter != null){
             orderAdapter.startListening();
         } else {
-            onOrderAdded();
             loadData();
+            onOrderAdded();
         }
     }
 

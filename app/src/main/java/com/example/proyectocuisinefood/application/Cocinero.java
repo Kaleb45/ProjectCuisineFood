@@ -94,7 +94,7 @@ public class Cocinero extends AppCompatActivity implements OrderAdapter.OnOrderA
         finishAffinity();
     }
 
-    private void loadData() {
+    public void loadData() {
         Intent intent = getIntent(); // Obtener el intent actual
         finish(); // Finalizar la actividad actual
         startActivity(intent); // Iniciar la actividad de nuevo
