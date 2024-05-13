@@ -54,8 +54,11 @@ import com.payclip.paymentui.models.ClipPayment;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
+
+import SecureStorage.AESUtil;
 
 public class PaymentMethods extends AppCompatActivity implements LoginListener, LogoutListener {
 
@@ -380,12 +383,31 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     }
 
     private void createPaymentMethodsRestaurant(String name, String numberCard, String date, String cvv) {
+        Key secretKey;
+        try {
+            secretKey = AESUtil.generateKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            name = AESUtil.encrypt(name, secretKey);
+            numberCard = AESUtil.encrypt(numberCard, secretKey);
+            date = AESUtil.encrypt(date, secretKey);
+            cvv = AESUtil.encrypt(cvv, secretKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        String keyString = AESUtil.keyToString(secretKey);
+
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("cardNumber", numberCard);
         map.put("date", date);
         map.put("cvv", cvv);
         map.put("type", typePaymentMethods);
+        map.put("key", keyString);
         map.put("emailClip", null);
         map.put("passwordClip", null);
         map.put("clipPlus", null);
@@ -580,16 +602,37 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     }
 
     private void logInClip(String email, String password) {
+        String finalEmail = email;
+        String finalPassword = password;
+
+        Key secretKey;
+        try {
+            secretKey = AESUtil.generateKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            email = AESUtil.encrypt(email, secretKey);
+            password = AESUtil.encrypt(password, secretKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        String keyString = AESUtil.keyToString(secretKey);
+
         Map<String, Object> map = new HashMap<>();
         map.put("emailClip", email);
         map.put("passwordClip", password);
+        map.put("keyClip", keyString);
+
         db.collection("paymentMethods").document(paymentMethodId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 String content = "Ahora cuando seleccione en continuar puede configurar su Clip Plus";
                 showStatusDialog("Aviso", content);
-                clipEmail = email;
-                clipPassword = password;
+                clipEmail = finalEmail;
+                clipPassword = finalPassword;
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -609,9 +652,26 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                 db.collection("paymentMethods").document(paymentMethodIdRestaurant).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String email = documentSnapshot.getString("emailClip");
+                        String password = documentSnapshot.getString("passwordClip");
+                        String keyString = documentSnapshot.getString("keyClip");
+
+                        Key key = null;
+                        if(keyString!= null){
+                            key = AESUtil.stringToKey(keyString);
+                        }
+
+
+                        try {
+                            email = AESUtil.decrypt(email, key);
+                            password = AESUtil.decrypt(password, key);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
                         clipPlus = documentSnapshot.getString("clipPlus");
-                        clipEmail = documentSnapshot.getString("emailClip");
-                        clipPassword = documentSnapshot.getString("passwordClip");
+                        clipEmail = email;
+                        clipPassword = password;
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -840,12 +900,31 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     }
 
     private void assignedPaymentMethodsCustomer(String name, String numberCard, String date, String cvv){
+        Key secretKey;
+        try {
+            secretKey = AESUtil.generateKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            name = AESUtil.encrypt(name, secretKey);
+            numberCard = AESUtil.encrypt(numberCard, secretKey);
+            date = AESUtil.encrypt(date, secretKey);
+            cvv = AESUtil.encrypt(cvv, secretKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        String keyString = AESUtil.keyToString(secretKey);
+
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("cardNumber", numberCard);
         map.put("date", date);
         map.put("cvv", cvv);
         map.put("type", typePaymentMethods);
+        map.put("key", keyString);
         db.collection("paymentMethods").document(paymentMethodId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
@@ -860,7 +939,29 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     }
 
     private void assignedPaymentMethodsRestaurant(String name, String numberCard, String date, String cvv) {
+        Key secretKey;
+        try {
+            secretKey = AESUtil.generateKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            name = AESUtil.encrypt(name, secretKey);
+            numberCard = AESUtil.encrypt(numberCard, secretKey);
+            date = AESUtil.encrypt(date, secretKey);
+            cvv = AESUtil.encrypt(cvv, secretKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        String keyString = AESUtil.keyToString(secretKey);
+
         // Consultar la colección "restaurant" para obtener el ID de paymentMethods
+        String finalName = name;
+        String finalNumberCard = numberCard;
+        String finalDate = date;
+        String finalCvv = cvv;
         db.collection("restaurant")
                 .document(restaurantId)
                 .get()
@@ -873,12 +974,14 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                             // Actualizar el documento correspondiente en la colección "paymentMethods"
                             if (paymentMethodsId != null) {
                                 paymentMethodId = paymentMethodsId;
+
                                 Map<String, Object> map = new HashMap<>();
-                                map.put("name", name);
-                                map.put("cardNumber", numberCard);
-                                map.put("date", date);
-                                map.put("cvv", cvv);
+                                map.put("name", finalName);
+                                map.put("cardNumber", finalNumberCard);
+                                map.put("date", finalDate);
+                                map.put("cvv", finalCvv);
                                 map.put("type", typePaymentMethods);
+                                map.put("key", keyString);
 
                                 db.collection("paymentMethods").document(paymentMethodsId)
                                         .update(map)
@@ -933,11 +1036,27 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         if (documentSnapshot.exists()) {
-                                            nameCustomer = documentSnapshot.getString("name");
+                                            String name = documentSnapshot.getString("name");
                                             String numberCard = documentSnapshot.getString("cardNumber");
                                             String date = documentSnapshot.getString("date");
                                             String cvv = documentSnapshot.getString("cvv");
+                                            String keyString = documentSnapshot.getString("key");
                                             typePaymentMethods = documentSnapshot.getString("type");
+
+                                            Key key = null;
+                                            if(keyString!= null){
+                                                key = AESUtil.stringToKey(keyString);
+                                            }
+
+                                            try {
+                                                name = AESUtil.decrypt(name, key);
+                                                numberCard = AESUtil.decrypt(numberCard, key);
+                                                date = AESUtil.decrypt(date, key);
+                                                cvv = AESUtil.decrypt(cvv, key);
+                                            } catch (Exception e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                            nameCustomer = name;
 
                                             nameVM.setText(nameCustomer);
                                             numberCardVM.setText(numberCard);
@@ -989,9 +1108,35 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                                     String numberCard = documentSnapshot.getString("cardNumber");
                                                     String date = documentSnapshot.getString("date");
                                                     String cvv = documentSnapshot.getString("cvv");
+                                                    String email = documentSnapshot.getString("emailClip");
+                                                    String password = documentSnapshot.getString("passwordClip");
+                                                    String keyString = documentSnapshot.getString("key");
+                                                    String keyClipString = documentSnapshot.getString("keyClip");
+
+                                                    Key key = null;
+                                                    if(keyString!= null){
+                                                        key = AESUtil.stringToKey(keyString);
+                                                    }
+
+                                                    Key keyClip = null;
+                                                    if(keyClipString!= null){
+                                                        keyClip = AESUtil.stringToKey(keyClipString);
+                                                    }
+
+                                                    try {
+                                                        name = AESUtil.decrypt(name, key);
+                                                        numberCard = AESUtil.decrypt(numberCard, key);
+                                                        date = AESUtil.decrypt(date, key);
+                                                        cvv = AESUtil.decrypt(cvv, key);
+                                                        email = AESUtil.decrypt(email, keyClip);
+                                                        password = AESUtil.decrypt(password, keyClip);
+                                                    } catch (Exception e) {
+                                                        throw new RuntimeException(e);
+                                                    }
+
                                                     typePaymentMethods = documentSnapshot.getString("type");
-                                                    clipEmail = documentSnapshot.getString("emailClip");
-                                                    clipPassword = documentSnapshot.getString("passwordClip");
+                                                    clipEmail = email;
+                                                    clipPassword = password;
                                                     clipPlus = documentSnapshot.getString("clipPlus");
 
                                                     nameVM.setText(name);

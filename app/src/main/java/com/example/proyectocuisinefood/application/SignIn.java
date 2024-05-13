@@ -37,6 +37,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -303,8 +304,15 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
     }
 
     private void registerUser(String name, String nameUser, String passwordUser, String phoneUser, String emailUser, String usertype, String restaurantAssignedUser, String codeRestaurantUser) throws Exception {
+        Key secretKey;
+        try {
+            secretKey = AESUtil.generateKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         // Cifrar la contraseña antes de almacenarla
-        String encryptedPassword = AESUtil.encrypt(passwordUser);
+        String encryptedPassword = AESUtil.encrypt(passwordUser, secretKey);
         // Almacenar la contraseña cifrada utilizando KeyStore de Android
         KeyStoreUtil.saveEncryptedPassword(this, encryptedPassword);
         mAuth.createUserWithEmailAndPassword(emailUser, passwordUser).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
