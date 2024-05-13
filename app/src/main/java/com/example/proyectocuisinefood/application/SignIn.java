@@ -311,10 +311,12 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
             throw new RuntimeException(e);
         }
 
+        String keyString = AESUtil.keyToString(secretKey);
+
         // Cifrar la contraseña antes de almacenarla
         String encryptedPassword = AESUtil.encrypt(passwordUser, secretKey);
         // Almacenar la contraseña cifrada utilizando KeyStore de Android
-        KeyStoreUtil.saveEncryptedPassword(this, encryptedPassword);
+        KeyStoreUtil.saveEncryptedPassword(this, keyString);
         mAuth.createUserWithEmailAndPassword(emailUser, passwordUser).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {

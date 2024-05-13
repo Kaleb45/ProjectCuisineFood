@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import SecureStorage.AESUtil;
+import SecureStorage.KeyStoreUtil;
 
 public class PaymentMethods extends AppCompatActivity implements LoginListener, LogoutListener {
 
@@ -400,6 +401,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         }
 
         String keyString = AESUtil.keyToString(secretKey);
+        KeyStoreUtil.saveEncryptedPassword(this, keyString);
 
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
@@ -917,6 +919,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         }
 
         String keyString = AESUtil.keyToString(secretKey);
+        KeyStoreUtil.saveEncryptedPassword(this, keyString);
 
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
@@ -956,6 +959,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         }
 
         String keyString = AESUtil.keyToString(secretKey);
+        KeyStoreUtil.saveEncryptedPassword(this, keyString);
 
         // Consultar la colección "restaurant" para obtener el ID de paymentMethods
         String finalName = name;
