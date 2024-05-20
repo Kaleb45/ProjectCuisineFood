@@ -949,6 +949,7 @@ public class CreateRestaurant extends AppCompatActivity {
         map.put("photo", photoRestaurantAdapter.getPhotoUrls());
         // Añadir los datos del restaurante...
         map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
+        map.put("paymentMethodId", "");
 
         if (restaurantVMPay.isChecked()) {
 

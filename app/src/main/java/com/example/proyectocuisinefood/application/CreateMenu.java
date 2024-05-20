@@ -66,7 +66,7 @@ public class CreateMenu extends AppCompatActivity {
     StorageReference storageReference;
     Uri imageUrl;
     ProgressDialog progressDialog;
-    String downloadUri, restaurantId, photoDish;
+    String restaurantId, photoDish;
     ArrayList<String> ingredientIds;
     private static final int PERMISSION_REQUEST_CODE = 300;
     private static final int GALLERY_REQUEST_CODE = 101;
@@ -286,7 +286,7 @@ public class CreateMenu extends AppCompatActivity {
         map.put("time",time);
         map.put("type",type);
         map.put("restaurantId", restaurantId);
-        map.put("photo", downloadUri);
+        map.put("photo", photoDish);
 
         map.put("ingredientIds", ingredientsAdapter.getSelectedIngredientIds());
 
