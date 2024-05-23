@@ -155,16 +155,15 @@ public class Mesero extends AppCompatActivity implements OrderAdapter.OnOrderAdd
         super.onStart();
         if(orderAdapter != null){
             orderAdapter.startListening();
-        } else {
-            loadData();
-            onOrderAdded();
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        orderAdapter.stopListening();
+        if(orderAdapter != null){
+            orderAdapter.stopListening();
+        }
     }
 
     @Override

@@ -414,9 +414,10 @@ public class OrderAdapter extends FirestoreRecyclerAdapter<Orders, OrderAdapter.
 
                             Log.d(MyFirebaseMessagingService.TAG_NOTIFICATION, token);
                             //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
-                            MyFirebaseMessagingService.sendNotificationDevice("Orden completada", "Ordenes", token, context);
+
 
                             if (context instanceof Cocinero) {
+                                MyFirebaseMessagingService.sendNotificationDevice("Orden completada", "Ordenes", CuisineFood.token2, context);
                                 MyFirebaseMessagingService.sendNotification("Orden completada", "Ordenes", token, context, Cocinero.class);
                                 ((Cocinero) context).loadData();
                             }
