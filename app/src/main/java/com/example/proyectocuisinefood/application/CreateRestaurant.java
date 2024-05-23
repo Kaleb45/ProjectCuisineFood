@@ -962,6 +962,8 @@ public class CreateRestaurant extends AppCompatActivity {
             paymentData.put("type", "Visa/Mastercard");
             paymentData.put("emailClip", null);
             paymentData.put("passwordClip", null);
+            paymentData.put("key", null);
+            paymentData.put("keyClip", null);
             paymentData.put("clipPlus", "No");
 
             // Añadimos el nuevo documento a la colección paymentMethods
@@ -990,6 +992,8 @@ public class CreateRestaurant extends AppCompatActivity {
                 updatePaymentMethod(restaurantId);
                 Toast.makeText(CreateRestaurant.this, "Creado Exitosamente", Toast.LENGTH_SHORT).show();
                 saveSchedulesForRestaurant(restaurantId); // Llamada al método para guardar los horarios asociados al restaurante
+                Intent intent = new Intent(CreateRestaurant.this, Admin.class);
+                startActivity(intent);
                 finish();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -1004,7 +1008,7 @@ public class CreateRestaurant extends AppCompatActivity {
         Map<String, Object> map = new HashMap<>();
         map.put("paymentMethodId", paymentMethodId);
 
-        db.collection("restaurant").document(restaurantId).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+        db.collection("restaurant").document(id).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 Toast.makeText(CreateRestaurant.this, "Métodos de pago actualizados", Toast.LENGTH_SHORT).show();

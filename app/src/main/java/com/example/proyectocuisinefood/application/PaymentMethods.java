@@ -890,10 +890,10 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                         //Toast.makeText(PlaceOrders.this, msg, Toast.LENGTH_SHORT).show();
 
                         if(condition.equals("Pagado")){
-                            MyFirebaseMessagingService.sendNotificationDeviceTopic("Se ha realizado el cobro por medio de Clip", "Ordenes", CuisineFood.token2, PaymentMethods.this,"Administradores");
+                            MyFirebaseMessagingService.sendNotificationDevice("El usuario "+nameCustomer+" pago mediante Clip", "Ordenes", CuisineFood.token2, PaymentMethods.this);
                             MyFirebaseMessagingService.sendNotification("Se ha realizado el cobro por medio de Clip", "Ordenes", token, PaymentMethods.this, Cliente.class);
                         } else {
-                            MyFirebaseMessagingService.sendNotificationDeviceTopic("El usuario "+nameCustomer+" solicita un pago mediante Clip", "Ordenes", CuisineFood.token2, PaymentMethods.this,"Mesero");
+                            MyFirebaseMessagingService.sendNotificationDevice("El usuario "+nameCustomer+" solicita un pago mediante Clip", "Ordenes", CuisineFood.token2, PaymentMethods.this);
                             MyFirebaseMessagingService.sendNotification("Espere a que un mesero llegue a su mesa", "Ordenes", token, PaymentMethods.this, Mesero.class);
                         }
 
@@ -1050,16 +1050,16 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                             Key key = null;
                                             if(keyString!= null){
                                                 key = AESUtil.stringToKey(keyString);
+                                                try {
+                                                    name = AESUtil.decrypt(name, key);
+                                                    numberCard = AESUtil.decrypt(numberCard, key);
+                                                    date = AESUtil.decrypt(date, key);
+                                                    cvv = AESUtil.decrypt(cvv, key);
+                                                } catch (Exception e) {
+                                                    throw new RuntimeException(e);
+                                                }
                                             }
 
-                                            try {
-                                                name = AESUtil.decrypt(name, key);
-                                                numberCard = AESUtil.decrypt(numberCard, key);
-                                                date = AESUtil.decrypt(date, key);
-                                                cvv = AESUtil.decrypt(cvv, key);
-                                            } catch (Exception e) {
-                                                throw new RuntimeException(e);
-                                            }
                                             nameCustomer = name;
 
                                             nameVM.setText(nameCustomer);
@@ -1120,27 +1120,33 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                                                     Key key = null;
                                                     if(keyString!= null){
                                                         key = AESUtil.stringToKey(keyString);
+                                                        try {
+                                                            name = AESUtil.decrypt(name, key);
+                                                            numberCard = AESUtil.decrypt(numberCard, key);
+                                                            date = AESUtil.decrypt(date, key);
+                                                            cvv = AESUtil.decrypt(cvv, key);
+                                                        } catch (Exception e) {
+                                                            throw new RuntimeException(e);
+                                                        }
                                                     }
 
                                                     Key keyClip = null;
                                                     if(keyClipString!= null){
                                                         keyClip = AESUtil.stringToKey(keyClipString);
+                                                        try {
+                                                            email = AESUtil.decrypt(email, keyClip);
+                                                            password = AESUtil.decrypt(password, keyClip);
+                                                        } catch (Exception e) {
+                                                            throw new RuntimeException(e);
+                                                        }
+
+                                                        clipEmail = email;
+                                                        clipPassword = password;
                                                     }
 
-                                                    try {
-                                                        name = AESUtil.decrypt(name, key);
-                                                        numberCard = AESUtil.decrypt(numberCard, key);
-                                                        date = AESUtil.decrypt(date, key);
-                                                        cvv = AESUtil.decrypt(cvv, key);
-                                                        email = AESUtil.decrypt(email, keyClip);
-                                                        password = AESUtil.decrypt(password, keyClip);
-                                                    } catch (Exception e) {
-                                                        throw new RuntimeException(e);
-                                                    }
+
 
                                                     typePaymentMethods = documentSnapshot.getString("type");
-                                                    clipEmail = email;
-                                                    clipPassword = password;
                                                     clipPlus = documentSnapshot.getString("clipPlus");
 
                                                     nameVM.setText(name);

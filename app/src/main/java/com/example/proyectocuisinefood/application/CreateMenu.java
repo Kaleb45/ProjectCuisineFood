@@ -482,8 +482,8 @@ public class CreateMenu extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         ingredientsAdapter.stopListening();
     }
 

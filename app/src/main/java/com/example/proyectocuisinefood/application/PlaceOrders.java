@@ -199,6 +199,7 @@ public class PlaceOrders extends AppCompatActivity {
                             // Obtener el número de mesa de la orden existente
                             String existingTable = orderSnapshot.getString("numberTable");
                             String paymentMethodId = orderSnapshot.getString("paymentMethodId");
+                            String existingStatus = orderSnapshot.getString("status");
 
                             // Verificar si el número de mesa es diferente
                             if (existingTable != null && !existingTable.isEmpty() && !existingTable.equals(String.valueOf(numberTable))) {
@@ -217,7 +218,7 @@ public class PlaceOrders extends AppCompatActivity {
 
                             if(paymentMethodId == null){
                                 // Verificar si los ingredientes son iguales
-                                if (ingredientsAdapter.getSelectedIngredientIds().equals(existingIngredientIds)) {
+                                if (ingredientsAdapter.getSelectedIngredientIds().equals(existingIngredientIds) && existingStatus.equals("En preparación")) {
                                     // Si los ingredientes son iguales, actualizar la cantidad
                                     updateOrderQuantity(orderSnapshot.getId(), newQuantity);
                                 } else {

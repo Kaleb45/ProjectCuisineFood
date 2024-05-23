@@ -106,8 +106,8 @@ public class MenuRestaurant extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         menuAdapter.stopListening();
     }
 
