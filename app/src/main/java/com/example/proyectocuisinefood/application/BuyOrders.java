@@ -181,8 +181,8 @@ public class BuyOrders extends AppCompatActivity implements UserOrderAdapter.OnO
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         userOrderAdapter.stopListening();
     }
 

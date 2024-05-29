@@ -473,7 +473,7 @@ public class PlaceOrders extends AppCompatActivity {
                         String quantityTables = documentSnapshot.getString("quantityTables");
                         mapPhoto = documentSnapshot.getString("tableDistribution");
 
-                        if(mapPhoto != null || !mapPhoto.isEmpty()){
+                        if(mapPhoto != null ){
                             mapDistribution.setVisibility(View.VISIBLE);
                             Picasso.get().load(mapPhoto).resize(150,150).into(mapDistribution);
                         } else {
@@ -525,8 +525,8 @@ public class PlaceOrders extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         ingredientsAdapter.stopListening();
     }
 

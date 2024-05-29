@@ -77,7 +77,7 @@ public class CreateRestaurant extends AppCompatActivity {
     String selectedItemCategory1, selectedItemCategory2;
     int hour, minute, positionPhoto;
     ImageButton restaurantLogo, restaurantMap;
-    EditText restaurantName, restaurantPhone, restaurantCode;
+    EditText restaurantName, restaurantPhone, restaurantCode, restaurantQuantityTables;
     Button restaurantDirection, continueCreate,
             mondayOpenSchedule, tuesdayOpenSchedule, wednesdayOpenSchedule, thursdayOpenSchedule, fridayOpenSchedule, saturdayOpenSchedule, sundayOpenSchedule,
             mondayCloseSchedule, tuesdayCloseSchedule, wednesdayCloseSchedule, thursdayCloseSchedule, fridayCloseSchedule, saturdayCloseSchedule, sundayCloseSchedule;
@@ -144,6 +144,7 @@ public class CreateRestaurant extends AppCompatActivity {
         restaurantName = findViewById(R.id.ed_name_restaurant);
         restaurantPhone = findViewById(R.id.ed_phone_restaurant);
         restaurantCode = findViewById(R.id.ed_code_restaurant);
+        restaurantQuantityTables = findViewById(R.id.ed_quantity_tables_restaurant);
 
         restaurantDirection = findViewById(R.id.b_direction_restaurant);
         relatedRestaurant = findViewById(R.id.sv_restaurant);
@@ -702,6 +703,7 @@ public class CreateRestaurant extends AppCompatActivity {
         String category2 = selectedItemCategory2;
         String phone = restaurantPhone.getText().toString().trim();
         String code = restaurantCode.getText().toString().trim();
+        String quantityTables = restaurantQuantityTables.getText().toString().trim();
         String direction = restaurantDirection.getText().toString().trim();
         String mondayOpen = mondayOpenSchedule.getText().toString().trim();
         String mondayClose = mondayCloseSchedule.getText().toString().trim();
@@ -725,7 +727,13 @@ public class CreateRestaurant extends AppCompatActivity {
             return;
         }
 
-        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() || direction.isEmpty() || direction.equals("Dirección") ||
+        if (quantityTables.length() != 2) {
+            // Mostrar un mensaje de error si la cantidad de mesas no es válida
+            Toast.makeText(this, "La cantidad de mesas debe contener solo números y tener 2 dígitos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() || direction.isEmpty() || direction.equals("Dirección") || quantityTables.isEmpty() ||
                 mondayOpen.equals("Entrada") || mondayClose.equals("Cierre") || tuesdayOpen.equals("Entrada") || tuesdayClose.equals("Cierre") || wednesdayOpen.equals("Entrada") || wednesdayClose.equals("Cierre") ||
                 thursdayOpen.equals("Entrada") || thursdayClose.equals("Cierre") || fridayOpen.equals("Entrada") || fridayClose.equals("Cierre") || saturdayOpen.equals("Entrada") || saturdayClose.equals("Cierre") ||
                 sundayOpen.equals("Entrada") || sundayClose.equals("Cierre")){
@@ -733,11 +741,11 @@ public class CreateRestaurant extends AppCompatActivity {
             return;
         }
         else{
-            updateRestaurant(name, category1, category2, phone, code, direction, restaurantId);
+            updateRestaurant(name, category1, category2, phone, code, direction, restaurantId, quantityTables);
         }
     }
 
-    private void updateRestaurant(String name, String category1, String category2, String phone, String code, String direction, String id) {
+    private void updateRestaurant(String name, String category1, String category2, String phone, String code, String direction, String id, String quantityTables) {
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("category1",category1);
@@ -749,6 +757,7 @@ public class CreateRestaurant extends AppCompatActivity {
         map.put("direction", direction);
         map.put("logo", logoRestaurant);
         map.put("photo", photoRestaurantAdapter.getPhotoUrls());
+        map.put("quantityTables", quantityTables);
         // Añadir los datos del restaurante...
         map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
 
@@ -805,6 +814,7 @@ public class CreateRestaurant extends AppCompatActivity {
                 String phone = documentSnapshot.getString("phone");
                 String code = documentSnapshot.getString("code");
                 String direction = documentSnapshot.getString("direction");
+                String quantityTables = documentSnapshot.getString("quantityTables");
                 db.collection("schedules")
                         .whereEqualTo("restaurantId", id) // Filtrar por el ID del restaurante
                         .get()
@@ -865,7 +875,7 @@ public class CreateRestaurant extends AppCompatActivity {
                 spinRestaurantCategory1.setSelection(Arrays.asList(typeCategory1).indexOf(category1));
                 spinRestaurantCategory2.setSelection(Arrays.asList(typeCategory2).indexOf(category2));
 
-                if(logoRestaurant != null || !logoRestaurant.isEmpty()){
+                if(logoRestaurant != null){
                     Picasso.get().load(logoRestaurant).resize(300,300).centerCrop().into(restaurantLogo);
                     restaurantLogo.setBackground(new ColorDrawable(Color.TRANSPARENT));
                 }
@@ -884,6 +894,7 @@ public class CreateRestaurant extends AppCompatActivity {
                 restaurantPhone.setText(phone);
                 restaurantCode.setText(code);
                 restaurantDirection.setText(direction);
+                restaurantQuantityTables.setText(quantityTables);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -899,6 +910,7 @@ public class CreateRestaurant extends AppCompatActivity {
         String category2 = selectedItemCategory2;
         String phone = restaurantPhone.getText().toString().trim();
         String code = restaurantCode.getText().toString().trim();
+        String quantityTables = restaurantQuantityTables.getText().toString().trim();
         String direction = restaurantDirection.getText().toString().trim();
         String mondayOpen = mondayOpenSchedule.getText().toString().trim();
         String mondayClose = mondayCloseSchedule.getText().toString().trim();
@@ -922,7 +934,13 @@ public class CreateRestaurant extends AppCompatActivity {
             return;
         }
 
-        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() || direction.isEmpty() || direction.equals("Dirección") ||
+        if (quantityTables.length() != 2) {
+            // Mostrar un mensaje de error si la cantidad de mesas no es válida
+            Toast.makeText(this, "La cantidad de mesas debe contener solo números y tener 2 dígitos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(name.isEmpty() || category1.isEmpty() || category2.isEmpty() || phone.isEmpty() || code.isEmpty() || direction.isEmpty() || direction.equals("Dirección") || quantityTables.isEmpty() ||
                 mondayOpen.equals("Entrada") || mondayClose.equals("Cierre") || tuesdayOpen.equals("Entrada") || tuesdayClose.equals("Cierre") || wednesdayOpen.equals("Entrada") || wednesdayClose.equals("Cierre") ||
                 thursdayOpen.equals("Entrada") || thursdayClose.equals("Cierre") || fridayOpen.equals("Entrada") || fridayClose.equals("Cierre") || saturdayOpen.equals("Entrada") || saturdayClose.equals("Cierre") ||
                 sundayOpen.equals("Entrada") || sundayClose.equals("Cierre")){
@@ -930,11 +948,11 @@ public class CreateRestaurant extends AppCompatActivity {
             return;
         }
         else{
-            createRestaurant(name, category1, category2, phone, code, direction);
+            createRestaurant(name, category1, category2, phone, code, direction, quantityTables);
         }
     }
 
-    private void createRestaurant(String name, String category1, String category2, String phone, String code, String direction) {
+    private void createRestaurant(String name, String category1, String category2, String phone, String code, String direction, String quantityTables) {
         Map<String, Object> map = new HashMap<>();
         map.put("name",name);
         map.put("category1",category1);
@@ -947,6 +965,7 @@ public class CreateRestaurant extends AppCompatActivity {
         map.put("logo", logoRestaurant);
         map.put("relationedRestaurantId",related);
         map.put("photo", photoRestaurantAdapter.getPhotoUrls());
+        map.put("quantityTables", quantityTables);
         // Añadir los datos del restaurante...
         map.put("userId", mAuth.getCurrentUser().getUid()); // Usa el UID del usuario autenticado
         map.put("paymentMethodId", "");

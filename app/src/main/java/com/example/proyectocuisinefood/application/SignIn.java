@@ -449,8 +449,8 @@ public class SignIn extends AppCompatActivity implements AdapterView.OnItemSelec
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         restaurantSelectedAdapter.stopListening();
     }
 }
