@@ -40,7 +40,7 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
     SwipeRefreshLayout swipeRefreshLayout;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, price;
+    String restaurantId, price, isFirstRestaurantId;
     public OrderShoppingCartFragment() {
         // Required empty public constructor
     }
@@ -102,11 +102,13 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
     }
 
     private void onClickContinueShopping() {
-        if(!totalPrice.getText().equals("0.00$")){
+        if(!totalPrice.getText().equals("0.00$") && !isFirstRestaurantId.equals("No")){
             Intent intent = new Intent(getContext(), PaymentMethods.class);
             intent.putExtra("totalPrice",price);
             intent.putExtra("restaurantId",restaurantId);
             startActivity(intent);
+        } else if(isFirstRestaurantId.equals("No")){
+            Toast.makeText(getContext(), "Todas las órdenes deben ser del mismo restaurante", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getContext(), "El carro esta vacío", Toast.LENGTH_SHORT).show();
         }
@@ -129,6 +131,7 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
                                 String currentRestaurantId = document.getString("restaurantId");
                                 if (!firstRestaurantId.equals(currentRestaurantId)) {
                                     // Mostrar mensaje de error y salir del método
+                                    isFirstRestaurantId = "No";
                                     Toast.makeText(getContext(), "Todas las órdenes deben ser del mismo restaurante", Toast.LENGTH_SHORT).show();
                                     return;
                                 }

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -16,6 +17,7 @@ import android.widget.ToggleButton;
 import com.example.proyectocuisinefood.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -185,6 +187,7 @@ public class LogIn extends AppCompatActivity {
                                                         // Inicio de sesión exitoso
                                                         FirebaseUser currentUser = mAuth.getCurrentUser();
                                                         if (currentUser != null) {
+                                                            String userId = currentUser.getUid();
                                                             // Obtener el tipo de usuario
                                                             String userType = document.getString("usertype");
                                                             if (userType != null) {
@@ -194,12 +197,72 @@ public class LogIn extends AppCompatActivity {
                                                                         finish();
                                                                         break;
                                                                     case "Cocinero":
-                                                                        startActivity(new Intent(LogIn.this, Cocinero.class));
-                                                                        finish();
+                                                                        // Consultar el documento del usuario para obtener el ID del restaurante asignado
+                                                                        db.collection("user").document(userId).get()
+                                                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                                    @Override
+                                                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                                        if (documentSnapshot.exists()) {
+                                                                                            // Obtener el ID del restaurante asignado al usuario cocinero
+                                                                                            String currentRestaurantId = documentSnapshot.getString("restaurantAssigned");
+
+                                                                                            // Verificar que se haya obtenido el ID del restaurante
+                                                                                            if (currentRestaurantId != null && !currentRestaurantId.isEmpty()) {
+                                                                                                Intent intent = new Intent(LogIn.this, Cocinero.class);
+                                                                                                intent.putExtra("restaurantId", currentRestaurantId);
+                                                                                                startActivity(intent);
+                                                                                                finish();
+                                                                                            } else {
+                                                                                                Toast.makeText(LogIn.this, "El restaurante no existe", Toast.LENGTH_SHORT).show();
+                                                                                                Log.e("Cocinero", "ID del restaurante no encontrado para el usuario");
+                                                                                            }
+                                                                                        } else {
+                                                                                            Toast.makeText(LogIn.this, "El cocinero no esta asignado a ningun restaurante", Toast.LENGTH_SHORT).show();
+                                                                                            Log.e("Cocinero", "El documento del usuario no existe");
+                                                                                        }
+                                                                                    }
+                                                                                })
+                                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                                    @Override
+                                                                                    public void onFailure(@NonNull Exception e) {
+                                                                                        Toast.makeText(LogIn.this, "Error al obtener el ID del restaurante: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                                        Log.e("Cocinero", "Error al obtener el ID del restaurante: " + e.getMessage());
+                                                                                    }
+                                                                                });
                                                                         break;
                                                                     case "Mesero":
-                                                                        startActivity(new Intent(LogIn.this, Mesero.class));
-                                                                        finish();
+                                                                        // Consultar el documento del usuario para obtener el ID del restaurante asignado
+                                                                        db.collection("user").document(userId).get()
+                                                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                                    @Override
+                                                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                                        if (documentSnapshot.exists()) {
+                                                                                            // Obtener el ID del restaurante asignado al usuario cocinero
+                                                                                            String currentRestaurantId = documentSnapshot.getString("restaurantAssigned");
+
+                                                                                            // Verificar que se haya obtenido el ID del restaurante
+                                                                                            if (currentRestaurantId != null && !currentRestaurantId.isEmpty()) {
+                                                                                                Intent intent = new Intent(LogIn.this, Mesero.class);
+                                                                                                intent.putExtra("restaurantId", currentRestaurantId);
+                                                                                                startActivity(intent);
+                                                                                                finish();
+                                                                                            } else {
+                                                                                                Toast.makeText(LogIn.this, "El restaurante no existe", Toast.LENGTH_SHORT).show();
+                                                                                                Log.e("Mesero", "ID del restaurante no encontrado para el usuario");
+                                                                                            }
+                                                                                        } else {
+                                                                                            Toast.makeText(LogIn.this, "El mesero no esta asignado a ningun restaurante", Toast.LENGTH_SHORT).show();
+                                                                                            Log.e("Mesero", "El documento del usuario no existe");
+                                                                                        }
+                                                                                    }
+                                                                                })
+                                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                                    @Override
+                                                                                    public void onFailure(@NonNull Exception e) {
+                                                                                        Toast.makeText(LogIn.this, "Error al obtener el ID del restaurante: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                                        Log.e("Mesero", "Error al obtener el ID del restaurante: " + e.getMessage());
+                                                                                    }
+                                                                                });
                                                                         break;
                                                                     case "Cliente":
                                                                         startActivity(new Intent(LogIn.this, Cliente.class));

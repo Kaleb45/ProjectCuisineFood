@@ -73,7 +73,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, typePaymentMethods, userType, price, paymentMethodId, nameCustomer, clipEmail, clipPassword, clipPlus;
+    String restaurantId, typePaymentMethods, userType, price, paymentMethodId, nameCustomer, clipEmail, clipPassword, clipPlus, noAccountClip;
 
     public static final int REQUEST_CODE_PAYMENT_RESULT = 1234;
     private static final int REQUEST_CODE_REMOTE_PAYMENT_RESULT = 9876;
@@ -347,10 +347,14 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         if(userType.equals("Administrador")){
             assignedPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
         } else {
-            if(paymentMethodId != null){
-                assignedPaymentMethodsCustomer(name, formattedNumberCard, date, cvv);
+            if (!noAccountClip.equals("No")) {
+                if (paymentMethodId != null) {
+                    assignedPaymentMethodsCustomer(name, formattedNumberCard, date, cvv);
+                } else {
+                    createPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+                }
             } else {
-                createPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
+                Toast.makeText(this, "No hay métodos de pago asignados", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -661,14 +665,14 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                         Key key = null;
                         if(keyString!= null){
                             key = AESUtil.stringToKey(keyString);
-                        }
-
-
-                        try {
-                            email = AESUtil.decrypt(email, key);
-                            password = AESUtil.decrypt(password, key);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
+                            try {
+                                email = AESUtil.decrypt(email, key);
+                                password = AESUtil.decrypt(password, key);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            noAccountClip = "No";
                         }
 
                         clipPlus = documentSnapshot.getString("clipPlus");
