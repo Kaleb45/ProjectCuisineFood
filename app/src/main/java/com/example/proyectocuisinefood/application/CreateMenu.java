@@ -227,7 +227,7 @@ public class CreateMenu extends AppCompatActivity {
 
                 ingredientIds = (ArrayList<String>) documentSnapshot.get("ingredientIds");
 
-                if(photoDish != null || !photoDish.isEmpty()){
+                if(photoDish != null){
                     Picasso.get().load(photoDish).resize(300,300).centerCrop().into(dishImage);
                     dishImage.setBackground(new ColorDrawable(Color.TRANSPARENT));
                 }
