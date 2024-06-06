@@ -102,7 +102,7 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
     }
 
     private void onClickContinueShopping() {
-        if(!totalPrice.getText().equals("0.00$") && !isFirstRestaurantId.equals("No")){
+        if(!totalPrice.getText().equals("0.00$") && isFirstRestaurantId.equals("Si")){
             Intent intent = new Intent(getContext(), PaymentMethods.class);
             intent.putExtra("totalPrice",price);
             intent.putExtra("restaurantId",restaurantId);
@@ -137,6 +137,8 @@ public class OrderShoppingCartFragment extends Fragment implements UserOrderAdap
                                 }
                             }
                         }
+
+                        isFirstRestaurantId = "Si";
                         // Si todas las órdenes son del mismo restaurante, asigna el ID al atributo restaurantId
                         restaurantId = firstRestaurantId;
                     }
