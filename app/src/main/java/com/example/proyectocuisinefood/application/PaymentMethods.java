@@ -73,7 +73,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseFirestore db;
-    String restaurantId, typePaymentMethods, userType, price, paymentMethodId, nameCustomer, clipEmail, clipPassword, clipPlus, noAccountClip;
+    String restaurantId, typePaymentMethods, userType, price, paymentMethodId, nameCustomer, clipEmail, clipPassword, clipPlus, accountClip;
 
     public static final int REQUEST_CODE_PAYMENT_RESULT = 1234;
     private static final int REQUEST_CODE_REMOTE_PAYMENT_RESULT = 9876;
@@ -347,7 +347,7 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
         if(userType.equals("Administrador")){
             assignedPaymentMethodsRestaurant(name, formattedNumberCard, date, cvv);
         } else {
-            if (!noAccountClip.equals("No")) {
+            if (accountClip.equals("Si")) {
                 if (paymentMethodId != null) {
                     assignedPaymentMethodsCustomer(name, formattedNumberCard, date, cvv);
                 } else {
@@ -671,8 +671,9 @@ public class PaymentMethods extends AppCompatActivity implements LoginListener, 
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
+                            accountClip = "Si";
                         } else {
-                            noAccountClip = "No";
+                            accountClip = "No";
                         }
 
                         clipPlus = documentSnapshot.getString("clipPlus");
