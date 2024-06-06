@@ -202,7 +202,7 @@ public class PlaceOrders extends AppCompatActivity {
                             String existingStatus = orderSnapshot.getString("status");
 
                             // Verificar si el número de mesa es diferente
-                            if (existingTable != null && !existingTable.isEmpty() && !existingTable.equals(String.valueOf(numberTable))) {
+                            if (existingTable != null && !existingTable.isEmpty() && !existingTable.equals(String.valueOf(numberTable)) && !existingStatus.equals("Entregado")) {
                                 Toast.makeText(PlaceOrders.this, "No puedes cambiar la mesa.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
